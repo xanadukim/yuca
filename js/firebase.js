@@ -1,18 +1,30 @@
+// 🔥 YUCA Firebase - No Auth Mode (익명로그인 우회)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, setDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { firebaseConfig, USE_FIREBASE } from "./firebase-config.js";
-let db=null; let isReady=false;
-try{
- if(USE_FIREBASE && firebaseConfig.apiKey && !firebaseConfig.apiKey.includes("YOUR_")){
-  const app=initializeApp(firebaseConfig);
-  db=getFirestore(app);
-  const auth=getAuth(app);
-  signInAnonymously(auth).catch(()=>{});
-  isReady=true;
-  console.log("🔥 Firebase OK", firebaseConfig.projectId);
- }
-}catch(e){ console.warn(e); }
-export {db, isReady};
-export {collection, getDocs, doc, setDoc, query, orderBy};
-export function isFirebaseEnabled(){return isReady;}
+import { getFirestore, doc, setDoc, getDocs, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBv1fV2rK1v... (기존 firebase-config.js에서 복사)",
+  authDomain: "yuca-2026-c22e8.firebaseapp.com",
+  projectId: "yuca-2026-c22e8",
+  storageBucket: "yuca-2026-c22e8.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "1:123456:web:abcdef"
+};
+
+// 기존 config 있으면 그거 쓰기
+let cfg = window.firebaseConfig || firebaseConfig;
+try {
+  const imported = await import("./firebase-config.js");
+  if(imported.firebaseConfig) cfg = imported.firebaseConfig;
+} catch(e){}
+
+const app = initializeApp(cfg);
+const db = getFirestore(app);
+
+window.yucaDB = db;
+window.yucaCloudReady = true;
+
+console.log("🔥 Firebase OK", cfg.projectId);
+console.log("🔥 Firestore 연결됨! (No-Auth 모드)");
+
+export { db, collection, doc, setDoc, getDocs, onSnapshot };
