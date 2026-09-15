@@ -40,7 +40,3 @@ localStorage 9개 키 (storage.js 참고)
 ## 다음 확장
 - js/modules/ 에 kindergarten.js, hotel.js 등 추가하면 됨
 - css/theme.css 에서 --orange 변수 바꾸면 전체 테마 변경
-
-## v6.3 Full 분리 완료
-- 11개 모듈 전체 분리
-- js/modules/ : dashboard, customers, reservations, kindergarten, hotel, employees, products, reports, sms, mobile, settings
