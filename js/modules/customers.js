@@ -53,7 +53,7 @@ export function renderCustomers(container){
                     <div style="width:42px;height:42px;border-radius:50%;background:#FFF3E0;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0">
                       ${c.dogPhoto? `<img src="${c.dogPhoto}" style="width:100%;height:100%;object-fit:cover">` : '🐾'}
                     </div>
-                    <div><div style="font-weight:600">${c.name}</div><div style="font-size:13px;color:#666">${c.dogName} ${c.weight? `(${c.weight}kg)`:''}</div></div>
+                    <div><div style="font-weight:600">${c.name}</div><div style="font-size:13px;color:#666">${c.dogName || c.dog_name || '강아지'} ${c.weight? `(${c.weight}kg)`:''}</div></div>
                   </div>
                 </td>
                 <td style="padding:12px">${c.breed||'-'}</td>
