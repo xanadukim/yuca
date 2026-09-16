@@ -1,9 +1,9 @@
-// app.js - main router
-import {load,save,KEYS} from './storage.js';
-import {seedCustomers,seedProducts} from './data.js';
-import {renderCustomers,addCustomer} from './modules/customers.js';
-import {renderReservations} from './modules/reservations.js';
-import {renderMobile} from './modules/mobile.js';
+// app.js - main router - v6.5 FINAL
+import { load, save, KEYS } from './storage.js';
+import { seedCustomers, seedProducts } from './data.js';
+import { renderCustomers, addCustomer, openCustomerForm } from './modules/customers.js';
+import { renderReservations } from './modules/reservations.js';
+import { renderMobile } from './modules/mobile.js';
 
 // init seed if empty
 if(load(KEYS.customers).length===0) save(KEYS.customers, seedCustomers);
@@ -27,24 +27,29 @@ const pages = {
 function navigate(page){
   document.querySelectorAll('.sidebar nav button').forEach(b=> b.classList.toggle('active', b.dataset.page===page));
   const main=document.getElementById('content');
-  main.innerHTML = pages[page]? pages[page]() : '<div>준비중</div>';
+  main.innerHTML = pages[page]? pages[page]() : `<div>준비중</div>`;
   localStorage.setItem('yuca_last_page', page);
 }
 
+// 전체입력폼으로 변경! prompt → 전체폼 모달!
 window.openCustomerModal = ()=>{
-  const name=prompt('보호자 이름?'); if(!name) return;
-  const dog=prompt('강아지 이름?'); if(!dog) return;
-  const breed=prompt('견종?')||'믹스';
-  const phone=prompt('전화?')||'010-0000-0000';
-  addCustomer({name,dog_name:dog,breed,phone});
-  navigate('customers');
+  const main=document.getElementById('content');
+  // 고객페이지가 아니면 이동
+  if(localStorage.getItem('yuca_last_page')!=='customers'){
+    navigate('customers');
+    setTimeout(()=>{ window.openCustomerFormFull && window.openCustomerFormFull(); }, 150);
+  } else {
+    window.openCustomerFormFull && window.openCustomerFormFull();
+  }
 };
+
 window.openResModal = ()=>{
   const name=prompt('고객명?'); if(!name) return;
   const date=prompt('날짜 (YYYY-MM-DD)','2026-09-16');
   const service=prompt('서비스 (미용/유치원/호텔)','미용');
   const list=load(KEYS.reservations); list.push({date,name,service,status:'확정'}); save(KEYS.reservations,list); navigate('reservations');
 };
+
 window.exportDB = ()=>{
   const data={}; for(const k in KEYS){ data[k]=load(KEYS[k]); }
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
