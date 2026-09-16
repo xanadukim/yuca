@@ -55,7 +55,14 @@ export function renderReservations(container){
               const origIdx = reservations.indexOf(r);
               const cust = customers.find(c => (c.name===r.name) || (c.phone===r.phone));
               const dogName = r.dogName || r.dog_name || cust?.dogName || cust?.dog_name || '';
-              const displayName = r.name || r.owner || r.customer || '-';
+              // 보호자 이름이 없으면 강아지 이름으로 고객 찾기!
+              let displayName = r.name || r.owner || r.customer || '';
+              if(!displayName && (r.dogName || r.dog_name)){
+                const dog = r.dogName || r.dog_name;
+                const found = customers.find(c => (c.dogName===dog) || (c.dog_name===dog));
+                if(found) displayName = found.name || found.owner || '';
+              }
+              displayName = displayName || '-';
               return `
               <tr style="border-top:1px solid #f0f0f0">
                 <td style="padding:12px"><div style="font-weight:600">${r.date||'-'}</div><div style="font-size:12px;color:#888">${r.time||'시간 미정'}</div></td>
