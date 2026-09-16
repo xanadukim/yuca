@@ -16,15 +16,13 @@ export function renderEmployees(container){
   const target = container || document.getElementById('content');
   if(!target) return;
   const empList = getEmployees();
-
+  
   let filtered = empList;
-  if(empFilter==='working') filtered = empList.filter(e=>e.status==='재직');
-  else if(empFilter==='groomer') filtered = empList.filter(e=>e.role?.includes('미용'));
-  else if(empFilter==='teacher') filtered = empList.filter(e=>e.role?.includes('유치원') || e.role?.includes('호텔'));
+  if(empFilter==='working') filtered = empList.filter(e=> (e.status||'').trim() === '재직');
+  else if(empFilter==='groomer') filtered = empList.filter(e=> (e.role||'').includes('미용'));
+  else if(empFilter==='teacher') filtered = empList.filter(e=> (e.role||'').includes('유치원') || (e.role||'').includes('호텔') || (e.role||'').includes('매니저'));
 
-  filtered = [...filtered].sort((a,b)=>(a.name||'').localeCompare(b.name||''));
-
-  const working = empList.filter(e=>e.status==='재직').length;
+  const working = empList.filter(e=> (e.status||'').trim() === '재직').length;
   const totalSalary = filtered.reduce((s,e)=>s+(parseInt(e.salary)||0),0);
 
   target.innerHTML = `
