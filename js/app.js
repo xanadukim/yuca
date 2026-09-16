@@ -32,15 +32,14 @@ function navigate(page){
   localStorage.setItem('yuca_last_page', page);
 }
 
-// 전체입력폼으로 변경! prompt → 전체폼 모달!
-window.openCustomerModal = ()=>{
-  const main=document.getElementById('content');
-  // 고객페이지가 아니면 이동
-  if(localStorage.getItem('yuca_last_page')!=='customers'){
-    navigate('customers');
-    setTimeout(()=>{ window.openCustomerFormFull && window.openCustomerFormFull(); }, 150);
+// 전체입력폼으로 변경!
+window.openResModal = ()=>{
+  const lastPage = localStorage.getItem('yuca_last_page');
+  if(lastPage!=='reservations'){
+    navigate('reservations');
+    setTimeout(()=>{ window.openResFormFull && window.openResFormFull(); }, 150);
   } else {
-    window.openCustomerFormFull && window.openCustomerFormFull();
+    window.openResFormFull && window.openResFormFull();
   }
 };
 
