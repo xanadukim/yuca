@@ -6,6 +6,7 @@ import { renderCustomers, addCustomer, openCustomerForm } from './modules/custom
 import { renderReservations } from './modules/reservations.js';
 import { renderMobile } from './modules/mobile.js';
 import { renderKindergarten } from './modules/kindergarten.js';
+import { renderHotel } from './modules/hotel.js';
 
 // init seed if empty
 if(load(KEYS.customers).length===0) save(KEYS.customers, seedCustomers);
@@ -17,7 +18,7 @@ const pages = {
   customers: ()=>{ const d=document.createElement('div'); renderCustomers(d); return d.innerHTML; },
   reservations: ()=>{ const d=document.createElement('div'); renderReservations(d); return d.innerHTML; },
   kindergarten: ()=>{ const d=document.createElement('div'); renderKindergarten(d); return d.innerHTML; },
-  hotel: ()=> `<div class="header"><h2>호텔</h2></div><div class="card">객실 S01 M01 L01 SUITE - 박수 계산</div>`,
+  hotel: ()=>{ const d=document.createElement('div'); renderHotel(d); return d.innerHTML; },
   employees: ()=> `<div class="header"><h2>직원관리</h2></div><div class="card">출퇴근/급여/인센티브</div>`,
   products: ()=> `<div class="header"><h2>제품관리</h2></div><div class="card">재고 관리 - 재고 경고</div>`,
   reports: ()=> `<div class="header"><h2>매출리포트</h2></div><div class="card">일/주/월/년 매출</div>`,
