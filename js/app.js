@@ -1,4 +1,5 @@
 // app.js - main router - v6.5 FINAL
+import { renderDashboard } from './modules/dashboard.js';
 import { load, save, KEYS } from './storage.js';
 import { seedCustomers, seedProducts } from './data.js';
 import { renderCustomers, addCustomer, openCustomerForm } from './modules/customers.js';
@@ -11,7 +12,7 @@ if(load(KEYS.products).length===0) save(KEYS.products, seedProducts);
 if(load(KEYS.reservations).length===0) save(KEYS.reservations, [{date:'2026-09-15',name:'콩이 보호자',service:'미용',status:'확정'}]);
 
 const pages = {
-  dashboard: ()=> `<div class="header"><h2>대시보드</h2></div><div class="grid grid-4"><div class="card"><div>오늘 예약</div><div class="stat-num">3</div></div><div class="card"><div>매출</div><div class="stat-num">₩320,000</div></div><div class="card"><div>유치원</div><div class="stat-num">5마리</div></div><div class="card"><div>호텔</div><div class="stat-num">2마리</div></div></div>`,
+  dashboard: ()=>{ const d=document.createElement('div'); renderDashboard(d); return d.innerHTML; },
   customers: ()=>{ const d=document.createElement('div'); renderCustomers(d); return d.innerHTML; },
   reservations: ()=>{ const d=document.createElement('div'); renderReservations(d); return d.innerHTML; },
   kindergarten: ()=> `<div class="header"><h2>유치원</h2></div><div class="card">등원/하원 관리 - 일 3만원</div>`,
