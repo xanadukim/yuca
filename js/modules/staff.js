@@ -2,11 +2,14 @@
 import { load, save, KEYS } from '../storage.js';
 
 export function renderStaff(container){
-  let staff = load(KEYS.staff) || [
-    { id: 1, name: '김원장', role: '원장', phone: '010-1234-5678', status: '근무중' },
-    { id: 2, name: '이미용', role: '미용사', phone: '010-2345-6789', status: '근무중' },
-    { id: 3, name: '박돌봄', role: '유치원 교사', phone: '010-3456-7890', status: '휴무' },
-  ];
+  let staff = load(KEYS.staff);
+  if(!staff || staff.length===0){
+    staff = [
+      { id: 1, name: '김원장', role: '원장', phone: '010-1234-5678', status: '근무중' },
+      { id: 2, name: '이미용', role: '미용사', phone: '010-2345-6789', status: '근무중' },
+      { id: 3, name: '박돌봄', role: '유치원 교사', phone: '010-3456-7890', status: '휴무' },
+    ];
+  }
 
   function refresh(){
     container.innerHTML = `
