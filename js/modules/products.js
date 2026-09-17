@@ -61,12 +61,34 @@ export function renderProducts(container){
   };
   window.openProdModal=()=>{document.getElementById('prodModal').style.display='flex';};
   window.closeProdModal=()=>{document.getElementById('prodModal').style.display='none';document.getElementById('p_id').value='';};
-  window.saveProd=()=>{
+  // js/modules/products.js - FINAL PATCH
+//... 앞부분 SAMPLE은 그대로...
+
+window.saveProd=()=>{
+  try{
     const id=document.getElementById('p_id').value||Date.now().toString();
-    const item={id,name:document.getElementById('p_name').value,category:document.getElementById('p_category').value,brand:document.getElementById('p_brand').value,price:parseInt(document.getElementById('p_price').value)||0,stock:parseInt(document.getElementById('p_stock').value)||0};
-    if(!item.name) return alert('제품명!');
-    let arr=load(KEYS.products,[]); const i=arr.findIndex(x=>x.id===id); if(i>=0) arr[i]=item; else arr.push(item); save(KEYS.products,arr); window.closeProdModal(); renderProducts(container);
-  };
+    const name=document.getElementById('p_name').value.trim();
+    if(!name){alert('제품명 입력!'); return;}
+    const item={
+      id,
+      name,
+      category:document.getElementById('p_category').value,
+      brand:document.getElementById('p_brand').value,
+      price:parseInt(document.getElementById('p_price').value)||0,
+      stock:parseInt(document.getElementById('p_stock').value)||0
+    };
+    let arr = JSON.parse(localStorage.getItem('yuca_products')||'[]');
+    const idx = arr.findIndex(x=>x.id===id);
+    if(idx>=0) arr[idx]=item; else arr.push(item);
+    localStorage.setItem('yuca_products', JSON.stringify(arr));
+    // 추가: KEYS.products도 같이 저장
+    try{ localStorage.setItem('products', JSON.stringify(arr)); }catch(e){}
+    document.getElementById('prodModal').style.display='none';
+    document.getElementById('p_id').value='';
+    renderProducts(container);
+    console.log('저장 성공:',item);
+  }catch(e){ alert('저장 오류:'+e.message); console.error(e); }
+};
   window.editProd=(id)=>{const p=load(KEYS.products,[]).find(x=>x.id===id); if(!p)return; document.getElementById('p_id').value=p.id; document.getElementById('p_name').value=p.name; document.getElementById('p_category').value=p.category; document.getElementById('p_brand').value=p.brand; document.getElementById('p_price').value=p.price; document.getElementById('p_stock').value=p.stock; window.openProdModal();};
   window.delProd=(id)=>{if(!confirm('삭제?'))return; save(KEYS.products, load(KEYS.products,[]).filter(x=>x.id!==id)); renderProducts(container);};
 
