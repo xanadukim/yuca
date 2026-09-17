@@ -1,6 +1,6 @@
 // v7.2 FINAL CLEAN - 제품 등록 버그 완전 해결
 import { load, save, KEYS } from '../storage-local.js';
-let prodFilter='all';
+let prodFilter='전체'; // ← 'all'에서 '전체'로 변경!
 
 const SAMPLE = [
   {id:'1', name:'보습 샴푸 500ml', category:'미용용품', brand:'YUCA', price:25000, stock:12},
@@ -117,7 +117,11 @@ export function renderProducts(container){
   };
 
   function getFiltered(a){
-    if(prodFilter==='전체' || prodFilter==='all') return a;
-    return a.filter(p=>p.category.includes(prodFilter));
+    console.log('현재 필터:',prodFilter,'전체:',a.length);
+    if(prodFilter==='전체' || prodFilter==='all' || !prodFilter) return a;
+    // 정확히 일치로 필터링 - 용품/미용용품 분리!
+    const filtered = a.filter(p=>p.category === prodFilter);
+    console.log('필터 결과:',filtered.length);
+    return filtered;
   }
 }
