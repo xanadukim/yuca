@@ -1,81 +1,78 @@
-// app.js - YUCA v7.9.3 FINAL - 라우터 버그 완전 해결!
-// Yeungjin University Pet Management
-
+// app.js - YUCA v8.5 Professional - 전체 라우터 + 11개 메뉴 연결
+import { load, KEYS } from './storage.js';
 import { renderDashboard } from './modules/dashboard.js';
-import { load, save, KEYS } from './storage.js';
-import { seedCustomers, seedProducts } from './data.js';
-import { renderCustomers, addCustomer, openCustomerForm } from './modules/customers.js';
+import { renderCustomers } from './modules/customers.js';
 import { renderReservations } from './modules/reservations.js';
-import { renderMobile } from './modules/mobile.js';
 import { renderKindergarten } from './modules/kindergarten.js';
 import { renderHotel } from './modules/hotel.js';
-import { renderEmployees } from './modules/employees.js';
+import { renderStaff } from './modules/staff.js';
 import { renderProducts } from './modules/products.js';
 import { renderReports } from './modules/reports.js';
 import { renderSMS } from './modules/sms.js';
+import { renderMobile } from './modules/mobile.js';
+import { renderSettings } from './modules/settings.js'; // v8.5 고급 설정!
 
-// 초기 데이터 seed - 비어있을 때만
-if(load(KEYS.customers).length===0) save(KEYS.customers, seedCustomers);
-if(load(KEYS.products).length===0) save(KEYS.products, seedProducts);
-if(load(KEYS.reservations).length===0) save(KEYS.reservations, [{date:'2026-09-15',name:'콩이 보호자',service:'미용',status:'확정'}]);
+const menu = [
+  { id: 'dashboard', label: '📊 대시보드', render: renderDashboard },
+  { id: 'customers', label: '👥 고객관리', render: renderCustomers },
+  { id: 'reservations', label: '📅 예약관리', render: renderReservations },
+  { id: 'kindergarten', label: '🏫 유치원', render: renderKindergarten },
+  { id: 'hotel', label: '🎁 호텔', render: renderHotel },
+  { id: 'staff', label: '👨‍💼 직원관리', render: renderStaff },
+  { id: 'products', label: '📦 제품관리', render: renderProducts },
+  { id: 'reports', label: '💰 매출리포트', render: renderReports },
+  { id: 'sms', label: '💬 문자', render: renderSMS },
+  { id: 'mobile', label: '📱 모바일', render: renderMobile },
+  { id: 'settings', label: '⚙️ 설정', render: renderSettings },
+];
 
-// 페이지 라우터 - v7.9.3 FIX: 직접 main에 렌더링 (innerHTML 복사 안함 -> 이벤트 유지!)
-const pages = {
-  dashboard: (main)=>{ renderDashboard(main); },
-  customers: (main)=>{ renderCustomers(main); },
-  reservations: (main)=>{ renderReservations(main); },
-  kindergarten: (main)=>{ renderKindergarten(main); },
-  hotel: (main)=>{ renderHotel(main); },
-  employees: (main)=>{ renderEmployees(main); },
-  products: (main)=>{ renderProducts(main); },
-  reports: (main)=>{ renderReports(main); },
-  sms: (main)=>{ renderSMS(main); },
-  mobile: (main)=>{ renderMobile(main); },
-  settings: (main)=>{
-    main.innerHTML = `<div class="header"><h2>설정</h2></div>
-    <div class="card"><h3>데이터 관리</h3>
-    <button class="btn btn-orange" onclick="exportDB()">전체 내보내기 (JSON)</button>
-    <button class="btn btn-gray" style="margin-left:8px" onclick="if(confirm('정말 삭제?')){localStorage.clear();location.reload()}">초기화</button>
-    <div style="margin-top:16px;font-size:12px;color:#888">v7.9.3 Professional<br>HTML/CSS/JS 분리형 + Firebase yuca-2026-c22e8<br>제품 필터 + 매출리포트 + 문자 필터/검색 완성!</div>
-    </div>`;
-  },
-};
+let current = localStorage.getItem('yuca_page') || 'dashboard';
 
-function navigate(page){
-  document.querySelectorAll('.sidebar nav button').forEach(b=> b.classList.toggle('active', b.dataset.page===page));
-  const main=document.getElementById('content');
-  main.innerHTML = '';
-  if(pages[page]){
-    pages[page](main);
-  } else {
-    main.innerHTML = `<div style="padding:40px;text-align:center;color:#888">준비중: ${page}</div>`;
-  }
-  localStorage.setItem('yuca_last_page', page);
+function renderSidebar(){
+  const nav = document.getElementById('sidebar-nav');
+  if(!nav) return;
+  nav.innerHTML = menu.map(m => `
+    <button data-page="${m.id}" class="${current===m.id?'active':''}" 
+      style="width:100%;text-align:left;padding:12px 16px;border:none;background:${current===m.id?'#2d3748':'transparent'};color:#fff;border-radius:10px;cursor:pointer;margin-bottom:4px;font-size:14px">
+      ${m.label}
+    </button>
+  `).join('') + `<div style="margin-top:20px;padding:10px;background:#1a202c;border-radius:10px;font-size:11px;color:#a0aec0">v8.5 Professional<br>Firebase yuca-2026-c22e8<br>고급 설정 완성!</div>`;
+
+  nav.querySelectorAll('button').forEach(btn=>{
+    btn.onclick = ()=>{
+      current = btn.dataset.page;
+      localStorage.setItem('yuca_page', current);
+      renderApp();
+    };
+  });
 }
 
-// 예약 모달 - 전체입력폼으로 변경!
-window.openResModal = ()=>{
-  const lastPage = localStorage.getItem('yuca_last_page');
-  if(lastPage!=='reservations'){
-    navigate('reservations');
-    setTimeout(()=>{ window.openResFormFull && window.openResFormFull(); }, 150);
-  } else {
-    window.openResFormFull && window.openResFormFull();
+function renderApp(){
+  renderSidebar();
+  const container = document.getElementById('main-content');
+  if(!container) return;
+  const found = menu.find(m=>m.id===current);
+  if(found){
+    try{ found.render(container); }
+    catch(e){ container.innerHTML = `<div style="padding:20px"><h3>⚠️ ${found.label} 오류</h3><pre style="background:#111;color:#f87171;padding:12px;border-radius:10px;overflow:auto">${e.message}\n${e.stack}</pre></div>`; console.error(e); }
   }
-};
+}
 
-// DB 전체 내보내기
-window.exportDB = ()=>{
-  const data={}; for(const k in KEYS){ data[k]=load(KEYS[k]); }
-  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`yuca_backup_${new Date().toISOString().slice(0,10)}.json`; a.click();
-};
+// 모바일 뷰 체크 (?view=mobile)
+function checkMobileView(){
+  const params = new URLSearchParams(location.search);
+  const view = params.get('view');
+  if(view==='mobile' || view==='booking'){
+    document.body.innerHTML = `<div style="padding:20px;text-align:center"><h2>🐶 YUCA 모바일</h2><p>${view==='mobile'?'내 예약 조회 페이지':'예약 신청 페이지'} - 메인 앱에서 QR로 접속하세요!</p><a href="${location.pathname}">메인으로</a></div>`;
+    return true;
+  }
+  return false;
+}
 
-// 시작
-document.addEventListener('DOMContentLoaded',()=>{
-  document.querySelectorAll('.sidebar nav button').forEach(btn=>{
-    btn.addEventListener('click',()=> navigate(btn.dataset.page));
-  });
-  navigate(localStorage.getItem('yuca_last_page')||'dashboard');
-  console.log('🔥 YUCA v7.9.3 로드 완료!');
+document.addEventListener('DOMContentLoaded', ()=>{
+  if(checkMobileView()) return;
+  renderApp();
 });
+
+// 전역에서 새로고침용
+window.YUCA_render = renderApp;
