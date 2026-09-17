@@ -1,4 +1,4 @@
-// v7.5 FINAL - 클릭 버그 완전 해결 (onclick + 숫자)
+// v7.6 FINAL - 리렌더 버그 완전 해결! DOM 필터링
 import { load, save, KEYS } from '../storage-local.js';
 
 const SAMPLE = [
@@ -13,13 +13,12 @@ const SAMPLE = [
   {id:'9', name:'프리미엄 사료 5kg', category:'사료', brand:'로얄캐닌', price:45000, stock:10},
 ];
 
-let prodFilter = localStorage.getItem('yuca_prodFilter') || '전체';
-
 export function renderProducts(container){
   let list = JSON.parse(localStorage.getItem('yuca_products')||'null') || load(KEYS.products, []) || [];
   if(list.length < 9) list = SAMPLE;
   list = list.map(p=>({...p, price: parseInt(p.price)||0, stock: parseInt(p.stock)||0}));
   localStorage.setItem('yuca_products', JSON.stringify(list));
+  save(KEYS.products, list);
 
   const counts = {
     '전체': list.length,
@@ -28,31 +27,28 @@ export function renderProducts(container){
     '용품': list.filter(p=>p.category==='용품').length,
     '미용용품': list.filter(p=>p.category==='미용용품').length,
   };
-  const filtered = prodFilter==='전체'? list : list.filter(p=>p.category===prodFilter);
-  const totalStock = filtered.reduce((s,p)=>s+p.stock,0);
-  const totalValue = list.reduce((s,p)=>s+p.price*p.stock,0);
 
   container.innerHTML=`
-  <div style="padding:16px">
+  <div style="padding:16px" id="prodRoot">
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px">
       <h2 style="margin:0">📦 제품관리
-        <span style="background:#ffedd5;color:#f97316;padding:4px 10px;border-radius:20px;font-size:14px">${filtered.length}개</span>
-        <small style="color:#666">표시 ${totalStock}개 · 전체가치 ₩${totalValue.toLocaleString()}</small>
+        <span id="countBadge" style="background:#ffedd5;color:#f97316;padding:4px 10px;border-radius:20px;font-size:14px">${list.length}개</span>
+        <small id="stockInfo" style="color:#666">표시 90개 · 전체가치 ₩${list.reduce((s,p)=>s+p.price*p.stock,0).toLocaleString()}</small>
       </h2>
       <div style="display:flex;gap:6px;flex-wrap:wrap">
-        ${Object.entries(counts).map(([c,n])=>`<button onclick="window.setProdFilter('${c}')" style="padding:8px 14px;border-radius:20px;border:1px solid #ddd;background:${prodFilter===c?'#f97316':'#fff'};color:${prodFilter===c?'#fff':'#333'};cursor:pointer;font-weight:bold">${c}${c!=='전체'?` (${n})`:''}</button>`).join('')}
-        <button onclick="window.openProdModal()" style="padding:8px 16px;border-radius:20px;background:#f97316;color:#fff;border:none;cursor:pointer;font-weight:bold">+ 제품 등록</button>
+        ${Object.entries(counts).map(([c,n])=>`<button data-f="${c}" class="fBtn" style="padding:8px 14px;border-radius:20px;border:1px solid #ddd;background:#fff;color:#333;cursor:pointer;font-weight:bold">${c}${c!=='전체'?` (${n})`:''}</button>`).join('')}
+        <button id="btnAdd" style="padding:8px 16px;border-radius:20px;background:#f97316;color:#fff;border:none;cursor:pointer;font-weight:bold">+ 제품 등록</button>
       </div>
     </div>
     <div style="background:#fff;border-radius:12px;overflow:hidden;border:1px solid #eee">
       <table style="width:100%;border-collapse:collapse">
         <thead style="background:#fff7ed"><tr><th style="text-align:left;padding:12px">제품</th><th>카테고리</th><th>가격/재고</th><th>상태</th><th>관리</th></tr></thead>
-        <tbody>
-          ${filtered.map(p=>`<tr style="border-top:1px solid #f3f4f6"><td style="padding:12px"><b>${p.name}</b><br><small style="color:#888">${p.brand}</small></td><td style="text-align:center"><span style="background:#ffedd5;padding:4px 8px;border-radius:12px;font-size:12px">${p.category}</span></td><td style="text-align:center">₩${p.price.toLocaleString()}<br><small>재고 ${p.stock}개</small></td><td style="text-align:center"><span style="background:${p.stock>5?'#dcfce7':'#fee2e2'};color:${p.stock>5?'#16a34a':'#dc2626'};padding:4px 10px;border-radius:12px;font-size:12px">${p.stock>5?'정상':'부족'}</span></td><td style="text-align:center"><button onclick="window.editProd('${p.id}')" style="border:none;background:#fff7ed;padding:6px 10px;border-radius:8px;cursor:pointer">✏️</button> <button onclick="window.delProd('${p.id}')" style="border:none;background:#fff1f1;padding:6px 10px;border-radius:8px;cursor:pointer">🗑️</button></td></tr>`).join('') || `<tr><td colspan=5 style="text-align:center;padding:60px;color:#888">📭 ${prodFilter} 제품 없음</td></tr>`}
+        <tbody id="prodBody">
+          ${list.map(p=>`<tr data-cat="${p.category}" style="border-top:1px solid #f3f4f6"><td style="padding:12px"><b>${p.name}</b><br><small style="color:#888">${p.brand}</small></td><td style="text-align:center"><span style="background:#ffedd5;padding:4px 8px;border-radius:12px;font-size:12px">${p.category}</span></td><td style="text-align:center">₩${p.price.toLocaleString()}<br><small>재고 ${p.stock}개</small></td><td style="text-align:center"><span style="background:${p.stock>5?'#dcfce7':'#fee2e2'};color:${p.stock>5?'#16a34a':'#dc2626'};padding:4px 10px;border-radius:12px;font-size:12px">${p.stock>5?'정상':'부족'}</span></td><td style="text-align:center"><button onclick="window.editProd('${p.id}')" style="border:none;background:#fff7ed;padding:6px 10px;border-radius:8px;cursor:pointer">✏️</button> <button onclick="window.delProd('${p.id}')" style="border:none;background:#fff1f1;padding:6px 10px;border-radius:8px;cursor:pointer">🗑️</button></td></tr>`).join('')}
         </tbody>
       </table>
     </div>
-    <div style="margin-top:10px;font-size:12px;color:#888">현재 필터: <b style="color:#f97316">${prodFilter}</b> → ${filtered.length}개 표시</div>
+    <div id="filterInfo" style="margin-top:10px;font-size:12px;color:#888">현재 필터: <b style="color:#f97316" id="curFilter">전체</b> → <span id="curCount">${list.length}</span>개 표시</div>
   </div>
   <div id="prodModal" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:99999">
     <div style="background:#fff;padding:24px;border-radius:16px;width:90%;max-width:420px;display:grid;gap:12px">
@@ -67,14 +63,40 @@ export function renderProducts(container){
     </div>
   </div>`;
 
-  window.setProdFilter=(c)=>{
-    prodFilter=c;
-    localStorage.setItem('yuca_prodFilter', c);
-    console.log('필터 클릭:',c);
-    renderProducts(container);
-  };
-  window.openProdModal=()=>{ document.getElementById('prodModal').style.display='flex'; };
-  window.closeProdModal=()=>{ document.getElementById('prodModal').style.display='none'; document.getElementById('p_id').value=''; };
+  // 즉시 필터링 - 리렌더 없이 tr 숨기기!
+  function applyFilter(cat){
+    const rows = container.querySelectorAll('#prodBody tr');
+    let visible = 0;
+    rows.forEach(r=>{
+      const show = (cat==='전체' || r.dataset.cat===cat);
+      r.style.display = show? '' : 'none';
+      if(show) visible++;
+    });
+    container.querySelector('#countBadge').textContent = visible + '개';
+    container.querySelector('#curFilter').textContent = cat;
+    container.querySelector('#curCount').textContent = visible;
+    const totalStock = Array.from(rows).filter(r=>r.style.display!=='none').reduce((s,r)=>{
+      const m = r.innerHTML.match(/재고 (\d+)개/);
+      return s + (m?parseInt(m[1]):0);
+    },0);
+    container.querySelector('#stockInfo').textContent = `표시 ${totalStock}개 · 전체가치 ₩${list.reduce((s,p)=>s+p.price*p.stock,0).toLocaleString()}`;
+
+    // 버튼 색상
+    container.querySelectorAll('.fBtn').forEach(b=>{
+      const isActive = b.dataset.f===cat;
+      b.style.background = isActive? '#f97316' : '#fff';
+      b.style.color = isActive? '#fff' : '#333';
+    });
+    localStorage.setItem('yuca_prodFilter', cat);
+  }
+
+  // 이벤트 바인딩
+  container.querySelectorAll('.fBtn').forEach(b=>{
+    b.addEventListener('click', ()=> applyFilter(b.dataset.f));
+  });
+  container.querySelector('#btnAdd')?.addEventListener('click', ()=> container.querySelector('#prodModal').style.display='flex');
+
+  window.closeProdModal=()=>{ container.querySelector('#prodModal').style.display='none'; document.getElementById('p_id').value=''; };
   window.saveProd=()=>{
     const name = document.getElementById('p_name').value.trim();
     if(!name){ alert('제품명!'); return; }
@@ -86,9 +108,8 @@ export function renderProducts(container){
     localStorage.setItem('yuca_products', JSON.stringify(arr));
     save(KEYS.products, arr);
     window.closeProdModal();
-    prodFilter = item.category;
-    localStorage.setItem('yuca_prodFilter', prodFilter);
     renderProducts(container);
+    setTimeout(()=>applyFilter(item.category), 100);
   };
   window.editProd=(id)=>{
     const p = list.find(x=>x.id===id);
@@ -99,7 +120,7 @@ export function renderProducts(container){
     document.getElementById('p_brand').value=p.brand;
     document.getElementById('p_price').value=p.price;
     document.getElementById('p_stock').value=p.stock;
-    window.openProdModal();
+    container.querySelector('#prodModal').style.display='flex';
   };
   window.delProd=(id)=>{
     if(!confirm('삭제?')) return;
@@ -108,4 +129,10 @@ export function renderProducts(container){
     save(KEYS.products, arr);
     renderProducts(container);
   };
+  window.setProdFilter=(c)=>applyFilter(c);
+  window.openProdModal=()=> container.querySelector('#prodModal').style.display='flex';
+
+  // 초기 필터 적용
+  const saved = localStorage.getItem('yuca_prodFilter') || '전체';
+  applyFilter(saved);
 }
