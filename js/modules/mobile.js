@@ -1,97 +1,102 @@
-// mobile.js - YUCA v8.3 네이버 예약 연동 - 임시 버전
+// mobile.js - YUCA v8.4 네이버 연동 + 설정 기능 완전 보완 - FINAL
 import { load, KEYS } from '../storage.js';
 
 export function renderMobile(container){
+  const SETTINGS_KEY = 'yuca_settings';
+  const defaultSettings = {
+    shopName: 'YUCA 애견',
+    shopPhone: '010-1234-5678',
+    shopAddr: '대구 영진전문대 근처',
+    naverBookingUrl: 'https://booking.naver.com/booking/13/bizes/1234567',
+    naverPlaceUrl: 'https://m.place.naver.com/place/1234567',
+    useNaver: true,
+    msgBooking: '네이버 예약으로 간편하게 예약하세요!',
+    msgWelcome: '반려견을 가족처럼 모십니다'
+  };
+  const settings = {...defaultSettings, ...JSON.parse(localStorage.getItem(SETTINGS_KEY)||'{}')};
+  
   const baseUrl = location.origin + location.pathname.replace(/\/[^\/]*$/, '/');
+  const YUCA_MOBILE_URL = baseUrl + '?view=mobile';
+  const YUCA_BOOKING_URL = baseUrl + '?view=booking';
   
-  // 임시 네이버 예약 링크 - 실제 등록 후 교체!
-  const NAVER_BOOKING_URL = "https://booking.naver.com/booking/13/bizes/1234567"; 
-  const NAVER_PLACE_URL = "https://m.place.naver.com/place/1234567";
-  const YUCA_MOBILE_URL = baseUrl + "?view=mobile";
+  const naverBookingUrl = settings.naverBookingUrl;
+  const naverPlaceUrl = settings.naverPlaceUrl;
   
-  const qrNaverBooking = `https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(NAVER_BOOKING_URL)}`;
-  const qrNaverPlace = `https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(NAVER_PLACE_URL)}`;
+  const qrNaverBooking = `https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(naverBookingUrl)}`;
+  const qrNaverPlace = `https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(naverPlaceUrl)}`;
   const qrMyPage = `https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(YUCA_MOBILE_URL)}`;
+  const qrBookingInternal = `https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(YUCA_BOOKING_URL)}`;
 
   container.innerHTML = `
-  <div style="padding:20px">
-    <h2>📱 모바일 연동 <small style="color:#2db400">v8.3 네이버 예약 연동 (임시)</small></h2>
-    <div style="margin-top:8px;padding:12px;background:#e8f5e9;border-radius:10px;font-size:13px">✅ 로그인/결제/알림은 네이버가 다 해줌! 우리는 링크만!</div>
-    
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:16px">
-      
-      <div style="background:#fff;padding:20px;border-radius:16px;text-align:center;border:2px solid #2db400;box-shadow:0 4px 12px rgba(45,180,0,0.15)">
-        <div style="background:#2db400;color:#fff;display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:bold">추천! 메인 예약</div>
-        <h4 style="margin:10px 0">🟢 네이버 예약하기</h4>
-        <img src="${qrNaverBooking}" style="width:220px;height:220px;border-radius:12px;border:1px solid #eee">
-        <div style="margin-top:12px">
-          <input value="${NAVER_BOOKING_URL}" readonly style="width:100%;padding:10px;border:1px solid #ddd;border-radius:20px;font-size:11px;text-align:center">
-          <div style="display:flex;gap:6px;margin-top:8px">
-            <button onclick="navigator.clipboard.writeText('${NAVER_BOOKING_URL}').then(()=>alert('복사 완료!'))" style="flex:1;padding:10px;border-radius:20px;border:1px solid #ddd;background:#fff;cursor:pointer">🔗 복사</button>
-            <button onclick="window.open('${NAVER_BOOKING_URL}','_blank')" style="flex:1;padding:10px;border-radius:20px;background:#2db400;color:#fff;border:none;cursor:pointer;font-weight:bold">예약하기</button>
-          </div>
-        </div>
-        <div style="margin-top:10px;font-size:11px;color:#666;line-height:1.4">고객: 네이버 로그인 → 날짜 선택 → 결제<br><b>우리는 관리만!</b></div>
-      </div>
-
-      <div style="background:#fff;padding:20px;border-radius:16px;text-align:center;border:1px solid #eee">
-        <h4 style="margin:0 0 10px">📍 네이버 플레이스</h4>
-        <img src="${qrNaverPlace}" style="width:220px;height:220px;border-radius:12px;border:1px solid #eee">
-        <div style="margin-top:12px">
-          <input value="${NAVER_PLACE_URL}" readonly style="width:100%;padding:10px;border:1px solid #ddd;border-radius:20px;font-size:11px;text-align:center">
-          <div style="display:flex;gap:6px;margin-top:8px">
-            <button onclick="navigator.clipboard.writeText('${NAVER_PLACE_URL}')" style="flex:1;padding:10px;border-radius:20px;border:1px solid #ddd;background:#fff;cursor:pointer">🔗 복사</button>
-            <button onclick="window.open('${NAVER_PLACE_URL}','_blank')" style="flex:1;padding:10px;border-radius:20px;background:#111;color:#fff;border:none;cursor:pointer">지도 보기</button>
-          </div>
-        </div>
-        <div style="margin-top:10px;font-size:11px;color:#888">리뷰 / 사진 / 영업시간 노출</div>
-      </div>
-
-      <div style="background:#fff;padding:20px;border-radius:16px;text-align:center;border:1px solid #fed7aa">
-        <h4 style="margin:0 0 10px">📱 내 예약 조회 (YUCA)</h4>
-        <img src="${qrMyPage}" style="width:220px;height:220px;border-radius:12px;border:1px solid #eee">
-        <div style="margin-top:12px">
-          <input value="${YUCA_MOBILE_URL}" readonly style="width:100%;padding:10px;border:1px solid #ddd;border-radius:20px;font-size:11px;text-align:center">
-          <div style="display:flex;gap:6px;margin-top:8px">
-            <button onclick="navigator.clipboard.writeText('${YUCA_MOBILE_URL}')" style="flex:1;padding:10px;border-radius:20px;border:1px solid #ddd;background:#fff;cursor:pointer">🔗 복사</button>
-            <button onclick="window.open('${YUCA_MOBILE_URL}','_blank')" style="flex:1;padding:10px;border-radius:20px;background:#f97316;color:#fff;border:none;cursor:pointer">조회</button>
-          </div>
-        </div>
-        <div style="margin-top:10px;font-size:11px;color:#888">로그인: 전화번호로 내 예약만 보기</div>
-      </div>
-
+  <div style="padding:20px;max-width:1400px">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h2>📱 모바일 연동 <small style="color:#2db400">v8.4 설정 기능 완전 보완</small></h2>
+      <span style="padding:6px 12px;border-radius:20px;background:${settings.useNaver?'#e8f5e9':'#fff7ed'};border:1px solid ${settings.useNaver?'#2db400':'#fed7aa'};font-size:12px;font-weight:bold;color:${settings.useNaver?'#2db400':'#f97316'}">${settings.useNaver?'🟢 네이버 연동 ON':'🟠 자체 예약 ON'}</span>
     </div>
-
-    <div style="margin-top:20px;display:grid;grid-template-columns:360px 1fr;gap:16px">
-      <div style="background:#111;padding:12px;border-radius:20px">
-        <div style="background:#fff;border-radius:12px;overflow:hidden">
-          <div style="background:#2db400;color:#fff;padding:12px;text-align:center;font-weight:bold">네이버 예약 플로우</div>
-          <div style="padding:16px;font-size:13px;line-height:1.8">
-            1️⃣ 고객이 QR 스캔<br>
-            2️⃣ 네이버 로그인 (자동)<br>
-            3️⃣ 서비스 선택: 미용/유치원/호텔<br>
-            4️⃣ 날짜/시간 선택<br>
-            5️⃣ 네이버페이 결제 (선택)<br>
-            6️⃣ 확정 알림톡 발송 (네이버가 무료로!)<br>
-            <div style="margin-top:12px;padding:10px;background:#e8f5e9;border-radius:8px;text-align:center">
-              <b>→ YUCA 대시보드에 자동 등록!</b><br><small>(v9.0 API 연동 시)</small>
+    <div style="display:grid;grid-template-columns:1fr 380px;gap:16px;margin-top:16px">
+      <div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+          <div style="background:#fff;padding:16px;border-radius:16px;text-align:center;border:2px solid ${settings.useNaver?'#2db400':'#ddd'};position:relative">
+            ${settings.useNaver?'<div style="position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:#2db400;color:#fff;padding:2px 10px;border-radius:10px;font-size:10px;font-weight:bold">메인 사용</div>':''}
+            <h4>🟢 네이버 예약</h4>
+            <img src="${qrNaverBooking}" style="width:180px;height:180px;border-radius:12px;border:1px solid #eee">
+            <div style="font-size:11px;color:#666;margin-top:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${naverBookingUrl}</div>
+            <div style="display:flex;gap:6px;margin-top:8px">
+              <button onclick="navigator.clipboard.writeText('${naverBookingUrl}')" style="flex:1;padding:8px;border-radius:20px;border:1px solid #ddd;background:#fff">복사</button>
+              <button onclick="window.open('${naverBookingUrl}','_blank')" style="flex:1;padding:8px;border-radius:20px;background:#2db400;color:#fff;border:none;font-weight:bold">열기</button>
             </div>
           </div>
+          <div style="background:#fff;padding:16px;border-radius:16px;text-align:center;border:1px solid #eee">
+            <h4>📍 네이버 플레이스</h4>
+            <img src="${qrNaverPlace}" style="width:180px;height:180px;border-radius:12px;border:1px solid #eee">
+            <button onclick="window.open('${naverPlaceUrl}','_blank')" style="width:100%;margin-top:8px;padding:8px;border-radius:20px;background:#111;color:#fff;border:none">지도</button>
+          </div>
+          <div style="background:#fff;padding:16px;border-radius:16px;text-align:center;border:1px solid #fed7aa;opacity:${settings.useNaver?'0.6':'1'}">
+            <h4>📱 자체 예약 ${!settings.useNaver?'●':''}</h4>
+            <img src="${qrBookingInternal}" style="width:180px;height:180px;border-radius:12px;border:1px solid #eee">
+            <button onclick="window.open('${YUCA_BOOKING_URL}','_blank')" style="width:100%;margin-top:8px;padding:8px;border-radius:20px;background:#f97316;color:#fff;border:none">자체 예약</button>
+          </div>
         </div>
       </div>
-
-      <div style="background:#fff;padding:20px;border-radius:16px">
-        <h4>🔧 설정 방법 (3분 컷)</h4>
-        <div style="margin-top:12px;display:grid;gap:10px;font-size:13px">
-          <div style="padding:12px;border:1px solid #eee;border-radius:10px"><b>1. 스마트플레이스 등록</b><br><a href="https://m.place.naver.com" target="_blank" style="color:#2db400">m.place.naver.com</a> → 업체 등록 → YUCA 애견</div>
-          <div style="padding:12px;border:1px solid #eee;border-radius:10px"><b>2. 예약 파트너센터</b><br><a href="https://partner.booking.naver.com" target="_blank" style="color:#2db400">partner.booking.naver.com</a> → 예약 상품 등록</div>
-          <div style="padding:12px;border:2px solid #2db400;border-radius:10px;background:#f1f8e9"><b>3. 링크 교체 (1줄!)</b><br><code style="font-size:11px">const NAVER_BOOKING_URL = "여기에 본인 링크 붙여넣기";</code><br><small>지금은 임시 링크 (1234567) - 실제 링크로 바꾸면 끝!</small></div>
+      <div style="background:#fff;padding:18px;border-radius:16px;border:1px solid #e5e7eb;position:sticky;top:20px;height:fit-content">
+        <h4>⚙️ 설정 v8.4</h4>
+        <div style="margin-top:12px"><label style="font-size:12px;font-weight:bold">🏪 매장 정보</label>
+          <input id="cfgShopName" value="${settings.shopName}" style="width:100%;margin-top:6px;padding:10px;border:1px solid #ddd;border-radius:10px">
+          <input id="cfgShopPhone" value="${settings.shopPhone}" style="width:100%;margin-top:6px;padding:10px;border:1px solid #ddd;border-radius:10px">
+          <input id="cfgShopAddr" value="${settings.shopAddr}" style="width:100%;margin-top:6px;padding:10px;border:1px solid #ddd;border-radius:10px">
         </div>
-        <div style="margin-top:16px;padding:12px;background:#fff7ed;border-radius:10px;font-size:12px">
-          💡 <b>Kim님 발표용 멘트:</b><br>
-          "YUCA는 자체 로그인 대신 네이버 예약과 연동하여 보안/결제/알림을 위임하고, 관리자는 대시보드에서 통합 관리하는 구조입니다."
+        <div style="margin-top:12px"><label style="font-size:12px;font-weight:bold">🟢 네이버 연동</label>
+          <div style="margin-top:8px;display:flex;gap:8px;padding:10px;background:#e8f5e9;border-radius:10px"><input type="checkbox" id="cfgUseNaver" ${settings.useNaver?'checked':''}><label for="cfgUseNaver">네이버 우선</label></div>
+          <input id="cfgNaverBooking" value="${settings.naverBookingUrl}" style="width:100%;margin-top:8px;padding:10px;border:1px solid #2db400;border-radius:10px;font-size:12px">
+          <input id="cfgNaverPlace" value="${settings.naverPlaceUrl}" style="width:100%;margin-top:8px;padding:10px;border:1px solid #ddd;border-radius:10px;font-size:12px">
+        </div>
+        <div style="margin-top:12px"><label style="font-size:12px;font-weight:bold">💬 메시지</label>
+          <input id="cfgMsgWelcome" value="${settings.msgWelcome}" style="width:100%;margin-top:6px;padding:10px;border:1px solid #ddd;border-radius:10px">
+        </div>
+        <button id="btnSaveSettings" style="width:100%;margin-top:12px;padding:12px;border-radius:12px;border:none;background:#111;color:#fff;font-weight:bold;cursor:pointer">💾 저장 & QR 재생성</button>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button id="btnResetSettings" style="flex:1;padding:10px;border-radius:12px;border:1px solid #ddd;background:#fff">🔄 초기화</button>
+          <button id="btnTestNaver" style="flex:1;padding:10px;border-radius:12px;border:1px solid #2db400;background:#e8f5e9;color:#2db400;font-weight:bold">🔗 테스트</button>
         </div>
       </div>
     </div>
   </div>`;
+
+  container.querySelector('#btnSaveSettings').onclick = ()=>{
+    const newSettings = {
+      shopName: container.querySelector('#cfgShopName').value.trim(),
+      shopPhone: container.querySelector('#cfgShopPhone').value.trim(),
+      shopAddr: container.querySelector('#cfgShopAddr').value.trim(),
+      naverBookingUrl: container.querySelector('#cfgNaverBooking').value.trim(),
+      naverPlaceUrl: container.querySelector('#cfgNaverPlace').value.trim(),
+      useNaver: container.querySelector('#cfgUseNaver').checked,
+      msgBooking: defaultSettings.msgBooking,
+      msgWelcome: container.querySelector('#cfgMsgWelcome').value.trim(),
+    };
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(newSettings));
+    alert('✅ 저장 완료! QR이 재생성됩니다.');
+    renderMobile(container);
+  };
+  container.querySelector('#btnResetSettings').onclick = ()=>{ if(confirm('초기화?')){ localStorage.removeItem(SETTINGS_KEY); renderMobile(container);} };
+  container.querySelector('#btnTestNaver').onclick = ()=>{ window.open(container.querySelector('#cfgNaverBooking').value.trim(),'_blank'); };
 }
