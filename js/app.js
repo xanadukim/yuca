@@ -8,6 +8,7 @@ import { renderMobile } from './modules/mobile.js';
 import { renderKindergarten } from './modules/kindergarten.js';
 import { renderHotel } from './modules/hotel.js';
 import { renderEmployees } from './modules/employees.js';
+import { renderProducts } from './modules/products.js';
 
 // init seed if empty
 if(load(KEYS.customers).length===0) save(KEYS.customers, seedCustomers);
@@ -21,7 +22,7 @@ const pages = {
   kindergarten: ()=>{ const d=document.createElement('div'); renderKindergarten(d); return d.innerHTML; },
   hotel: ()=>{ const d=document.createElement('div'); renderHotel(d); return d.innerHTML; },
   employees: ()=>{ const d=document.createElement('div'); renderEmployees(d); return d.innerHTML; },
-  products: ()=> `<div class="header"><h2>제품관리</h2></div><div class="card">재고 관리 - 재고 경고</div>`,
+  products: ()=>{ const d=document.createElement('div'); renderProducts(d); return d.innerHTML; },
   reports: ()=> `<div class="header"><h2>매출리포트</h2></div><div class="card">일/주/월/년 매출</div>`,
   sms: ()=> `<div class="header"><h2>문자</h2></div><div class="card">템플릿 4종 + 대량발송</div>`,
   mobile: ()=>{ const d=document.createElement('div'); renderMobile(d); return d.innerHTML; },
