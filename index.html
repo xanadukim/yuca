@@ -1,27 +1,31 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<link rel="icon" href="https://cdn-icons-png.flaticon.com/512/616/616408.png"> 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>YUCA v8.6 Professional</title>
+<title>YUCA v8.6.3 Professional</title>
 <link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./assets/mascot.png">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{display:flex;height:100vh;background:#fefcf8;font-family:sans-serif}
-#sidebar{width:240px;background:#0f172a;color:#fff;padding:16px;overflow:auto}
-#sidebar h1{font-size:20px}
-#main-content{flex:1;overflow:auto;padding:0}
-button[data-page]:hover{background:#1e293b!important}
+body{display:flex;height:100vh;background:#f7f7f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+#sidebar{width:240px;background:#0f172a;color:#fff;padding:16px;overflow:auto;flex-shrink:0}
+#sidebar.logo{display:flex;align-items:center;gap:10px}
+#sidebar.logo img{width:32px;height:32px;border-radius:8px;background:#fff;padding:2px}
+#sidebar.logo b{font-size:22px;letter-spacing:0.5px}
+#sidebar small{color:#94a3b8;margin-left:42px;font-size:11px}
+#main-content{flex:1;overflow:auto;background:#fefcf8;padding:20px 24px}
+#sidebar-nav{margin-top:24px}
+#sidebar-nav button:hover{background:#1e293b!important;color:#fff!important}
 </style>
 </head>
 <body>
 <aside id="sidebar">
-  <div style="display:flex;align-items:center;gap:8px"><span style="font-size:24px">🐶</span><h1>YUCA</h1></div>
-  <small style="color:#94a3b8;margin-left:32px">Yeungjin Univ.</small>
-  <nav id="sidebar-nav" style="margin-top:24px"></nav>
+  <div class="logo"><img src="./assets/mascot.png" alt="YUCA"><b>YUCA</b></div>
+  <small>Yeungjin Univ.</small>
+  <nav id="sidebar-nav"></nav>
 </aside>
 <main id="main-content"></main>
-<script type="module" src="./js/app.js?v=8.6"></script>
+<script type="module" src="./js/app.js?v=8.6.3"></script>
 </body>
 </html>
