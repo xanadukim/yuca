@@ -88,7 +88,8 @@ export function renderMobile(container){
           <div style="padding:12px;border:2px solid #2db400;border-radius:10px;background:#f1f8e9"><b>3. 링크 교체 (1줄!)</b><br><code style="font-size:11px">const NAVER_BOOKING_URL = "여기에 본인 링크 붙여넣기";</code><br><small>지금은 임시 링크 (1234567) - 실제 링크로 바꾸면 끝!</small></div>
         </div>
         <div style="margin-top:16px;padding:12px;background:#fff7ed;border-radius:10px;font-size:12px">
-          💡 YUCA는 자체 로그인 대신 네이버 예약과 연동하여 보안/결제/알림을 위임하고, 관리자는 대시보드에서 통합 관리하는 구조입니다.
+          💡 <b>Kim님 발표용 멘트:</b><br>
+          "YUCA는 자체 로그인 대신 네이버 예약과 연동하여 보안/결제/알림을 위임하고, 관리자는 대시보드에서 통합 관리하는 구조입니다."
         </div>
       </div>
     </div>
