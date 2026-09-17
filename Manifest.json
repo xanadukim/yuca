@@ -1,0 +1,16 @@
+{
+  "background_color": "#fff7ed",
+  "description": "Yeungjin Univ Pet Management v8.0",
+  "display": "standalone",
+  "icons": [
+    {
+      "sizes": "512x512",
+      "src": "https://cdn-icons-png.flaticon.com/512/616/616408.png",
+      "type": "image/png"
+    }
+  ],
+  "name": "YUCA - Yeungjin",
+  "short_name": "YUCA",
+  "start_url": "./index.html",
+  "theme_color": "#f97316"
+}
