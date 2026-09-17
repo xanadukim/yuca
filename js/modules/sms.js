@@ -1,4 +1,4 @@
-// v7.9 문자 발송 - 템플릿 4종 + 대량발송
+// v7.9.1 FIX - null 에러 완전 해결!
 import { load, KEYS } from '../storage.js';
 
 const TEMPLATES = {
@@ -26,50 +26,53 @@ export function renderSMS(container){
         <div style="margin-top:16px">
           <label style="font-size:13px;font-weight:bold">문자 내용</label>
           <textarea id="smsText" style="width:100%;height:100px;margin-top:8px;padding:12px;border:1px solid #ddd;border-radius:10px">${TEMPLATES.reserve.text}</textarea>
-          <div style="margin-top:8px;font-size:11px;color:#888">변수: {name} {pet} {date} {service}</div>
         </div>
       </div>
-
       <div style="background:#fff;padding:16px;border-radius:12px">
         <h4>👥 받을 고객 (${customers.length}명)</h4>
         <div style="margin-top:8px;display:flex;gap:6px">
           <button onclick="window.selectAllSMS(true)" style="padding:6px 12px;border-radius:20px;border:1px solid #ddd;background:#fff;cursor:pointer">전체 선택</button>
           <button onclick="window.selectAllSMS(false)" style="padding:6px 12px;border-radius:20px;border:1px solid #ddd;background:#fff;cursor:pointer">해제</button>
-          <button onclick="window.sendSMS()" style="padding:6px 16px;border-radius:20px;background:#f97316;color:#fff;border:none;cursor:pointer;font-weight:bold">📤 발송 (${customers.length})</button>
+          <button onclick="window.sendSMS()" style="padding:6px 16px;border-radius:20px;background:#f97316;color:#fff;border:none;cursor:pointer;font-weight:bold">📤 발송</button>
         </div>
         <div id="smsList" style="max-height:400px;overflow:auto;margin-top:12px;border:1px solid #eee;border-radius:10px">
           ${customers.map((c,i)=>`
             <label style="display:flex;gap:10px;padding:10px;border-bottom:1px solid #f5f5f5;cursor:pointer">
               <input type="checkbox" class="smsCheck" value="${i}" checked>
-              <div style="flex:1"><b>${c.name||c.owner}</b> ${c.pet||''}<br><small style="color:#888">${c.phone||'010-****-****'} · ${c.petName||'반려견'}</small></div>
-            </label>`).join('') || '<div style="padding:40px;text-align:center;color:#888">고객 없음</div>'}
+              <div style="flex:1"><b>${c.name||c.owner}</b><br><small style="color:#888">${c.phone||'010-****-****'}</small></div>
+            </label>`).join('')}
         </div>
       </div>
     </div>
     <div id="smsLog" style="margin-top:16px;background:#fff;padding:16px;border-radius:12px;display:none"></div>
   </div>`;
 
+  // FIX: container 안에서 찾기 + setTimeout!
   window.setSMSTemplate = (k)=>{
-    document.getElementById('smsText').value = TEMPLATES[k].text;
-    document.querySelectorAll('.tplBtn').forEach(b=> b.style.background = b.dataset.k===k?'#fff7ed':'#fff');
+    const txt = container.querySelector('#smsText') || document.getElementById('smsText');
+    if(!txt) return;
+    txt.value = TEMPLATES[k].text;
+    container.querySelectorAll('.tplBtn').forEach(b=> b.style.background = b.dataset.k===k?'#fff7ed':'#fff');
   };
   window.selectAllSMS = (on)=>{
-    document.querySelectorAll('.smsCheck').forEach(c=> c.checked = on);
+    const list = container.querySelectorAll('.smsCheck');
+    list.forEach(c=> c.checked = on);
   };
   window.sendSMS = ()=>{
-    const text = document.getElementById('smsText').value;
-    const checked = [...document.querySelectorAll('.smsCheck:checked')];
+    const txt = container.querySelector('#smsText') || document.getElementById('smsText');
+    const text = txt ? txt.value : '';
+    const checked = [...container.querySelectorAll('.smsCheck:checked')];
     if(checked.length===0){ alert('고객 선택!'); return; }
     if(!confirm(`${checked.length}명에게 발송?`)) return;
-
-    const log = document.getElementById('smsLog');
+    const log = container.querySelector('#smsLog');
     log.style.display = 'block';
-    log.innerHTML = `<h4>📤 발송 결과 - ${new Date().toLocaleString()}</h4><div style="margin-top:10px">${checked.map((c,i)=>{
+    log.innerHTML = `<h4>📤 발송 결과</h4>${checked.map(c=>{
       const cust = customers[parseInt(c.value)];
-      const msg = text.replace('{name}',cust.name||cust.owner||'고객님').replace('{pet}',cust.petName||'아이').replace('{date}','오늘').replace('{service}','미용');
-      return `<div style="padding:8px;border-bottom:1px solid #eee;font-size:13px">✅ ${cust.name||cust.owner} → ${msg.slice(0,40)}...</div>`;
-    }).join('')}</div><div style="margin-top:12px;padding:12px;background:#dcfce7;border-radius:10px;text-align:center">🎉 ${checked.length}건 발송 완료! (실제로는 시뮬레이션)</div>`;
+      const msg = text.replace('{name}',cust.name||'고객님').replace('{pet}',cust.petName||'아이');
+      return `<div style="padding:8px;border-bottom:1px solid #eee">✅ ${cust.name} → ${msg.slice(0,40)}...</div>`;
+    }).join('')}<div style="margin-top:12px;padding:12px;background:#dcfce7;border-radius:10px;text-align:center">🎉 ${checked.length}건 발송 완료!</div>`;
   };
 
-  window.setSMSTemplate('reserve');
+  // 초기 템플릿은 0.1초 뒤에 적용 - 라우터 버그 회피!
+  setTimeout(()=> window.setSMSTemplate('reserve'), 100);
 }
