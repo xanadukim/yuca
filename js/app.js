@@ -9,6 +9,7 @@ import { renderKindergarten } from './modules/kindergarten.js';
 import { renderHotel } from './modules/hotel.js';
 import { renderEmployees } from './modules/employees.js';
 import { renderProducts } from './modules/products.js';
+import { renderReports } from './modules/reports.js';
 
 // init seed if empty
 if(load(KEYS.customers).length===0) save(KEYS.customers, seedCustomers);
@@ -23,7 +24,7 @@ const pages = {
   hotel: ()=>{ const d=document.createElement('div'); renderHotel(d); return d.innerHTML; },
   employees: ()=>{ const d=document.createElement('div'); renderEmployees(d); return d.innerHTML; },
   products: ()=>{ const d=document.createElement('div'); renderProducts(d); return d.innerHTML; },
-  reports: ()=> `<div class="header"><h2>매출리포트</h2></div><div class="card">일/주/월/년 매출</div>`,
+  reports: ()=>{ const d=document.createElement('div'); renderReports(d); return d.innerHTML; },
   sms: ()=> `<div class="header"><h2>문자</h2></div><div class="card">템플릿 4종 + 대량발송</div>`,
   mobile: ()=>{ const d=document.createElement('div'); renderMobile(d); return d.innerHTML; },
   settings: ()=> `<div class="header"><h2>설정</h2></div><div class="card"><h3>데이터 관리</h3><button class="btn btn-orange" onclick="exportDB()">전체 내보내기 (JSON)</button><button class="btn btn-gray" style="margin-left:8px" onclick="if(confirm('정말 삭제?')){localStorage.clear();location.reload()}">초기화</button></div>`,
