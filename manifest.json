@@ -1,6 +1,6 @@
 {
   "background_color": "#fff7ed",
-  "description": "Yeungjin Univ Pet Management v8.0",
+  "description": "Yeungjin Univ Pet Management v8.6 - Firebase + PWA + 네이버 예약",
   "display": "standalone",
   "icons": [
     {
@@ -11,6 +11,7 @@
   ],
   "name": "YUCA - Yeungjin",
   "short_name": "YUCA",
-  "start_url": "./index.html",
+  "start_url": "/yuca/",
+  "scope": "/yuca/",
   "theme_color": "#f97316"
 }
