@@ -64,21 +64,49 @@ export function renderProducts(container){
   </div>`;
 
   // 즉시 필터링 - 리렌더 없이 tr 숨기기!
+
+
+  
+  // 기존 applyFilter 함수를 이걸로 교체!
   function applyFilter(cat){
-    const rows = container.querySelectorAll('#prodBody tr');
-    let visible = 0;
-    rows.forEach(r=>{
-      const show = (cat==='전체' || r.dataset.cat===cat);
-      r.style.display = show? '' : 'none';
-      if(show) visible++;
-    });
-    container.querySelector('#countBadge').textContent = visible + '개';
-    container.querySelector('#curFilter').textContent = cat;
-    container.querySelector('#curCount').textContent = visible;
-    const totalStock = Array.from(rows).filter(r=>r.style.display!=='none').reduce((s,r)=>{
-      const m = r.innerHTML.match(/재고 (\d+)개/);
-      return s + (m?parseInt(m[1]):0);
-    },0);
+    console.log('🔥 필터 클릭됨:',cat);
+    localStorage.setItem('yuca_prodFilter', cat);
+    // 0.1초 뒤에 2번 실행 - 라우터 덮어쓰기 이기기!
+    const doFilter = () => {
+      const rows = document.querySelectorAll('#prodBody tr');
+      let visible = 0;
+      rows.forEach(r=>{
+        const show = (cat==='전체' || r.dataset.cat===cat);
+        r.style.display = show? '' : 'none';
+        if(show) visible++;
+      });
+      const badge = document.getElementById('countBadge');
+      const curF = document.getElementById('curFilter');
+      const curC = document.getElementById('curCount');
+      if(badge) badge.textContent = visible + '개';
+      if(curF) curF.textContent = cat;
+      if(curC) curC.textContent = visible;
+      console.log('필터 적용:',cat,visible,'개');
+    };
+    doFilter();
+    setTimeout(doFilter, 100);
+    setTimeout(doFilter, 300);
+  }
+
+  // 버튼 이벤트 - document 레벨에서 잡기!
+  document.addEventListener('click', (e)=>{
+    const btn = e.target.closest('.fBtn');
+    if(btn){
+      e.preventDefault();
+      e.stopPropagation();
+      applyFilter(btn.dataset.f);
+    }
+    if(e.target.closest('#btnAdd')){
+      e.preventDefault();
+      const modal = document.getElementById('prodModal');
+      if(modal) modal.style.display='flex';
+    }
+  });
     container.querySelector('#stockInfo').textContent = `표시 ${totalStock}개 · 전체가치 ₩${list.reduce((s,p)=>s+p.price*p.stock,0).toLocaleString()}`;
 
     // 버튼 색상
