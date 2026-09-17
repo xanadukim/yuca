@@ -1,4 +1,5 @@
 // app.js - main router - v6.5 FINAL
+import { renderSMS } from './modules/sms.js'; // 맨 위 import에 추가
 import { renderDashboard } from './modules/dashboard.js';
 import { load, save, KEYS } from './storage.js';
 import { seedCustomers, seedProducts } from './data.js';
@@ -10,7 +11,6 @@ import { renderHotel } from './modules/hotel.js';
 import { renderEmployees } from './modules/employees.js';
 import { renderProducts } from './modules/products.js';
 import { renderReports } from './modules/reports.js';
-import { renderSMS } from './modules/sms.js'; // 맨 위 import에 추가
 
 // init seed if empty
 if(load(KEYS.customers).length===0) save(KEYS.customers, seedCustomers);
