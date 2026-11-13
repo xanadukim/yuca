@@ -89,7 +89,7 @@ async function renderApp(){
 
   try{
     // 소문자 파일명 통일 + 캐시 방지 v=8.6.3 - Mobile.js 대문자 문제 해결!
-    const path = `./modules/${item.file.toLowerCase()}?v=8.9.6`;
+    const path = `./modules/${item.file.toLowerCase()}?v=8.9.7`;
     const mod = await import(path);
     const fn = mod[item.func] || mod[Object.keys(mod)[0]];
     if(typeof fn!== 'function') throw new Error(`${item.func} 함수 없음 - ${item.file.toLowerCase()}`);
@@ -255,6 +255,20 @@ function styleModuleUI(root){
     btn.style.padding='6px 12px';
     if(isEdit){btn.style.background='#E3F2FD';btn.style.color='#1565C0';btn.style.border='1px solid #BBDEFB';}
     if(isDel){btn.style.background='#FFEBEE';btn.style.color='#C62828';btn.style.border='1px solid #FFCDD2';}
+  });
+  // 색상이 들어간 버튼 -> 파스텔 톤으로 변환 (포화색만, 파스텔/흰색/무채색 제외)
+  root.querySelectorAll('button').forEach(btn=>{
+    try{
+      const m=getComputedStyle(btn).backgroundColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+      if(!m) return;
+      const r=+m[1],g=+m[2],b=+m[3];
+      const mx=Math.max(r,g,b),mn=Math.min(r,g,b);
+      if(mx-mn<60||mx>245) return;
+      const mix=(c,t)=>Math.round(c+(255-c)*t);
+      btn.style.background=`rgb(${mix(r,.88)},${mix(g,.88)},${mix(b,.88)})`;
+      btn.style.color=`rgb(${Math.round(r*.72)},${Math.round(g*.72)},${Math.round(b*.72)})`;
+      btn.style.border=`1px solid rgb(${mix(r,.7)},${mix(g,.7)},${mix(b,.7)})`;
+    }catch(e){}
   });
   // 페이지 헤더(h1~h3의 flex 부모) 안 버튼 그룹: 작게 + 간격 넓게
   root.querySelectorAll('h1,h2,h3').forEach(h=>{
