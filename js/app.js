@@ -22,17 +22,14 @@ function renderSidebar(){
   if(!nav){ console.error('sidebar-nav 없음! index.html 확인!'); return; }
 
   if(!window.yucaUser){
-    nav.innerHTML = `<div style="padding:14px;background:#1a202c;border-radius:10px;font-size:12px;color:#fbbf24;line-height:1.6">🔒 로그인이 필요합니다<br><small style="color:#94a3b8">우측 화면에서 로그인하세요</small></div>`;
+    nav.innerHTML = `<div style="padding:14px;background:#fff1d9;border:2px solid #ffc800;border-radius:14px;font-size:12px;color:#7c4a03;line-height:1.6;font-weight:700">🔒 로그인이 필요합니다<br><small style="color:#a16207">우측 화면에서 로그인하세요</small></div>`;
     return;
   }
 
   nav.innerHTML = MENU.map(m => `
-    <button data-page="${m.id}" class="${current===m.id?'active':''}"
-      style="width:100%;text-align:left;padding:12px 14px;border:none;background:${current===m.id?'#2d3748':'transparent'};color:${current===m.id?'#fff':'#cbd5e1'};border-radius:10px;cursor:pointer;margin-bottom:4px;display:block;font-weight:${current===m.id?'bold':'normal'};font-size:14px;transition:0.2s">
-      ${m.label}
-    </button>
-  `).join('') + `<div style="margin-top:20px;padding:10px;background:#1a202c;border-radius:10px;font-size:11px;color:#a0aec0;line-height:1.4">v8.7.2<br>로그인+동기화<br>${window.yucaUser.email||'Firebase OK'}</div>
-  <button id="btnLogout" style="width:100%;margin-top:8px;padding:10px;border-radius:10px;border:1px solid #475569;background:transparent;color:#fca5a5;cursor:pointer;font-size:12px">🚪 로그아웃</button>`;
+    <button data-page="${m.id}" class="duo-nav-btn ${current===m.id?'active':''}">${m.label}</button>
+  `).join('') + `<div style="margin-top:20px;padding:12px;background:#f7f7f7;border:2px solid #e5e5e5;border-radius:14px;font-size:11px;color:#777;line-height:1.5;font-weight:700">v8.8.0<br>Duo 테마 적용<br>${window.yucaUser.email||'Firebase OK'}</div>
+  <button id="btnLogout" class="duo-btn duo-btn--ghost" style="width:100%;margin-top:8px;padding:10px;font-size:12px;color:#ff4b4b">🚪 로그아웃</button>`;
 
   nav.querySelector('#btnLogout')?.addEventListener('click', ()=>{
     if(window.yucaSignOut) window.yucaSignOut();
@@ -89,7 +86,7 @@ async function renderApp(){
 
   try{
     // 소문자 파일명 통일 + 캐시 방지 v=8.6.3 - Mobile.js 대문자 문제 해결!
-    const path = `./modules/${item.file.toLowerCase()}?v=8.7.2`;
+    const path = `./modules/${item.file.toLowerCase()}?v=8.8.0`;
     const mod = await import(path);
     const fn = mod[item.func] || mod[Object.keys(mod)[0]];
     if(typeof fn!== 'function') throw new Error(`${item.func} 함수 없음 - ${item.file.toLowerCase()}`);
@@ -160,21 +157,21 @@ async function syncFromCloud(){
 function renderLogin(container){
   container.innerHTML = `
   <div style="display:flex;align-items:center;justify-content:center;min-height:80vh">
-    <div style="background:#fff;padding:36px;border-radius:20px;box-shadow:0 8px 30px rgba(0,0,0,0.08);width:100%;max-width:380px">
+    <div style="background:#fff;padding:36px;border:2px solid #e5e5e5;border-radius:24px;box-shadow:0 8px 0 #e5e5e5;width:100%;max-width:380px">
       <div style="text-align:center;margin-bottom:20px">
-        <img src="./assets/mascot.png" style="width:72px;height:72px;border-radius:16px">
-        <h2 style="margin-top:10px">🐶 YUCA 로그인</h2>
-        <p style="color:#888;font-size:13px;margin-top:4px">관리자 계정으로 로그인하세요</p>
+        <img src="./assets/mascot.png" style="width:80px;height:80px;border-radius:18px;border:2px solid #e5e5e5">
+        <h2 style="margin-top:12px;font-weight:900;letter-spacing:-0.02em">🐶 YUCA</h2>
+        <p style="color:#777;font-size:13px;font-weight:700;margin-top:4px">관리자 계정으로 로그인하세요</p>
       </div>
-      <div style="display:grid;gap:10px">
+      <div style="display:grid;gap:12px">
         <input id="loginEmail" type="email" placeholder="이메일" autocomplete="off" name="yucoff"
-          style="padding:12px;border:1px solid #ddd;border-radius:10px;font-size:14px">
+          style="padding:12px 14px;border:2px solid #e5e5e5;border-radius:12px;font-size:14px;font-weight:700;width:100%">
         <input id="loginPw" type="password" placeholder="비밀번호" autocomplete="new-password" name="yucoff2"
-          style="padding:12px;border:1px solid #ddd;border-radius:10px;font-size:14px">
-        <div id="loginErr" style="display:none;color:#dc2626;font-size:12px;padding:8px;background:#fef2f2;border-radius:8px"></div>
-        <button id="btnLogin" style="padding:12px;border:none;border-radius:10px;background:#f97316;color:#fff;font-weight:bold;font-size:15px;cursor:pointer">로그인</button>
+          style="padding:12px 14px;border:2px solid #e5e5e5;border-radius:12px;font-size:14px;font-weight:700;width:100%">
+        <div id="loginErr" style="display:none;color:#ff4b4b;font-size:12px;font-weight:700;padding:10px;background:#ffe0e0;border-radius:12px"></div>
+        <button id="btnLogin" class="duo-btn duo-btn--primary" style="width:100%;padding:13px">로그인</button>
       </div>
-      <p style="margin-top:14px;font-size:11px;color:#aaa;text-align:center">Firebase Authentication 보호됨</p>
+      <p style="margin-top:14px;font-size:11px;color:#aaa;text-align:center;font-weight:700">🔒 Firebase Authentication 보호됨</p>
     </div>
   </div>`;
 

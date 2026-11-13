@@ -1,0 +1,353 @@
+/* ============================================================
+   YUCA Duolingo-inspired Theme v8.8.0
+   - Primary: Duolingo Green #58CC02 / shadow #46A302
+   - Signature: 4px bottom shadow buttons, bold rounded type
+   ============================================================ */
+
+:root{
+  /* Primary */
+  --duo-green:      #58CC02;
+  --duo-green-dark: #46A302;
+  --duo-green-soft: #89E219;
+  --duo-green-50:   #E5F8D5;
+  --duo-green-100:  #C2EFA4;
+
+  /* Secondary / accents */
+  --duo-blue:       #1CB0F6;
+  --duo-blue-dark:  #1899D6;
+  --duo-blue-50:    #DDF4FE;
+  --duo-orange:     #FF9600;
+  --duo-orange-50:  #FFF1D9;
+  --duo-red:        #FF4B4B;
+  --duo-red-dark:   #C73A3A;
+  --duo-red-50:     #FFE0E0;
+  --duo-yellow:     #FFC800;
+  --duo-purple:     #CE82FF;
+  --duo-purple-50:  #F3E8FF;
+
+  /* Neutrals */
+  --duo-bg:         #FFFFFF;
+  --duo-surface:    #F7F7F7;
+  --duo-border:     #E5E5E5;
+  --duo-border-2:   #C7C7C7;
+  --duo-text:       #3C3C3C;
+  --duo-text-2:     #777777;
+  --duo-text-3:     #AFAFAF;
+
+  /* Shape / depth */
+  --duo-radius-sm:  8px;
+  --duo-radius-md:  12px;
+  --duo-radius-lg:  16px;
+  --duo-radius-xl:  24px;
+  --duo-radius-full: 9999px;
+  --duo-shadow-btn: 0 4px 0 var(--duo-green-dark);
+  --duo-shadow-card: 0 4px 0 var(--duo-border);
+}
+
+/* ---------- Base ---------- */
+html, body {
+  font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: var(--duo-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+#main-content {
+  background: var(--duo-bg);
+}
+#main-content h2 {
+  font-weight: 900 !important;
+  letter-spacing: -0.02em;
+  color: var(--duo-text) !important;
+}
+#main-content h3, #main-content h4 {
+  font-weight: 800;
+  color: var(--duo-text);
+}
+#main-content small { color: var(--duo-text-2); }
+
+/* ---------- Global component polish (modules' inline styles 위에 적용) ---------- */
+
+/* Buttons: 둥글고 두꺼운 기본기 */
+#main-content button {
+  border-radius: var(--duo-radius-md) !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.01em;
+  transition: transform 80ms ease, box-shadow 80ms ease, filter 150ms ease !important;
+  cursor: pointer;
+}
+#main-content button:not([disabled]):hover { filter: brightness(1.06); }
+#main-content button:not([disabled]):active {
+  transform: translateY(2px) !important;
+}
+/* primary 계열(주황/초록 계열)은 Duo 그린으로 통일하지 않고 유지하되 눌림 효과 */
+#main-content button[style*="#f97316"],
+#main-content button[style*="#FF8C00"],
+#main-content button[style*="#ff8c00"] {
+  background: var(--duo-green) !important;
+  color: #fff !important;
+  box-shadow: 0 4px 0 var(--duo-green-dark) !important;
+}
+#main-content button[style*="#f97316"]:active,
+#main-content button[style*="#FF8C00"]:active,
+#main-content button[style*="#ff8c00"]:active {
+  box-shadow: 0 2px 0 var(--duo-green-dark) !important;
+}
+
+/* Inputs / selects / textarea: Duo input */
+#main-content input[type="text"],
+#main-content input[type="email"],
+#main-content input[type="password"],
+#main-content input[type="number"],
+#main-content input[type="date"],
+#main-content input[type="time"],
+#main-content select,
+#main-content textarea {
+  border: 2px solid var(--duo-border) !important;
+  border-radius: var(--duo-radius-md) !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 0 var(--duo-border) !important;
+  transition: border-color 120ms ease, box-shadow 120ms ease !important;
+}
+#main-content input:focus, #main-content select:focus, #main-content textarea:focus {
+  outline: none !important;
+  border-color: var(--duo-blue) !important;
+  box-shadow: 0 4px 0 var(--duo-blue) !important;
+}
+
+/* Tables: 헤더를 Duo 스타일로 */
+#main-content table thead {
+  background: var(--duo-surface) !important;
+}
+#main-content table th {
+  font-weight: 800 !important;
+  color: var(--duo-text-2) !important;
+  font-size: 12px !important;
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+#main-content table tr:hover td {
+  background: var(--duo-surface) !important;
+}
+
+/* 카드 공통: 흰 카드에 border + chunky shadow (큰 카드만) */
+#main-content div[style*="background:#fff"],
+#main-content div[style*="background: white"],
+#main-content div[style*="background:white"],
+#main-content div[style*="background:#f9fafb"],
+#main-content div[style*="background:#f8f9fa"],
+#main-content div[style*="background:#f3f4f6"],
+#main-content div[style*="background:#f7f7f7"],
+#main-content div[style*="background:#fff7ed"],
+#main-content div[style*="background:#fff3e0"],
+#main-content div[style*="background:#fef3c7"],
+#main-content div[style*="background:#dcfce7"],
+#main-content div[style*="background:#e8f5e9"],
+#main-content div[style*="background:#e3f2fd"],
+#main-content div[style*="background:#fff8e0"],
+#main-content div[style*="background:#fff8f0"],
+#main-content div[style*="background:#f0fdf4"],
+#main-content div[style*="background:#fef2f2"],
+#main-content div[style*="background:#fee2e2"],
+#main-content div[style*="background:#ffedd5"],
+#main-content div[style*="background:#fed7aa"],
+#main-content div[style*="background:#f1f8e9"],
+#main-content div[style*="background:#fff1f1"],
+#main-content div[style*="background:#f0f9ff"],
+#main-content div[style*="background:#eff6ff"],
+#main-content div[style*="background:#fdf2f8"],
+#main-content div[style*="background:#f3e5f5"],
+#main-content div[style*="background:#ecfdf5"],
+#main-content div[style*="background:#fffbeb"],
+#main-content div[style*="background:#fefce8"],
+#main-content div[style*="background:#f0fdfa"],
+#main-content div[style*="background:#eef2ff"],
+#main-content div[style*="background:#e0e7ff"],
+#main-content div[style*="background:#dbeafe"],
+#main-content div[style*="background:#cffafe"],
+#main-content div[style*="background:#e0f2fe"],
+#main-content div[style*="background:#f5f3ff"],
+#main-content div[style*="background:#ede9fe"],
+#main-content div[style*="background:#faf5ff"],
+#main-content div[style*="background:#fdf4ff"],
+#main-content div[style*="background:#fce7f3"],
+#main-content div[style*="background:#fff1f2"],
+#main-content div[style*="background:#ffe4e6"] {
+  border: 2px solid var(--duo-border) !important;
+}
+
+/* 모달 */
+#main-content div[style*="position:fixed"][style*="inset:0"],
+#main-content div[style*="position:fixed"][style*="top:0"] {
+  backdrop-filter: blur(3px);
+}
+#main-content div[style*="position:fixed"] > div {
+  border-radius: var(--duo-radius-xl) !important;
+  border: 2px solid var(--duo-border) !important;
+  box-shadow: 0 16px 32px rgba(60,60,60,0.18) !important;
+}
+
+/* 배지/태그 pill */
+#main-content span[style*="border-radius:20px"],
+#main-content span[style*="border-radius:12px"],
+#main-content span[style*="border-radius:10px"] {
+  font-weight: 700;
+}
+
+/* 스크롤바 */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: var(--duo-border-2); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--duo-text-3); }
+
+/* ============================================================
+   Duo 컴포넌트 클래스 (dashboard/향후 모듈용)
+   ============================================================ */
+
+.duo-hero {
+  position: relative;
+  border-radius: var(--duo-radius-xl);
+  background: linear-gradient(135deg, var(--duo-green) 0%, var(--duo-green-soft) 100%);
+  box-shadow: 0 8px 0 var(--duo-green-dark);
+  color: #fff;
+  padding: 36px 32px;
+  overflow: hidden;
+}
+.duo-hero::before, .duo-hero::after {
+  content: '';
+  position: absolute;
+  background: rgba(255,255,255,.18);
+  border-radius: var(--duo-radius-full);
+  transform: rotate(-18deg);
+}
+.duo-hero::before { width: 170px; height: 32px; right: 18%; top: -10px; }
+.duo-hero::after  { width: 120px; height: 24px; right: -24px; bottom: 30px; }
+.duo-hero h1 {
+  font-size: clamp(26px, 4vw, 40px);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  margin: 14px 0 10px;
+  color: #fff;
+  position: relative; z-index: 1;
+}
+.duo-hero p {
+  font-weight: 700;
+  color: rgba(255,255,255,.92);
+  margin: 0;
+  position: relative; z-index: 1;
+  max-width: 520px;
+}
+.duo-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border: 2px solid rgba(255,255,255,.45);
+  border-radius: var(--duo-radius-full);
+  background: rgba(70,133,10,.2);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  position: relative; z-index: 1;
+}
+
+.duo-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 0;
+  border-radius: var(--duo-radius-md);
+  padding: 12px 20px;
+  font: 800 14px/1 'Pretendard Variable', Pretendard, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  cursor: pointer;
+  transition: transform 80ms ease, box-shadow 80ms ease, filter 150ms ease;
+}
+.duo-btn--primary {
+  background: var(--duo-green);
+  color: #fff;
+  box-shadow: 0 4px 0 var(--duo-green-dark);
+}
+.duo-btn--primary:hover { background: var(--duo-green-soft); }
+.duo-btn--primary:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--duo-green-dark); }
+.duo-btn--white {
+  background: #fff;
+  color: var(--duo-green-dark);
+  box-shadow: 0 4px 0 #D7E9CF;
+}
+.duo-btn--white:active { transform: translateY(2px); box-shadow: 0 2px 0 #D7E9CF; }
+.duo-btn--ghost {
+  background: transparent;
+  color: var(--duo-text);
+  box-shadow: none;
+}
+.duo-btn--ghost:hover { background: var(--duo-surface); }
+
+.duo-card {
+  background: var(--duo-bg);
+  border: 2px solid var(--duo-border);
+  border-radius: var(--duo-radius-lg);
+  padding: 20px;
+  box-shadow: var(--duo-shadow-card);
+}
+
+.duo-stat {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.duo-stat__icon {
+  width: 52px; height: 52px;
+  flex: none;
+  display: grid; place-items: center;
+  border-radius: 14px;
+  font-size: 24px;
+  background: var(--duo-green-50);
+}
+.duo-stat__label { font-size: 12px; font-weight: 800; color: var(--duo-text-2); text-transform: uppercase; letter-spacing: .05em; }
+.duo-stat__value { font-size: 26px; font-weight: 900; letter-spacing: -0.02em; line-height: 1.15; }
+.duo-stat__sub   { font-size: 12px; font-weight: 700; color: var(--duo-text-3); }
+
+.duo-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 11px;
+  border-radius: var(--duo-radius-full);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .03em;
+}
+.duo-tag--green  { background: var(--duo-green-50); color: var(--duo-green-dark); }
+.duo-tag--blue   { background: var(--duo-blue-50);  color: var(--duo-blue-dark); }
+.duo-tag--orange { background: var(--duo-orange-50); color: #B45309; }
+.duo-tag--red    { background: var(--duo-red-50);   color: var(--duo-red-dark); }
+.duo-tag--purple { background: var(--duo-purple-50); color: #9333EA; }
+
+/* 사이드바 네비 (app.js가 .duo-nav-btn 사용) */
+.duo-nav-btn {
+  width: 100%;
+  text-align: left;
+  padding: 11px 14px;
+  border: none;
+  background: transparent;
+  color: var(--duo-text-2);
+  border-radius: var(--duo-radius-md);
+  cursor: pointer;
+  margin-bottom: 3px;
+  display: block;
+  font-weight: 700;
+  font-size: 14px;
+  transition: background 120ms ease, color 120ms ease, transform 80ms ease;
+}
+.duo-nav-btn:hover {
+  background: var(--duo-surface);
+  color: var(--duo-text);
+}
+.duo-nav-btn.active {
+  background: var(--duo-green-50);
+  color: var(--duo-green-dark);
+  font-weight: 900;
+}
+.duo-nav-btn:active { transform: translateY(1px); }

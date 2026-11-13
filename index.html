@@ -3,9 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>YUCA v8.7.3 Professional</title>
+    <title>YUCA v8.8.0 Professional</title>
     <link rel="manifest" href="./manifest.json" />
     <link rel="icon" href="./assets/mascot.png" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="./css/duolingo.css?v=8.8.0" />
     <style>
       * {
         margin: 0;
@@ -19,33 +21,38 @@
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       }
       #sidebar {
-        width: 240px;
-        background: #0f172a;
-        color: #fff;
-        padding: 16px;
+        width: 248px;
+        background: #ffffff;
+        color: #3c3c3c;
+        padding: 18px 14px;
         overflow: auto;
         flex-shrink: 0;
+        border-right: 2px solid #e5e5e5;
       }
       #sidebar.logo {
         display: flex;
         align-items: center;
         gap: 10px;
+        padding: 4px 6px;
       }
       #sidebar.logo img {
-        width: 32px;
-        height: 32px;
-        border-radius: 8px;
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
         background: #fff;
         padding: 2px;
+        border: 2px solid #e5e5e5;
       }
       #sidebar.logo b {
         font-size: 22px;
-        letter-spacing: 0.5px;
+        letter-spacing: -0.5px;
+        color: #58cc02;
       }
       #sidebar small {
-        color: #94a3b8;
-        margin-left: 42px;
+        color: #a0aec0;
+        margin-left: 48px;
         font-size: 11px;
+        font-weight: 700;
       }
       #main-content {
         flex: 1;
@@ -57,8 +64,8 @@
         margin-top: 24px;
       }
       #sidebar-nav button:hover {
-        background: #1e293b !important;
-        color: #fff !important;
+        background: #f7f7f7 !important;
+        color: #3c3c3c !important;
       }
     </style>
   </head>
@@ -71,6 +78,6 @@
       <nav id="sidebar-nav"></nav>
     </aside>
     <main id="main-content"></main>
-    <script type="module" src="./js/app.js?v=8.7.3"></script>
+    <script type="module" src="./js/app.js?v=8.8.0"></script>
   </body>
 </html>
