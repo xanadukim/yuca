@@ -7,7 +7,7 @@ const MENU = [
   { id: 'reservations', label: '📅 예약관리', file: 'reservations.js', func: 'renderReservations' },
   { id: 'kindergarten', label: '🏫 유치원', file: 'kindergarten.js', func: 'renderKindergarten' },
   { id: 'hotel', label: '🎁 호텔', file: 'hotel.js', func: 'renderHotel' },
-  { id: 'staff', label: '👨‍💼 직원관리', file: 'staff.js', func: 'renderStaff' },
+  { id: 'staff', label: '👨‍💼 직원관리', file: 'employees.js', func: 'renderEmployees' },
   { id: 'products', label: '📦 제품관리', file: 'products.js', func: 'renderProducts' },
   { id: 'reports', label: '💰 매출리포트', file: 'reports.js', func: 'renderReports' },
   { id: 'sms', label: '💬 문자', file: 'sms.js', func: 'renderSMS' },
@@ -26,7 +26,7 @@ function renderSidebar(){
       style="width:100%;text-align:left;padding:12px 14px;border:none;background:${current===m.id?'#2d3748':'transparent'};color:${current===m.id?'#fff':'#cbd5e1'};border-radius:10px;cursor:pointer;margin-bottom:4px;display:block;font-weight:${current===m.id?'bold':'normal'};font-size:14px;transition:0.2s">
       ${m.label}
     </button>
-  `).join('') + `<div style="margin-top:20px;padding:10px;background:#1a202c;border-radius:10px;font-size:11px;color:#a0aec0;line-height:1.4">v8.6.3<br>mascot.png 원복<br>Firebase OK</div>`;
+  `).join('') + `<div style="margin-top:20px;padding:10px;background:#1a202c;border-radius:10px;font-size:11px;color:#a0aec0;line-height:1.4">v8.7.0<br>버그픽스<br>Firebase OK</div>`;
 
   // 클릭 이벤트 - 방어 코드!
   nav.querySelectorAll('button[data-page]').forEach(btn=>{
@@ -38,6 +38,31 @@ function renderSidebar(){
     });
   });
 }
+
+// 대시보드 빠른 실행용 전역 네비게이션
+window.navigate = (id)=>{
+  const item = MENU.find(m=>m.id===id);
+  if(!item) return;
+  current = id;
+  localStorage.setItem('yuca_page', id);
+  localStorage.setItem('yuca_last_page', id);
+  renderApp();
+};
+
+// 대시보드/설정 공용 백업 내보내기
+window.exportDB = ()=>{
+  const out = {};
+  Object.keys(KEYS).forEach(k=>{ out[k] = load(KEYS[k]) || []; });
+  try{ const s = JSON.parse(localStorage.getItem('yuca_settings')||'{}'); if(Object.keys(s).length) out.settings = s; }catch(e){}
+  const blob = new Blob([JSON.stringify(out, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `YUCA_backup_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  localStorage.setItem('yuca_last_backup', new Date().toLocaleString());
+};
 
 async function renderApp(){
   renderSidebar();
@@ -51,7 +76,7 @@ async function renderApp(){
 
   try{
     // 소문자 파일명 통일 + 캐시 방지 v=8.6.3 - Mobile.js 대문자 문제 해결!
-    const path = `./modules/${item.file.toLowerCase()}?v=8.6.3`;
+    const path = `./modules/${item.file.toLowerCase()}?v=8.7.0`;
     const mod = await import(path);
     const fn = mod[item.func] || mod[Object.keys(mod)[0]];
     if(typeof fn!== 'function') throw new Error(`${item.func} 함수 없음 - ${item.file.toLowerCase()}`);
@@ -86,8 +111,31 @@ function checkMobile(){
   return false;
 }
 
-document.addEventListener('DOMContentLoaded', ()=>{
+// Firebase 클라우드 → 로컬 초기 동기화 (로컬이 비어있을 때만 채움)
+async function syncFromCloud(){
+  if(!window.loadFromCloud) return;
+  try{
+    const data = await window.loadFromCloud();
+    if(!data) return;
+    let filled = 0;
+    for(const [k, v] of Object.entries(data)){
+      if(typeof k !== 'string' || !k.startsWith('yuca_')) continue;
+      const cur = localStorage.getItem(k);
+      if(cur === null || cur === '[]' || cur === '{}'){
+        localStorage.setItem(k, JSON.stringify(v));
+        filled++;
+      }
+    }
+    localStorage.setItem('yuca_firebase_ok', '1');
+    if(filled) console.log('☁️ 클라우드 데이터 동기화:', filled, '키');
+  }catch(e){
+    console.warn('클라우드 동기화 실패 (오프라인?):', e);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', async ()=>{
   if(checkMobile()) return;
+  await syncFromCloud();
   renderApp();
 });
 

@@ -117,6 +117,79 @@ export function renderSettings(container){
     const cur = JSON.parse(localStorage.getItem(SETTINGS_KEY)||'{}');
     const next = {...cur, shopName: container.querySelector('#cfgShopName').value, shopPhone: container.querySelector('#cfgPhone').value, shopAddr: container.querySelector('#cfgAddr').value, useNaver: container.querySelector('#cfgUseNaver').checked, naverBookingUrl: container.querySelector('#cfgNaverBooking').value, naverPlaceUrl: container.querySelector('#cfgNaverPlace').value };
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(next));
+    if(window.saveToCloud) window.saveToCloud(SETTINGS_KEY, next);
     alert('✅ 저장 완료!');
+  });
+
+  // CSV 내보내기 (고객)
+  container.querySelector('#btnExportCsv')?.addEventListener('click', ()=>{
+    const rows = [['보호자','강아지','견종','전화번호','생일','몸무게','메모']];
+    (allData.customers||[]).forEach(c=> rows.push([c.name||c.owner||'', c.dogName||c.dog_name||'', c.breed||'', c.phone||'', c.birth||'', c.weight||'', (c.notes||'').replace(/\n/g,' ')]));
+    const csv = '﻿' + rows.map(r=> r.map(x=> `"${String(x).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href=url; a.download=`YUCA_customers_${new Date().toISOString().slice(0,10)}.csv`; a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  // 로컬 백업 / 복구 공용
+  const BACKUP_KEY = 'yuca_local_backup';
+  const snapshot = ()=>{
+    const snap = {};
+    Object.keys(KEYS).forEach(k=>{ snap[k] = load(KEYS[k]) || []; });
+    snap.settings = JSON.parse(localStorage.getItem(SETTINGS_KEY)||'{}');
+    return snap;
+  };
+  const restore = (snap)=>{
+    if(!snap || typeof snap !== 'object') throw new Error('백업 형식이 올바르지 않습니다');
+    Object.keys(KEYS).forEach(name=>{
+      if(Array.isArray(snap[name])) save(KEYS[name], snap[name]);
+    });
+    if(snap.settings && typeof snap.settings === 'object'){
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(snap.settings));
+      if(window.saveToCloud) window.saveToCloud(SETTINGS_KEY, snap.settings);
+    }
+  };
+
+  container.querySelector('#btnBackupLocal')?.addEventListener('click', ()=>{
+    localStorage.setItem(BACKUP_KEY, JSON.stringify(snapshot()));
+    localStorage.setItem('yuca_last_backup', new Date().toLocaleString());
+    alert('✅ 로컬 백업 저장 완료!');
+  });
+  container.querySelector('#btnRestoreBackup')?.addEventListener('click', ()=>{
+    const raw = localStorage.getItem(BACKUP_KEY);
+    if(!raw){ alert('저장된 백업이 없습니다. 먼저 [로컬 백업 생성]을 눌러주세요.'); return; }
+    if(!confirm('현재 데이터를 백업 시점으로 복구할까요? (현재 데이터는 백업본으로 덮어씌워집니다)')) return;
+    try{ restore(JSON.parse(raw)); alert('✅ 복구 완료! 새로고침합니다.'); location.reload(); }
+    catch(e){ alert('복구 실패: ' + e.message); }
+  });
+  container.querySelector('#btnClearAll')?.addEventListener('click', ()=>{
+    if(!confirm('⚠️ 정말 전체 초기화할까요? 모든 데이터가 삭제됩니다.')) return;
+    if(!confirm('한 번 더 확인: 되돌릴 수 없습니다. 계속할까요?')) return;
+    Object.keys(localStorage).filter(k=>k.startsWith('yuca_')).forEach(k=>localStorage.removeItem(k));
+    alert('초기화 완료! 새로고침합니다.');
+    location.reload();
+  });
+  container.querySelector('#fileImportJson')?.addEventListener('change', (e)=>{
+    const file = e.target.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      try{
+        const data = JSON.parse(reader.result);
+        // flat 형식({yuca_customers:...})도 허용
+        const snap = {};
+        Object.keys(KEYS).forEach(name=>{
+          if(Array.isArray(data[name])) snap[name] = data[name];
+          else if(Array.isArray(data[KEYS[name]])) snap[name] = data[KEYS[name]];
+        });
+        if(data.settings) snap.settings = data.settings;
+        if(!confirm(`가져온 데이터로 복구할까요? (${Object.keys(snap).length}개 항목)`)) return;
+        restore(snap);
+        alert('✅ 가져오기 완료! 새로고침합니다.');
+        location.reload();
+      }catch(err){ alert('가져오기 실패: ' + err.message); }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
   });
 }

@@ -2,7 +2,7 @@
 import { load, KEYS } from '../storage.js';
 
 export function renderDashboard(container){
-  const target = container || document.getElementById('content');
+  const target = container || document.getElementById('main-content');
   if(!target) return;
 
   // 데이터 불러오기

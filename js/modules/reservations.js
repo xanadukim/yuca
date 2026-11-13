@@ -8,7 +8,7 @@ function getReservations(){ return load(KEYS.reservations, []); }
 function getCustomers(){ return load(KEYS.customers, []); }
 
 export function renderReservations(container){
-  const target = container || document.getElementById('content');
+  const target = container || document.getElementById('main-content');
   if(!target) return;
   const reservations = getReservations();
   const customers = getCustomers();
@@ -138,7 +138,7 @@ export function renderReservations(container){
 // 전역 함수들 - document에서 찾음 (클로저 버그 해결)
 window.setResFilter = (mode)=>{
   filterMode = mode;
-  renderReservations(document.getElementById('content'));
+  renderReservations(document.getElementById('main-content'));
 };
 
 window.openResFormFull = ()=>{
@@ -186,7 +186,7 @@ window.editResFull = (idx)=>{
 window.deleteResFull = (idx)=>{
   if(!confirm('정말 삭제?')) return;
   const list=getReservations(); list.splice(idx,1); save(KEYS.reservations,list);
-  renderReservations(document.getElementById('content'));
+  renderReservations(document.getElementById('main-content'));
 };
 
 window.saveResFull = ()=>{
@@ -211,7 +211,7 @@ window.saveResFull = ()=>{
   else list.push(data);
   save(KEYS.reservations,list);
   closeResModalFull();
-  renderReservations(document.getElementById('content'));
+  renderReservations(document.getElementById('main-content'));
 };
 
 // 고객 선택 시 자동 입력

@@ -3,10 +3,11 @@ import { load, KEYS } from '../storage.js';
 
 export function renderMobile(container){
   const baseUrl = location.origin + location.pathname.replace(/\/[^\/]*$/, '/');
-  
-  // 임시 네이버 예약 링크 - 실제 등록 후 교체!
-  const NAVER_BOOKING_URL = "https://booking.naver.com/booking/13/bizes/1234567"; 
-  const NAVER_PLACE_URL = "https://m.place.naver.com/place/1234567";
+  const shopCfg = JSON.parse(localStorage.getItem('yuca_settings')||'{}');
+
+  // 설정 > 고급 설정의 네이버 URL 사용, 없으면 임시 링크
+  const NAVER_BOOKING_URL = shopCfg.naverBookingUrl || "https://booking.naver.com/booking/13/bizes/1234567";
+  const NAVER_PLACE_URL = shopCfg.naverPlaceUrl || "https://m.place.naver.com/place/1234567";
   const YUCA_MOBILE_URL = baseUrl + "?view=mobile";
   
   const qrNaverBooking = `https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(NAVER_BOOKING_URL)}`;
@@ -85,7 +86,7 @@ export function renderMobile(container){
         <div style="margin-top:12px;display:grid;gap:10px;font-size:13px">
           <div style="padding:12px;border:1px solid #eee;border-radius:10px"><b>1. 스마트플레이스 등록</b><br><a href="https://m.place.naver.com" target="_blank" style="color:#2db400">m.place.naver.com</a> → 업체 등록 → YUCA 애견</div>
           <div style="padding:12px;border:1px solid #eee;border-radius:10px"><b>2. 예약 파트너센터</b><br><a href="https://partner.booking.naver.com" target="_blank" style="color:#2db400">partner.booking.naver.com</a> → 예약 상품 등록</div>
-          <div style="padding:12px;border:2px solid #2db400;border-radius:10px;background:#f1f8e9"><b>3. 링크 교체 (1줄!)</b><br><code style="font-size:11px">const NAVER_BOOKING_URL = "여기에 본인 링크 붙여넣기";</code><br><small>지금은 임시 링크 (1234567) - 실제 링크로 바꾸면 끝!</small></div>
+          <div style="padding:12px;border:2px solid #2db400;border-radius:10px;background:#f1f8e9"><b>3. 링크 등록 (설정에서!)</b><br><small>⚙️ 설정 → 고급 설정 → 네이버 예약/플레이스 URL 입력 → 저장하면 QR에 자동 반영!</small><br><small>아직 미등록 시 임시 링크(1234567) 표시 중</small></div>
         </div>
         <div style="margin-top:16px;padding:12px;background:#fff7ed;border-radius:10px;font-size:12px">
           💡 <b>Kim님 발표용 멘트:</b><br>

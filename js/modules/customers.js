@@ -29,7 +29,7 @@ export function addCustomer(obj){
 
 export function renderCustomers(container){
   const customers = getCustomers();
-  const target = container || document.getElementById('content');
+  const target = container || document.getElementById('main-content');
   if(!target) return;
 
   target.innerHTML = `
@@ -137,7 +137,7 @@ window.editCustomerFull = (i) => {
 window.deleteCustomerFull = (i) => {
   if(!confirm('정말 삭제?')) return;
   const list=getCustomers(); list.splice(i,1); save(KEYS.customers,list);
-  renderCustomers(document.getElementById('content'));
+  renderCustomers(document.getElementById('main-content'));
 };
 
 window.onDogPhotoChange = (e)=>{
@@ -176,7 +176,7 @@ window.saveCustomerFull = ()=>{
   else list.push(newData);
   save(KEYS.customers,list);
   closeCustomerModalFull();
-  renderCustomers(document.getElementById('content'));
+  renderCustomers(document.getElementById('main-content'));
 };
 
 export function openCustomerForm(){ openCustomerFormFull(); }

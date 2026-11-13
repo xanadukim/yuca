@@ -1,5 +1,5 @@
 // v7.8 FINAL - SyntaxError 완전 해결
-import { load, save, KEYS } from '../storage-local.js';
+import { load, save, KEYS } from '../storage.js';
 const SAMPLE = [
   {id:'1', name:'보습 샴푸 500ml', category:'미용용품', brand:'YUCA', price:25000, stock:12},
   {id:'2', name:'가위 세트', category:'미용용품', brand:'YUCA', price:89000, stock:3},
@@ -14,7 +14,7 @@ const SAMPLE = [
 
 export function renderProducts(container){
   let list = JSON.parse(localStorage.getItem('yuca_products')||'null') || load(KEYS.products, []) || [];
-  if(list.length < 9) list = SAMPLE;
+  if(list.length === 0) list = SAMPLE;
   list = list.map(p=>({...p, price: parseInt(p.price)||0, stock: parseInt(p.stock)||0}));
   localStorage.setItem('yuca_products', JSON.stringify(list));
   save(KEYS.products, list);

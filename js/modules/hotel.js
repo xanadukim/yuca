@@ -22,7 +22,7 @@ function calcNights(checkInDate, checkOutDate){
 }
 
 export function renderHotel(container){
-  const target = container || document.getElementById('content');
+  const target = container || document.getElementById('main-content');
   if(!target) return;
   const hotelList = getHotel();
   const customers = getCustomers();
@@ -139,7 +139,7 @@ export function renderHotel(container){
   `;
 }
 
-window.setHotelFilter = (mode)=>{ hotelFilter=mode; renderHotel(document.getElementById('content')); };
+window.setHotelFilter = (mode)=>{ hotelFilter=mode; renderHotel(document.getElementById('main-content')); };
 window.openHotelFormFull = ()=>{
   editingHotelIdx=null;
   document.getElementById('hotel-modal-title').textContent='투숙 등록';
@@ -183,7 +183,7 @@ window.editHotelFull = (idx)=>{
 window.deleteHotelFull = (idx)=>{
   if(!confirm('정말 삭제?')) return;
   const list=getHotel(); list.splice(idx,1); saveHotel(list);
-  renderHotel(document.getElementById('content'));
+  renderHotel(document.getElementById('main-content'));
 };
 window.checkOutHotel = (idx)=>{
   if(!confirm('퇴실 처리 할까요?')) return;
@@ -192,7 +192,7 @@ window.checkOutHotel = (idx)=>{
   list[idx].checkOutDate = list[idx].checkOutDate || new Date().toISOString().slice(0,10);
   list[idx].updatedAt = new Date().toISOString();
   saveHotel(list);
-  renderHotel(document.getElementById('content'));
+  renderHotel(document.getElementById('main-content'));
 };
 window.updateHotelTotal = ()=>{
   const inDate=document.getElementById('hotel-checkInDate')?.value;
@@ -228,7 +228,7 @@ window.saveHotelFull = ()=>{
   else list.push(data);
   saveHotel(list);
   closeHotelModalFull();
-  renderHotel(document.getElementById('content'));
+  renderHotel(document.getElementById('main-content'));
 };
 
 document.addEventListener('change', (e)=>{

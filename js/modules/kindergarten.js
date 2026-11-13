@@ -14,7 +14,7 @@ function saveKg(list){
 }
 
 export function renderKindergarten(container){
-  const target = container || document.getElementById('content');
+  const target = container || document.getElementById('main-content');
   if(!target) return;
   const kgList = getKg();
   const customers = getCustomers();
@@ -116,7 +116,7 @@ export function renderKindergarten(container){
   `;
 }
 
-window.setKgFilter = (mode)=>{ kgFilter=mode; renderKindergarten(document.getElementById('content')); };
+window.setKgFilter = (mode)=>{ kgFilter=mode; renderKindergarten(document.getElementById('main-content')); };
 window.openKgFormFull = ()=>{
   editingKgIdx=null;
   document.getElementById('kg-modal-title').textContent='등원 등록';
@@ -151,7 +151,7 @@ window.editKgFull = (idx)=>{
 window.deleteKgFull = (idx)=>{
   if(!confirm('정말 삭제?')) return;
   const list=getKg(); list.splice(idx,1); saveKg(list);
-  renderKindergarten(document.getElementById('content'));
+  renderKindergarten(document.getElementById('main-content'));
 };
 window.checkOutKg = (idx)=>{
   const list=getKg();
@@ -160,7 +160,7 @@ window.checkOutKg = (idx)=>{
   list[idx].status = '하원';
   list[idx].updatedAt = new Date().toISOString();
   saveKg(list);
-  renderKindergarten(document.getElementById('content'));
+  renderKindergarten(document.getElementById('main-content'));
 };
 window.saveKgFull = ()=>{
   const name=document.getElementById('kg-name').value.trim();
@@ -184,7 +184,7 @@ window.saveKgFull = ()=>{
   else list.push(data);
   saveKg(list);
   closeKgModalFull();
-  renderKindergarten(document.getElementById('content'));
+  renderKindergarten(document.getElementById('main-content'));
 };
 
 document.addEventListener('change', (e)=>{

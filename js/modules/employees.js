@@ -4,16 +4,11 @@ import { load, save, KEYS } from '../storage.js';
 let editingEmpIdx = null;
 let empFilter = 'all'; // all, working, groomer, teacher
 
-function getEmployees(){
-  try{ return load(KEYS.employees, []); }catch(e){ return load('yuca_employees', []); }
-}
-function saveEmployees(list){
-  save(KEYS.employees, list);
-  try{ save('yuca_employees', list); }catch(e){}
-}
+function getEmployees(){ return load(KEYS.employees, []); }
+function saveEmployees(list){ save(KEYS.employees, list); }
 
 export function renderEmployees(container){
-  const target = container || document.getElementById('content');
+  const target = container || document.getElementById('main-content');
   if(!target) return;
   const empList = getEmployees();
   
@@ -117,7 +112,7 @@ export function renderEmployees(container){
   `;
 }
 
-window.setEmpFilter = (mode)=>{ empFilter=mode; renderEmployees(document.getElementById('content')); };
+window.setEmpFilter = (mode)=>{ empFilter=mode; renderEmployees(document.getElementById('main-content')); };
 window.openEmpFormFull = ()=>{
   editingEmpIdx=null;
   document.getElementById('emp-modal-title').textContent='직원 등록';
@@ -151,7 +146,7 @@ window.editEmpFull = (idx)=>{
 window.deleteEmpFull = (idx)=>{
   if(!confirm('정말 삭제?')) return;
   const list=getEmployees(); list.splice(idx,1); saveEmployees(list);
-  renderEmployees(document.getElementById('content'));
+  renderEmployees(document.getElementById('main-content'));
 };
 window.saveEmpFull = ()=>{
   const name=document.getElementById('emp-name').value.trim();
@@ -174,5 +169,5 @@ window.saveEmpFull = ()=>{
   else list.push(data);
   saveEmployees(list);
   closeEmpModalFull();
-  renderEmployees(document.getElementById('content'));
+  renderEmployees(document.getElementById('main-content'));
 };
