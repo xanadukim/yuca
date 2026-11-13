@@ -47,10 +47,10 @@ export function renderDashboard(container){
     <div style="display:grid;gap:20px">
 
       <!-- Duo 히어로 (한 줄) -->
-      <div class="duo-hero" style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:20px 28px">
+      <div class="duo-hero" style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:30px 42px">
         <div>
-          <div style="font-size:20px;font-weight:800;color:#fff">${greet}, YUCA 팀! 👋 오늘도 활기찬 하루예요.</div>
-          <div style="font-size:13px;color:rgba(255,255,255,.85);margin-top:6px">📅 ${today} · 오늘 예약 ${todayResCount}건 · 예상 매출 ₩${estimatedSales.toLocaleString()} · 투숙 ${hotel.length}마리 · 등원 ${kindergarten.length}마리</div>
+          <div style="font-size:30px;font-weight:800;color:#fff">${greet}, YUCA 팀! 👋 오늘도 활기찬 하루예요.</div>
+          <div style="font-size:15px;color:rgba(255,255,255,.9);margin-top:8px">📅 ${today} · 오늘 예약 ${todayResCount}건 · 예상 매출 ₩${estimatedSales.toLocaleString()} · 투숙 ${hotel.length}마리 · 등원 ${kindergarten.length}마리</div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;position:relative;z-index:1;flex:none">
           <button class="duo-btn duo-btn--white" onclick="navigate('reservations')">예약 보기</button>
