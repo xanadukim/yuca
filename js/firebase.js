@@ -13,6 +13,7 @@ import {
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { firebaseConfig, USE_FIREBASE } from "./firebase-config.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 // storage.js 호환용 export - 반드시 필요!
 export const isFirebaseEnabled = true;
@@ -21,6 +22,18 @@ export const isCloudEnabled = true;
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
+
+// 인증 API를 window에 노출 (app.js 로그인 화면용)
+window.yucaSignIn = (email, pw) => signInWithEmailAndPassword(auth, email, pw);
+window.yucaSignOut = () => signOut(auth);
+window.yucaAuthReady = new Promise((resolve) => {
+  onAuthStateChanged(auth, (user) => {
+    window.yucaUser = user || null;
+    if (window.YUCA_onAuthChange) window.YUCA_onAuthChange(user);
+    resolve(user);
+  });
+});
 
 window.yucaDB = db;
 window.yucaCloudReady = true;

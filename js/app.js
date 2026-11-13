@@ -21,12 +21,22 @@ function renderSidebar(){
   const nav = document.getElementById('sidebar-nav');
   if(!nav){ console.error('sidebar-nav 없음! index.html 확인!'); return; }
 
+  if(!window.yucaUser){
+    nav.innerHTML = `<div style="padding:14px;background:#1a202c;border-radius:10px;font-size:12px;color:#fbbf24;line-height:1.6">🔒 로그인이 필요합니다<br><small style="color:#94a3b8">우측 화면에서 로그인하세요</small></div>`;
+    return;
+  }
+
   nav.innerHTML = MENU.map(m => `
     <button data-page="${m.id}" class="${current===m.id?'active':''}"
       style="width:100%;text-align:left;padding:12px 14px;border:none;background:${current===m.id?'#2d3748':'transparent'};color:${current===m.id?'#fff':'#cbd5e1'};border-radius:10px;cursor:pointer;margin-bottom:4px;display:block;font-weight:${current===m.id?'bold':'normal'};font-size:14px;transition:0.2s">
       ${m.label}
     </button>
-  `).join('') + `<div style="margin-top:20px;padding:10px;background:#1a202c;border-radius:10px;font-size:11px;color:#a0aec0;line-height:1.4">v8.7.1<br>동기화+PWA<br>Firebase OK</div>`;
+  `).join('') + `<div style="margin-top:20px;padding:10px;background:#1a202c;border-radius:10px;font-size:11px;color:#a0aec0;line-height:1.4">v8.7.2<br>로그인+동기화<br>${window.yucaUser.email||'Firebase OK'}</div>
+  <button id="btnLogout" style="width:100%;margin-top:8px;padding:10px;border-radius:10px;border:1px solid #475569;background:transparent;color:#fca5a5;cursor:pointer;font-size:12px">🚪 로그아웃</button>`;
+
+  nav.querySelector('#btnLogout')?.addEventListener('click', ()=>{
+    if(window.yucaSignOut) window.yucaSignOut();
+  });
 
   // 클릭 이벤트 - 방어 코드!
   nav.querySelectorAll('button[data-page]').forEach(btn=>{
@@ -69,6 +79,9 @@ async function renderApp(){
   const container = document.getElementById('main-content');
   if(!container){ console.error('main-content 없음!'); return; }
 
+  // 로그인 게이트 - 미인증 시 로그인 화면
+  if(!window.yucaUser){ renderLogin(container); return; }
+
   const item = MENU.find(m=>m.id===current);
   if(!item){ container.innerHTML='메뉴 없음'; return; }
 
@@ -76,7 +89,7 @@ async function renderApp(){
 
   try{
     // 소문자 파일명 통일 + 캐시 방지 v=8.6.3 - Mobile.js 대문자 문제 해결!
-    const path = `./modules/${item.file.toLowerCase()}?v=8.7.1`;
+    const path = `./modules/${item.file.toLowerCase()}?v=8.7.2`;
     const mod = await import(path);
     const fn = mod[item.func] || mod[Object.keys(mod)[0]];
     if(typeof fn!== 'function') throw new Error(`${item.func} 함수 없음 - ${item.file.toLowerCase()}`);
@@ -143,6 +156,64 @@ async function syncFromCloud(){
   }
 }
 
+// 로그인 화면 (미인증 시)
+function renderLogin(container){
+  container.innerHTML = `
+  <div style="display:flex;align-items:center;justify-content:center;min-height:80vh">
+    <div style="background:#fff;padding:36px;border-radius:20px;box-shadow:0 8px 30px rgba(0,0,0,0.08);width:100%;max-width:380px">
+      <div style="text-align:center;margin-bottom:20px">
+        <img src="./assets/mascot.png" style="width:72px;height:72px;border-radius:16px">
+        <h2 style="margin-top:10px">🐶 YUCA 로그인</h2>
+        <p style="color:#888;font-size:13px;margin-top:4px">관리자 계정으로 로그인하세요</p>
+      </div>
+      <div style="display:grid;gap:10px">
+        <input id="loginEmail" type="email" placeholder="이메일" autocomplete="username"
+          style="padding:12px;border:1px solid #ddd;border-radius:10px;font-size:14px">
+        <input id="loginPw" type="password" placeholder="비밀번호" autocomplete="current-password"
+          style="padding:12px;border:1px solid #ddd;border-radius:10px;font-size:14px">
+        <div id="loginErr" style="display:none;color:#dc2626;font-size:12px;padding:8px;background:#fef2f2;border-radius:8px"></div>
+        <button id="btnLogin" style="padding:12px;border:none;border-radius:10px;background:#f97316;color:#fff;font-weight:bold;font-size:15px;cursor:pointer">로그인</button>
+      </div>
+      <p style="margin-top:14px;font-size:11px;color:#aaa;text-align:center">Firebase Authentication 보호됨</p>
+    </div>
+  </div>`;
+
+  const doLogin = async ()=>{
+    const email = container.querySelector('#loginEmail').value.trim();
+    const pw = container.querySelector('#loginPw').value;
+    const errEl = container.querySelector('#loginErr');
+    errEl.style.display='none';
+    if(!email || !pw){ errEl.textContent='이메일과 비밀번호를 입력하세요'; errEl.style.display='block'; return; }
+    try{
+      await window.yucaSignIn(email, pw);
+      // 성공 시 onAuthStateChanged → YUCA_onAuthChange가 화면 전환
+    }catch(e){
+      errEl.textContent = '로그인 실패: ' + (e.code==='auth/invalid-credential'||e.code==='auth/wrong-password'||e.code==='auth/user-not-found' ? '이메일 또는 비밀번호가 올바르지 않습니다' : e.message);
+      errEl.style.display='block';
+    }
+  };
+  container.querySelector('#btnLogin').addEventListener('click', doLogin);
+  container.querySelector('#loginPw').addEventListener('keydown', (e)=>{ if(e.key==='Enter') doLogin(); });
+}
+
+// 인증 상태 변경 시 처리 (로그인/로그아웃/세션 복원)
+let appEntered = false;
+async function enterApp(){
+  if(appEntered) return;
+  appEntered = true;
+  await syncFromCloud();
+  if(document.readyState !== 'loading') renderApp();
+  // 'loading' 상태면 DOMContentLoaded 핸들러가 renderApp을 호출
+}
+window.YUCA_onAuthChange = (user)=>{
+  if(user){
+    enterApp();
+  }else{
+    appEntered = false;
+    if(document.readyState === 'complete') renderApp();
+  }
+};
+
 // Service Worker 등록 (HTTPS/localhost에서만 동작)
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('./sw.js').catch((e)=> console.warn('SW 등록 실패:', e));
@@ -150,8 +221,11 @@ if('serviceWorker' in navigator){
 
 document.addEventListener('DOMContentLoaded', async ()=>{
   if(checkMobile()) return;
-  await syncFromCloud();
-  renderApp();
+  // 인증 상태 복원 대기 후 앱 진입 (미인증이면 로그인 화면)
+  const ready = window.yucaAuthReady || Promise.resolve(window.yucaUser || null);
+  await ready;
+  if(window.yucaUser && !appEntered){ await enterApp(); }
+  else { renderApp(); } // 로그인 화면 or 이미 진입한 앱 다시 렌더
 });
 
 window.YUCA_render = renderApp;
