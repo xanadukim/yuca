@@ -2,17 +2,17 @@
 import { load, KEYS } from './storage.js';
 
 const MENU = [
-  { id: 'dashboard', label: '📊 대시보드', file: 'dashboard.js', func: 'renderDashboard' },
-  { id: 'customers', label: '👥 고객관리', file: 'customers.js', func: 'renderCustomers' },
-  { id: 'reservations', label: '📅 예약관리', file: 'reservations.js', func: 'renderReservations' },
-  { id: 'kindergarten', label: '🏫 유치원', file: 'kindergarten.js', func: 'renderKindergarten' },
-  { id: 'hotel', label: '🎁 호텔', file: 'hotel.js', func: 'renderHotel' },
-  { id: 'staff', label: '👨‍💼 직원관리', file: 'employees.js', func: 'renderEmployees' },
-  { id: 'products', label: '📦 제품관리', file: 'products.js', func: 'renderProducts' },
-  { id: 'reports', label: '💰 매출리포트', file: 'reports.js', func: 'renderReports' },
-  { id: 'sms', label: '💬 문자', file: 'sms.js', func: 'renderSMS' },
-  { id: 'mobile', label: '📱 모바일', file: 'mobile.js', func: 'renderMobile' },
-  { id: 'settings', label: '⚙️ 설정', file: 'settings.js', func: 'renderSettings' },
+  { id: 'dashboard', label: '대시보드', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>', file: 'dashboard.js', func: 'renderDashboard' },
+  { id: 'customers', label: '고객관리', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="16" r="4.2"/><circle cx="6.8" cy="10.5" r="1.7"/><circle cx="10.2" cy="7.8" r="1.7"/><circle cx="13.8" cy="7.8" r="1.7"/><circle cx="17.2" cy="10.5" r="1.7"/></svg>', file: 'customers.js', func: 'renderCustomers' },
+  { id: 'reservations', label: '예약관리', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M12 14v4M10 16h4"/></svg>', file: 'reservations.js', func: 'renderReservations' },
+  { id: 'kindergarten', label: '유치원', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="8" r="2.6"/><circle cx="16.5" cy="8" r="2.6"/><path d="M10 8h4M9.5 10.5c-1.5 3-1.5 7 0 9.5M14.5 10.5c1.5 3 1.5 7 0 9.5"/></svg>', file: 'kindergarten.js', func: 'renderKindergarten' },
+  { id: 'hotel', label: '호텔', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="1"/><path d="M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2M10 21v-3h4v3"/></svg>', file: 'hotel.js', func: 'renderHotel' },
+  { id: 'staff', label: '직원관리', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M6.5 16c.6-1.4 1.5-2 2.5-2s1.9.6 2.5 2M14 10h4M14 13h4"/></svg>', file: 'employees.js', func: 'renderEmployees' },
+  { id: 'products', label: '제품관리', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l9-5 9 5v8l-9 5-9-5V8Z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>', file: 'products.js', func: 'renderProducts' },
+  { id: 'reports', label: '매출리포트', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>', file: 'reports.js', func: 'renderReports' },
+  { id: 'sms', label: '문자', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4V5Z"/><path d="M8 9h8M8 12h5"/></svg>', file: 'sms.js', func: 'renderSMS' },
+  { id: 'mobile', label: '모바일', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg>', file: 'mobile.js', func: 'renderMobile' },
+  { id: 'settings', label: '설정', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h8M16 8h4M4 16h2M10 16h10"/><circle cx="14" cy="8" r="2"/><circle cx="8" cy="16" r="2"/></svg>', file: 'settings.js', func: 'renderSettings' },
 ];
 
 let current = localStorage.getItem('yuca_page') || 'dashboard';
@@ -27,9 +27,9 @@ function renderSidebar(){
   }
 
   nav.innerHTML = MENU.map(m => `
-    <button data-page="${m.id}" class="duo-nav-btn ${current===m.id?'active':''}">${m.label}</button>
-  `).join('') + `<div style="margin-top:20px;padding:12px;background:#f7f7f7;border:2px solid #e5e5e5;border-radius:14px;font-size:11px;color:#777;line-height:1.5;font-weight:700">v8.8.0<br>Duo 테마 적용<br>${window.yucaUser.email||'Firebase OK'}</div>
-  <button id="btnLogout" class="duo-btn duo-btn--ghost" style="width:100%;margin-top:8px;padding:10px;font-size:12px;color:#ff4b4b">🚪 로그아웃</button>`;
+    <button data-page="${m.id}" class="duo-nav-btn ${current===m.id?'active':''}"><span class="mi">${m.icon}</span><span>${m.label}</span></button>
+  `).join('') + `
+  <button id="btnLogout" class="duo-nav-btn" style="margin-top:16px;color:#ff4b4b"><span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 8l-4 4 4 4M6 12h9"/></svg></span><span>로그아웃</span></button>`;
 
   nav.querySelector('#btnLogout')?.addEventListener('click', ()=>{
     if(window.yucaSignOut) window.yucaSignOut();
@@ -86,7 +86,7 @@ async function renderApp(){
 
   try{
     // 소문자 파일명 통일 + 캐시 방지 v=8.6.3 - Mobile.js 대문자 문제 해결!
-    const path = `./modules/${item.file.toLowerCase()}?v=8.8.0`;
+    const path = `./modules/${item.file.toLowerCase()}?v=8.8.4`;
     const mod = await import(path);
     const fn = mod[item.func] || mod[Object.keys(mod)[0]];
     if(typeof fn!== 'function') throw new Error(`${item.func} 함수 없음 - ${item.file.toLowerCase()}`);

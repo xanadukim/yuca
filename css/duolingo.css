@@ -65,6 +65,15 @@ html, body {
 }
 #main-content small { color: var(--duo-text-2); }
 
+/* SSG 수준 타이포 정규화 - 본문은 보통 굵기, 제목/버튼/강조만 굵게 */
+#main-content * { font-weight: 400 !important; }
+#main-content h1, #main-content h2, #main-content h3, #main-content h4 { font-weight: 700 !important; }
+#main-content button, #main-content th, #main-content b, #main-content strong, #main-content label { font-weight: 700 !important; }
+#main-content .duo-stat__value { font-weight: 800 !important; }
+#main-content .duo-stat__label { font-weight: 700 !important; }
+#main-content .duo-tag { font-weight: 600 !important; }
+#main-content .duo-btn, #main-content .duo-kicker { font-weight: 700 !important; }
+
 /* ---------- Global component polish (modules' inline styles 위에 적용) ---------- */
 
 /* Buttons: 둥글고 두꺼운 기본기 */
@@ -332,18 +341,27 @@ body * {
 .duo-nav-btn {
   width: 100%;
   text-align: left;
-  padding: 11px 14px;
+  padding: 10px 12px;
   border: none;
   background: transparent;
   color: var(--duo-text-2);
   border-radius: var(--duo-radius-md);
   cursor: pointer;
   margin-bottom: 3px;
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 11px;
   font-weight: 600;
   font-size: 14px;
   transition: background 120ms ease, color 120ms ease;
 }
+.duo-nav-btn .mi {
+  display: inline-flex;
+  flex: none;
+  width: 20px;
+  height: 20px;
+}
+.duo-nav-btn .mi svg { width: 20px; height: 20px; display: block; }
 .duo-nav-btn:hover {
   background: var(--duo-surface);
   color: var(--duo-text);
