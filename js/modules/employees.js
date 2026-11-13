@@ -26,13 +26,11 @@ export function renderEmployees(container){
         <small style="font-size:13px;color:#888;margin-left:8px">재직 ${working}명 · 월급여 합 ₩${totalSalary.toLocaleString()}</small>
       </h2>
       <div style="display:flex;gap:8px">
-        <div style="display:flex;border:1px solid #ddd;border-radius:8px;overflow:hidden">
-          <button onclick="setEmpFilter('all')" style="padding:8px 14px;border:none;background:${empFilter==='all'?'#FFF3E0':'white'};color:${empFilter==='all'?'#E65100':'#666'};font-weight:${empFilter==='all'?'700':'400'};cursor:pointer;font-size:13px;border-radius:8px 0 0 8px">전체</button>
-          <button onclick="setEmpFilter('working')" style="padding:8px 14px;border:none;background:${empFilter==='working'?'#FFF3E0':'white'};color:${empFilter==='working'?'#E65100':'#666'};font-weight:${empFilter==='working'?'700':'400'};cursor:pointer;font-size:13px;border-left:1px solid #eee">재직</button>
-          <button onclick="setEmpFilter('groomer')" style="padding:8px 14px;border:none;background:${empFilter==='groomer'?'#FFF3E0':'white'};color:${empFilter==='groomer'?'#E65100':'#666'};font-weight:${empFilter==='groomer'?'700':'400'};cursor:pointer;font-size:13px;border-left:1px solid #eee">미용사</button>
-          <button onclick="setEmpFilter('teacher')" style="padding:8px 14px;border:none;background:${empFilter==='teacher'?'#FFF3E0':'white'};color:${empFilter==='teacher'?'#E65100':'#666'};font-weight:${empFilter==='teacher'?'700':'400'};cursor:pointer;font-size:13px;border-left:1px solid #eee;border-radius:0 8px 8px 0">유치원/호텔</button>
-        </div>
-        <button onclick="openEmpFormFull()" style="padding:10px 20px;background:#FFF3E0;color:#E65100;border:1px solid #FFCC80;border-radius:8px;font-weight:700;cursor:pointer">+ 직원 등록</button>
+        <button onclick="setEmpFilter('all')" style="padding:8px 14px;border-radius:20px;border:1px solid #ddd;background:${empFilter==='all'?'#FFF3E0':'#fff'};color:${empFilter==='all'?'#E65100':'#333'};cursor:pointer;font-size:13px">전체</button>
+        <button onclick="setEmpFilter('working')" style="padding:8px 14px;border-radius:20px;border:1px solid #ddd;background:${empFilter==='working'?'#FFF3E0':'#fff'};color:${empFilter==='working'?'#E65100':'#333'};cursor:pointer;font-size:13px">재직</button>
+        <button onclick="setEmpFilter('groomer')" style="padding:8px 14px;border-radius:20px;border:1px solid #ddd;background:${empFilter==='groomer'?'#FFF3E0':'#fff'};color:${empFilter==='groomer'?'#E65100':'#333'};cursor:pointer;font-size:13px">미용사</button>
+        <button onclick="setEmpFilter('teacher')" style="padding:8px 14px;border-radius:20px;border:1px solid #ddd;background:${empFilter==='teacher'?'#FFF3E0':'#fff'};color:${empFilter==='teacher'?'#E65100':'#333'};cursor:pointer;font-size:13px">유치원/호텔</button>
+        <button onclick="openEmpFormFull()" style="padding:8px 16px;border-radius:20px;background:#FFF3E0;color:#E65100;border:1px solid #FFCC80;cursor:pointer;font-weight:700">+ 직원 등록</button>
       </div>
     </div>
 

@@ -48,12 +48,10 @@ export function renderHotel(container){
         <small style="font-size:13px;color:#888;margin-left:8px">투숙중 ${staying}마리 · 매출 ₩${totalRev.toLocaleString()}</small>
       </h2>
       <div style="display:flex;gap:8px">
-        <div style="display:flex;border:1px solid #ddd;border-radius:8px;overflow:hidden">
-          <button onclick="setHotelFilter('stay')" style="padding:8px 12px;border:none;background:${hotelFilter==='stay'?'#9C27B0':'white'};color:${hotelFilter==='stay'?'white':'#666'};cursor:pointer;font-size:13px">투숙중</button>
-          <button onclick="setHotelFilter('today')" style="padding:8px 12px;border:none;background:${hotelFilter==='today'?'#9C27B0':'white'};color:${hotelFilter==='today'?'white':'#666'};cursor:pointer;font-size:13px;border-left:1px solid #ddd">오늘</button>
-          <button onclick="setHotelFilter('all')" style="padding:8px 12px;border:none;background:${hotelFilter==='all'?'#9C27B0':'white'};color:${hotelFilter==='all'?'white':'#666'};cursor:pointer;font-size:13px;border-left:1px solid #ddd">전체</button>
-        </div>
-        <button onclick="openHotelFormFull()" style="padding:10px 20px;background:#9C27B0;color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer">+ 투숙 등록</button>
+        <button onclick="setHotelFilter('stay')" style="padding:8px 14px;border-radius:20px;border:1px solid #ddd;background:${hotelFilter==='stay'?'#9C27B0':'#fff'};color:${hotelFilter==='stay'?'#fff':'#333'};cursor:pointer;font-size:13px">투숙중</button>
+        <button onclick="setHotelFilter('today')" style="padding:8px 14px;border-radius:20px;border:1px solid #ddd;background:${hotelFilter==='today'?'#9C27B0':'#fff'};color:${hotelFilter==='today'?'#fff':'#333'};cursor:pointer;font-size:13px">오늘</button>
+        <button onclick="setHotelFilter('all')" style="padding:8px 14px;border-radius:20px;border:1px solid #ddd;background:${hotelFilter==='all'?'#9C27B0':'#fff'};color:${hotelFilter==='all'?'#fff':'#333'};cursor:pointer;font-size:13px">전체</button>
+        <button onclick="openHotelFormFull()" style="padding:8px 16px;border-radius:20px;background:#9C27B0;color:#fff;border:none;cursor:pointer;font-weight:700">+ 투숙 등록</button>
       </div>
     </div>
 

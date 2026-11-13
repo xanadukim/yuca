@@ -86,7 +86,7 @@ async function renderApp(){
 
   try{
     // 소문자 파일명 통일 + 캐시 방지 v=8.6.3 - Mobile.js 대문자 문제 해결!
-    const path = `./modules/${item.file.toLowerCase()}?v=8.9.4`;
+    const path = `./modules/${item.file.toLowerCase()}?v=8.9.5`;
     const mod = await import(path);
     const fn = mod[item.func] || mod[Object.keys(mod)[0]];
     if(typeof fn!== 'function') throw new Error(`${item.func} 함수 없음 - ${item.file.toLowerCase()}`);
@@ -261,7 +261,7 @@ function styleModuleUI(root){
       const bs=d.querySelectorAll('button');
       if(!bs.length) return;
       try{ if(getComputedStyle(d).display.includes('flex')) d.style.gap='14px'; }catch(e){}
-      bs.forEach(b=>{b.style.padding='7px 14px';b.style.fontSize='12px';b.style.borderRadius='8px';});
+      bs.forEach(b=>{b.style.padding='7px 14px';b.style.fontSize='12px';b.style.borderRadius='20px';});
     });
   });
 }

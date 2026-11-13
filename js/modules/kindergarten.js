@@ -37,12 +37,10 @@ export function renderKindergarten(container){
         <small style="font-size:13px;color:#888;margin-left:8px">오늘 ${todayCount}명 · 매출 ₩${totalRevenue.toLocaleString()}</small>
       </h2>
       <div style="display:flex;gap:8px">
-        <div style="display:flex;border:1px solid #ddd;border-radius:8px;overflow:hidden">
-          <button onclick="setKgFilter('today')" style="padding:8px 12px;border:none;background:${kgFilter==='today'?'#2196F3':'white'};color:${kgFilter==='today'?'white':'#666'};cursor:pointer;font-size:13px">오늘</button>
-          <button onclick="setKgFilter('all')" style="padding:8px 12px;border:none;background:${kgFilter==='all'?'#2196F3':'white'};color:${kgFilter==='all'?'white':'#666'};cursor:pointer;font-size:13px;border-left:1px solid #ddd">전체</button>
-          <button onclick="setKgFilter('week')" style="padding:8px 12px;border:none;background:${kgFilter==='week'?'#2196F3':'white'};color:${kgFilter==='week'?'white':'#666'};cursor:pointer;font-size:13px;border-left:1px solid #ddd">이번주</button>
-        </div>
-        <button onclick="openKgFormFull()" style="padding:10px 20px;background:#2196F3;color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer">+ 등원 등록</button>
+        <button onclick="setKgFilter('today')" style="padding:8px 14px;border-radius:20px;border:1px solid #ddd;background:${kgFilter==='today'?'#2196F3':'#fff'};color:${kgFilter==='today'?'#fff':'#333'};cursor:pointer;font-size:13px">오늘</button>
+        <button onclick="setKgFilter('all')" style="padding:8px 14px;border-radius:20px;border:1px solid #ddd;background:${kgFilter==='all'?'#2196F3':'#fff'};color:${kgFilter==='all'?'#fff':'#333'};cursor:pointer;font-size:13px">전체</button>
+        <button onclick="setKgFilter('week')" style="padding:8px 14px;border-radius:20px;border:1px solid #ddd;background:${kgFilter==='week'?'#2196F3':'#fff'};color:${kgFilter==='week'?'#fff':'#333'};cursor:pointer;font-size:13px">이번주</button>
+        <button onclick="openKgFormFull()" style="padding:8px 16px;border-radius:20px;background:#2196F3;color:#fff;border:none;cursor:pointer;font-weight:700">+ 등원 등록</button>
       </div>
     </div>
 

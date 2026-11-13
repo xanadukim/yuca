@@ -34,12 +34,10 @@ export function renderReservations(container){
         <small style="font-size:13px;color:#888;margin-left:8px">전체 ${reservations.length}건</small>
       </h2>
       <div style="display:flex;gap:8px">
-        <div style="display:flex;border:1px solid #ddd;border-radius:8px;overflow:hidden">
-          <button onclick="setResFilter('all')" style="padding:8px 12px;border:none;background:${filterMode==='all'?'#FF8C00':'white'};color:${filterMode==='all'?'white':'#666'};cursor:pointer;font-size:13px">전체</button>
-          <button onclick="setResFilter('today')" style="padding:8px 12px;border:none;background:${filterMode==='today'?'#FF8C00':'white'};color:${filterMode==='today'?'white':'#666'};cursor:pointer;font-size:13px;border-left:1px solid #ddd">오늘</button>
-          <button onclick="setResFilter('week')" style="padding:8px 12px;border:none;background:${filterMode==='week'?'#FF8C00':'white'};color:${filterMode==='week'?'white':'#666'};cursor:pointer;font-size:13px;border-left:1px solid #ddd">이번주</button>
-        </div>
-        <button onclick="openResFormFull()" style="padding:10px 20px;background:#FF8C00;color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer">+ 새 예약</button>
+        <button onclick="setResFilter('all')" style="padding:8px 14px;border-radius:20px;border:1px solid #ddd;background:${filterMode==='all'?'#FF8C00':'#fff'};color:${filterMode==='all'?'#fff':'#333'};cursor:pointer;font-size:13px">전체</button>
+        <button onclick="setResFilter('today')" style="padding:8px 14px;border-radius:20px;border:1px solid #ddd;background:${filterMode==='today'?'#FF8C00':'#fff'};color:${filterMode==='today'?'#fff':'#333'};cursor:pointer;font-size:13px">오늘</button>
+        <button onclick="setResFilter('week')" style="padding:8px 14px;border-radius:20px;border:1px solid #ddd;background:${filterMode==='week'?'#FF8C00':'#fff'};color:${filterMode==='week'?'#fff':'#333'};cursor:pointer;font-size:13px">이번주</button>
+        <button onclick="openResFormFull()" style="padding:8px 16px;border-radius:20px;background:#FF8C00;color:#fff;border:none;cursor:pointer;font-weight:700">+ 새 예약</button>
       </div>
     </div>
 
