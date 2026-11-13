@@ -89,7 +89,7 @@ async function renderApp(){
 
   try{
     // 소문자 파일명 통일 + 캐시 방지 v=8.6.3 - Mobile.js 대문자 문제 해결!
-    const path = `./modules/${item.file.toLowerCase()}?v=8.9.9`;
+    const path = `./modules/${item.file.toLowerCase()}?v=9.0.0`;
     const mod = await import(path);
     const fn = mod[item.func] || mod[Object.keys(mod)[0]];
     if(typeof fn!== 'function') throw new Error(`${item.func} 함수 없음 - ${item.file.toLowerCase()}`);
@@ -256,14 +256,31 @@ function styleModuleUI(root){
     if(isEdit){btn.style.background='#E3F2FD';btn.style.color='#1565C0';btn.style.border='1px solid #BBDEFB';}
     if(isDel){btn.style.background='#FFEBEE';btn.style.color='#C62828';btn.style.border='1px solid #FFCDD2';}
   });
-  // 색상이 들어간 버튼 -> 파스텔 톤으로 변환 (포화색만, 파스텔/흰색/무채색 제외)
+  // 버튼 3단계: CTA(생성/확정 동사)는 진한색 유지, 나머지 색상 버튼은 파스텔로
   root.querySelectorAll('button').forEach(btn=>{
     try{
-      const m=getComputedStyle(btn).backgroundColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+      const t=(btn.textContent||'').replace(/\s/g,'');
+      const cs=getComputedStyle(btn);
+      const m=cs.backgroundColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
       if(!m) return;
       const r=+m[1],g=+m[2],b=+m[3];
       const mx=Math.max(r,g,b),mn=Math.min(r,g,b);
-      if(mx-mn<60||mx>245) return;
+      const saturated = mx-mn>=60 && mx<=245;
+      const isCTA = /^\+/.test(t) || /(등록|저장|확인|발송|보내기|신규)/.test(t);
+      if(isCTA){
+        // 파스텔로 변해있으면 진한색으로 복원 (텍스트색/0.72 ≈ 원래 색)
+        if(!saturated){
+          const cm=cs.color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+          if(cm){
+            const sr=Math.min(255,Math.round(+cm[1]/0.72)),sg=Math.min(255,Math.round(+cm[2]/0.72)),sb=Math.min(255,Math.round(+cm[3]/0.72));
+            btn.style.background=`rgb(${sr},${sg},${sb})`;
+            btn.style.color='#fff';
+            btn.style.border=`1px solid rgb(${Math.round(sr*.8)},${Math.round(sg*.8)},${Math.round(sb*.8)})`;
+          }
+        }
+        return;
+      }
+      if(!saturated) return;
       const mix=(c,t)=>Math.round(c+(255-c)*t);
       btn.style.background=`rgb(${mix(r,.88)},${mix(g,.88)},${mix(b,.88)})`;
       btn.style.color=`rgb(${Math.round(r*.72)},${Math.round(g*.72)},${Math.round(b*.72)})`;
