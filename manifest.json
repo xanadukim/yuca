@@ -1,17 +1,27 @@
 {
   "background_color": "#fff7ed",
-  "description": "Yeungjin Univ Pet Management v8.6 - Firebase + PWA + 네이버 예약",
+  "description": "Yeungjin Univ Pet Management v8.7 - Firebase + PWA + 네이버 예약",
   "display": "standalone",
   "icons": [
     {
-      "src": "./assets/mascot.png",
+      "src": "./assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./assets/icon-512.png",
       "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "./assets/mascot.png",
+      "sizes": "180x183",
       "type": "image/png"
     }
   ],
   "name": "YUCA - Yeungjin",
   "short_name": "YUCA",
-  "start_url": "/yuca/",
-  "scope": "/yuca/",
+  "start_url": "./",
+  "scope": "./",
   "theme_color": "#f97316"
 }

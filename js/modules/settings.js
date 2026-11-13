@@ -117,6 +117,7 @@ export function renderSettings(container){
     const cur = JSON.parse(localStorage.getItem(SETTINGS_KEY)||'{}');
     const next = {...cur, shopName: container.querySelector('#cfgShopName').value, shopPhone: container.querySelector('#cfgPhone').value, shopAddr: container.querySelector('#cfgAddr').value, useNaver: container.querySelector('#cfgUseNaver').checked, naverBookingUrl: container.querySelector('#cfgNaverBooking').value, naverPlaceUrl: container.querySelector('#cfgNaverPlace').value };
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(next));
+    localStorage.setItem('yuca_ts_'+SETTINGS_KEY, String(Date.now()));
     if(window.saveToCloud) window.saveToCloud(SETTINGS_KEY, next);
     alert('✅ 저장 완료!');
   });
@@ -147,6 +148,7 @@ export function renderSettings(container){
     });
     if(snap.settings && typeof snap.settings === 'object'){
       localStorage.setItem(SETTINGS_KEY, JSON.stringify(snap.settings));
+      localStorage.setItem('yuca_ts_'+SETTINGS_KEY, String(Date.now()));
       if(window.saveToCloud) window.saveToCloud(SETTINGS_KEY, snap.settings);
     }
   };

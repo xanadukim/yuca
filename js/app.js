@@ -26,7 +26,7 @@ function renderSidebar(){
       style="width:100%;text-align:left;padding:12px 14px;border:none;background:${current===m.id?'#2d3748':'transparent'};color:${current===m.id?'#fff':'#cbd5e1'};border-radius:10px;cursor:pointer;margin-bottom:4px;display:block;font-weight:${current===m.id?'bold':'normal'};font-size:14px;transition:0.2s">
       ${m.label}
     </button>
-  `).join('') + `<div style="margin-top:20px;padding:10px;background:#1a202c;border-radius:10px;font-size:11px;color:#a0aec0;line-height:1.4">v8.7.0<br>버그픽스<br>Firebase OK</div>`;
+  `).join('') + `<div style="margin-top:20px;padding:10px;background:#1a202c;border-radius:10px;font-size:11px;color:#a0aec0;line-height:1.4">v8.7.1<br>동기화+PWA<br>Firebase OK</div>`;
 
   // 클릭 이벤트 - 방어 코드!
   nav.querySelectorAll('button[data-page]').forEach(btn=>{
@@ -76,7 +76,7 @@ async function renderApp(){
 
   try{
     // 소문자 파일명 통일 + 캐시 방지 v=8.6.3 - Mobile.js 대문자 문제 해결!
-    const path = `./modules/${item.file.toLowerCase()}?v=8.7.0`;
+    const path = `./modules/${item.file.toLowerCase()}?v=8.7.1`;
     const mod = await import(path);
     const fn = mod[item.func] || mod[Object.keys(mod)[0]];
     if(typeof fn!== 'function') throw new Error(`${item.func} 함수 없음 - ${item.file.toLowerCase()}`);
@@ -111,26 +111,41 @@ function checkMobile(){
   return false;
 }
 
-// Firebase 클라우드 → 로컬 초기 동기화 (로컬이 비어있을 때만 채움)
+// Firebase 클라우드 ↔ 로컬 동기화 (Last-Write-Wins, updatedAt 비교)
 async function syncFromCloud(){
   if(!window.loadFromCloud) return;
   try{
     const data = await window.loadFromCloud();
     if(!data) return;
-    let filled = 0;
-    for(const [k, v] of Object.entries(data)){
+    let fromCloud = 0, toCloud = 0;
+    for(const [k, doc] of Object.entries(data)){
       if(typeof k !== 'string' || !k.startsWith('yuca_')) continue;
+      const cloudVal = doc?.value;
+      const cloudTs = doc?.updatedAt || 0;
       const cur = localStorage.getItem(k);
-      if(cur === null || cur === '[]' || cur === '{}'){
-        localStorage.setItem(k, JSON.stringify(v));
-        filled++;
+      const localTs = parseInt(localStorage.getItem('yuca_ts_'+k)||'0', 10) || 0;
+      const empty = cur === null || cur === '[]' || cur === '{}';
+      if(empty || cloudTs > localTs){
+        localStorage.setItem(k, JSON.stringify(cloudVal));
+        localStorage.setItem('yuca_ts_'+k, String(cloudTs || Date.now()));
+        fromCloud++;
+      }else if(localTs > cloudTs && cur){
+        try{
+          const ok = await window.saveToCloud(k, JSON.parse(cur));
+          if(ok) toCloud++;
+        }catch(e){}
       }
     }
     localStorage.setItem('yuca_firebase_ok', '1');
-    if(filled) console.log('☁️ 클라우드 데이터 동기화:', filled, '키');
+    if(fromCloud || toCloud) console.log(`☁️ 동기화: 클라우드→로컬 ${fromCloud}키, 로컬→클라우드 ${toCloud}키`);
   }catch(e){
     console.warn('클라우드 동기화 실패 (오프라인?):', e);
   }
+}
+
+// Service Worker 등록 (HTTPS/localhost에서만 동작)
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('./sw.js').catch((e)=> console.warn('SW 등록 실패:', e));
 }
 
 document.addEventListener('DOMContentLoaded', async ()=>{

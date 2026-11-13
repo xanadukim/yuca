@@ -27,8 +27,8 @@ export function renderDashboard(container){
   const totalCustomers = customers.length;
   const totalProducts = products.length;
   
-  // 매출 (예약 1건당 3만원으로 가정 - 나중에 실제 매출 테이블로 교체)
-  const estimatedSales = todayResCount * 32000;
+  // 오늘 매출 (취소 제외, price 없으면 예약폼 기본가 32000)
+  const estimatedSales = todayRes.filter(r=>r.status!=='취소').reduce((s,r)=>s+(parseInt(r.price)||32000),0);
   
   // 최근 예약 5개
   const recentRes = [...reservations].sort((a,b)=> (b.date||'').localeCompare(a.date||'')).slice(0,5);

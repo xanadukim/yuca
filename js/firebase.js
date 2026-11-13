@@ -33,7 +33,13 @@ window.loadFromCloud = async () => {
   try {
     const snap = await getDocs(collection(db, "yuca_data"));
     const data = {};
-    snap.forEach((d) => (data[d.id] = d.data().value));
+    snap.forEach((d) => {
+      const doc = d.data();
+      data[d.id] = {
+        value: doc.value,
+        updatedAt: doc.updatedAt?.toMillis?.() || 0,
+      };
+    });
     return data;
   } catch (e) {
     console.error("로드 실패:", e);

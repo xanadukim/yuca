@@ -11,6 +11,7 @@ export function load(k,f=[]){
 export function save(k,d){
   // 1. 로컬에 먼저 저장
   const result = SL(k,d);
+  try{ localStorage.setItem('yuca_ts_'+k, String(Date.now())); }catch(e){}
   // 2. Firebase 클라우드에도 저장!
   if(window.saveToCloud){
     window.saveToCloud(k, d).then(ok => {
