@@ -167,9 +167,9 @@ function renderLogin(container){
         <p style="color:#888;font-size:13px;margin-top:4px">관리자 계정으로 로그인하세요</p>
       </div>
       <div style="display:grid;gap:10px">
-        <input id="loginEmail" type="email" placeholder="이메일" autocomplete="username"
+        <input id="loginEmail" type="email" placeholder="이메일" autocomplete="off" name="yucoff"
           style="padding:12px;border:1px solid #ddd;border-radius:10px;font-size:14px">
-        <input id="loginPw" type="password" placeholder="비밀번호" autocomplete="current-password"
+        <input id="loginPw" type="password" placeholder="비밀번호" autocomplete="new-password" name="yucoff2"
           style="padding:12px;border:1px solid #ddd;border-radius:10px;font-size:14px">
         <div id="loginErr" style="display:none;color:#dc2626;font-size:12px;padding:8px;background:#fef2f2;border-radius:8px"></div>
         <button id="btnLogin" style="padding:12px;border:none;border-radius:10px;background:#f97316;color:#fff;font-weight:bold;font-size:15px;cursor:pointer">로그인</button>
@@ -177,6 +177,13 @@ function renderLogin(container){
       <p style="margin-top:14px;font-size:11px;color:#aaa;text-align:center">Firebase Authentication 보호됨</p>
     </div>
   </div>`;
+
+  // 자동완성 방지: 로드 시 readonly, 포커스 시 해제
+  ['loginEmail','loginPw'].forEach(id=>{
+    const el = container.querySelector('#'+id);
+    el.readOnly = true;
+    el.addEventListener('focus', ()=>{ el.readOnly = false; });
+  });
 
   const doLogin = async ()=>{
     const email = container.querySelector('#loginEmail').value.trim();
