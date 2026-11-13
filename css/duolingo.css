@@ -402,21 +402,23 @@ body.sb-collapsed .duo-nav-btn span:not(.mi){display:none}
 body.sb-collapsed #sbTools{flex-direction:column;align-items:center}
 body.sb-collapsed #sbTools button{width:40px}
 
-/* 여름 저녁 파스텔 모드 (구 다크모드) */
-body.dark{--duo-bg:#EFEBF7;--duo-surface:#FFFFFF;--duo-border:#D9D2E8;--duo-border-2:#C4BCE0;--duo-text:#2E2A3B;--duo-text-2:#5C5670;--duo-text-3:#8A84A0;--duo-green-50:#E4F7D4;--duo-blue-50:#DDF2FE;--duo-orange-50:#FFE8CC;--duo-red-50:#FFD9D9;--duo-purple-50:#EBDDF7;background:#EFEBF7!important}
-body.dark #sidebar{background:#F7F5FC!important;border-color:#D9D2E8!important;color:#2E2A3B!important}
-body.dark #main-content{background:#EFEBF7!important;color:#2E2A3B}
-body.dark #sidebar-nav button:hover{background:#ECE6F7!important;color:#2E2A3B!important}
-body.dark .duo-nav-btn.active{background:#E4F7D4;color:#3E8E0E}
-body.dark .duo-btn--ghost{background:#fff;color:#2E2A3B}
-body.dark .duo-btn--ghost:hover{background:#F1EDF8}
-body.dark .duo-card,body.dark .duo-stat{background:#fff;border-color:#D9D2E8}
-body.dark input,body.dark select,body.dark textarea{background:#fff!important;color:#2E2A3B!important}
-body.dark #main-content input,body.dark #main-content select,body.dark #main-content textarea{background:#fff!important;color:#2E2A3B!important;border-color:#C4BCE0!important}
-body.dark #main-content input:focus,body.dark #main-content select:focus,body.dark #main-content textarea:focus{border-color:#58cc02!important;box-shadow:none!important}
-body.dark #main-content table thead{background:#F1EDF8!important}
-body.dark #main-content table th{color:#5C5670!important}
-body.dark #main-content table tr:hover td{background:#F7F5FC!important}
+/* 여름 저녁 파스텔 모드 (핑크) */
+body.dark{--duo-bg:#FBEFF4;--duo-surface:#FFFFFF;--duo-border:#F0D3E0;--duo-border-2:#E4BFD2;--duo-text:#402E3A;--duo-text-2:#6E5A68;--duo-text-3:#9C8894;--duo-green-50:#E4F7D4;--duo-blue-50:#DDF2FE;--duo-orange-50:#FFE8CC;--duo-red-50:#FFD9D9;--duo-purple-50:#EBDDF7;background:#FBEFF4!important}
+body.dark #sidebar{background:#FDF2F7!important;border-color:#F0D3E0!important;color:#402E3A!important}
+body.dark #main-content{background:#FBEFF4!important;color:#402E3A}
+body.dark #sidebar-nav button:hover{background:#F8E4EE!important;color:#402E3A!important}
+body.dark .duo-nav-btn.active{background:#FBDCE8;color:#AD1457}
+body.dark .duo-btn--ghost{background:#fff;color:#402E3A}
+body.dark .duo-btn--ghost:hover{background:#F8E4EE}
+body.dark .duo-card,body.dark .duo-stat{background:#fff;border-color:#F0D3E0}
+body.dark input,body.dark select,body.dark textarea{background:#fff!important;color:#402E3A!important}
+body.dark #main-content input,body.dark #main-content select,body.dark #main-content textarea{background:#fff!important;color:#402E3A!important;border-color:#E4BFD2!important}
+body.dark #main-content input:focus,body.dark #main-content select:focus,body.dark #main-content textarea:focus{border-color:#F06292!important;box-shadow:none!important}
+body.dark #main-content table thead{background:#F8E4EE!important}
+body.dark #main-content table th{color:#6E5A68!important}
+body.dark #main-content table tr:hover td{background:#FDF2F7!important}
+/* 저녁모드 히어로: 핑크 그라데이션 */
+body.dark .duo-hero{background:linear-gradient(135deg,#FF8FAB 0%,#FFC0D0 100%)}
 /* 흰/파스텔 카드 -> 다크 서피스 */
 body.dark #main-content div[style*="background:#fff"],
 body.dark #main-content div[style*="background: white"],
@@ -460,5 +462,5 @@ body.dark #main-content div[style*="background:#fdf4ff"],
 body.dark #main-content div[style*="background:#fce7f3"],
 body.dark #main-content div[style*="background:#fff1f2"],
 body.dark #main-content div[style*="background:#ffe4e6"]{
-  background:#FBFAFF!important;border-color:#D9D2E8!important;
+  background:#FFFCFE!important;border-color:#F0D3E0!important;
 }
