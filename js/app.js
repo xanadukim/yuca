@@ -89,7 +89,7 @@ async function renderApp(){
 
   try{
     // 소문자 파일명 통일 + 캐시 방지 v=8.6.3 - Mobile.js 대문자 문제 해결!
-    const path = `./modules/${item.file.toLowerCase()}?v=9.2.1`;
+    const path = `./modules/${item.file.toLowerCase()}?v=9.3.0`;
     const mod = await import(path);
     const fn = mod[item.func] || mod[Object.keys(mod)[0]];
     if(typeof fn!== 'function') throw new Error(`${item.func} 함수 없음 - ${item.file.toLowerCase()}`);
@@ -118,7 +118,7 @@ async function renderApp(){
 function checkMobile(){
   const v = new URLSearchParams(location.search).get('view');
   if(v==='mobile' || v==='booking'){
-    document.body.innerHTML = `<div style="padding:40px;text-align:center"><img src="./assets/mascot.png" style="width:80px;height:80px;border-radius:16px"><h2 style="margin-top:12px">🐶 YUCA 모바일</h2><p style="color:#888;margin-top:8px">메인 앱에서 QR로 접속하세요</p><a href="./" style="display:inline-block;margin-top:16px;padding:10px 20px;background:#f97316;color:#fff;border-radius:20px;text-decoration:none">메인으로</a></div>`;
+    document.body.innerHTML = `<div style="padding:40px;text-align:center"><img src="./assets/walkdog.svg" style="width:96px;height:96px;border-radius:24px"><h2 style="margin-top:12px">🐶 YUCA 모바일</h2><p style="color:#888;margin-top:8px">메인 앱에서 QR로 접속하세요</p><a href="./" style="display:inline-block;margin-top:16px;padding:10px 20px;background:#f97316;color:#fff;border-radius:20px;text-decoration:none">메인으로</a></div>`;
     return true;
   }
   return false;
@@ -162,7 +162,7 @@ function renderLogin(container){
   <div style="display:flex;align-items:center;justify-content:center;min-height:80vh">
     <div style="background:#fff;padding:36px;border:2px solid #e5e5e5;border-radius:24px;box-shadow:0 8px 0 #e5e5e5;width:100%;max-width:380px">
       <div style="text-align:center;margin-bottom:20px">
-        <img src="./assets/mascot.png" style="width:80px;height:80px;border-radius:18px;border:2px solid #e5e5e5">
+        <img src="./assets/walkdog.svg" style="width:96px;height:96px;border-radius:24px">
         <h2 style="margin-top:12px;font-weight:900;letter-spacing:-0.02em">🐶 YUCA</h2>
         <p style="color:#777;font-size:13px;font-weight:700;margin-top:4px">관리자 계정으로 로그인하세요</p>
       </div>
