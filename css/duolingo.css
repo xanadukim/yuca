@@ -85,12 +85,12 @@ html, body {
 #main-content button[style*="#ff8c00"] {
   background: var(--duo-green) !important;
   color: #fff !important;
-  box-shadow: 0 4px 0 var(--duo-green-dark) !important;
 }
-#main-content button[style*="#f97316"]:active,
-#main-content button[style*="#FF8C00"]:active,
-#main-content button[style*="#ff8c00"]:active {
-  box-shadow: 0 2px 0 var(--duo-green-dark) !important;
+
+/* 버튼 음영 제거 (플랫 디자인) */
+#main-content button,
+#sidebar-nav button {
+  box-shadow: none !important;
 }
 
 /* Inputs / selects / textarea: Duo input */
@@ -262,21 +262,20 @@ html, body {
   text-transform: uppercase;
   letter-spacing: .04em;
   cursor: pointer;
-  transition: transform 80ms ease, box-shadow 80ms ease, filter 150ms ease;
+  box-shadow: none;
+  transition: transform 80ms ease, filter 150ms ease;
 }
 .duo-btn--primary {
   background: var(--duo-green);
   color: #fff;
-  box-shadow: 0 4px 0 var(--duo-green-dark);
 }
 .duo-btn--primary:hover { background: var(--duo-green-soft); }
-.duo-btn--primary:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--duo-green-dark); }
+.duo-btn--primary:active { transform: translateY(1px); }
 .duo-btn--white {
   background: #fff;
   color: var(--duo-green-dark);
-  box-shadow: 0 4px 0 #D7E9CF;
 }
-.duo-btn--white:active { transform: translateY(2px); box-shadow: 0 2px 0 #D7E9CF; }
+.duo-btn--white:active { transform: translateY(1px); }
 .duo-btn--ghost {
   background: transparent;
   color: var(--duo-text);
