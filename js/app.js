@@ -89,7 +89,7 @@ async function renderApp(){
 
   try{
     // 소문자 파일명 통일 + 캐시 방지 v=8.6.3 - Mobile.js 대문자 문제 해결!
-    const path = `./modules/${item.file.toLowerCase()}?v=8.9.8`;
+    const path = `./modules/${item.file.toLowerCase()}?v=8.9.9`;
     const mod = await import(path);
     const fn = mod[item.func] || mod[Object.keys(mod)[0]];
     if(typeof fn!== 'function') throw new Error(`${item.func} 함수 없음 - ${item.file.toLowerCase()}`);
@@ -268,6 +268,21 @@ function styleModuleUI(root){
       btn.style.background=`rgb(${mix(r,.88)},${mix(g,.88)},${mix(b,.88)})`;
       btn.style.color=`rgb(${Math.round(r*.72)},${Math.round(g*.72)},${Math.round(b*.72)})`;
       btn.style.border=`1px solid rgb(${mix(r,.7)},${mix(g,.7)},${mix(b,.7)})`;
+    }catch(e){}
+  });
+  // border-radius 스케일 통일: 8 / 12 / 20 / pill(999)
+  root.querySelectorAll('[style*="border-radius"]').forEach(el=>{
+    try{
+      const raw=el.style.borderRadius||'';
+      const m=raw.match(/(\d+(?:\.\d+)?)px/);
+      if(!m) return;
+      const v=parseFloat(m[1]);
+      let nv=null;
+      if(v>=40) nv='999px';
+      else if(v<10) nv='8px';
+      else if(v<16) nv='12px';
+      else nv='20px';
+      if(nv && raw!==nv) el.style.borderRadius=nv;
     }catch(e){}
   });
   // 페이지 헤더(h1~h3의 flex 부모) 안 버튼 그룹: 작게 + 간격 넓게
