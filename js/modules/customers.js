@@ -4,6 +4,9 @@ import { load, save, KEYS } from '../storage.js';
 let editingIndex = null;
 let tempDogPhoto = null;
 
+// 사람+강아지 산책 아이콘 (발바닥 대체)
+const DOG_ICON = `<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#FF8C00" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="4.2" r="1.9"/><path d="M7.5 6.8v6.4M7.5 9.2l-2.6 1.8M7.5 10.6l2.6 1.6"/><path d="M5.2 19.5l.9-4.3M9.8 19.5l-.9-4.3"/><path d="M9.9 12.6c1.8.7 3.6.7 5.4-.2"/><path d="M13.6 12.4c-.9-.7-1-1.9-.2-2.7"/><ellipse cx="16.6" cy="13.8" rx="3.3" ry="2.1"/><circle cx="20" cy="12.4" r="1.3"/><path d="M14.6 15.7l-.8 3.3M17.8 15.9l.4 3.4M20.3 13.6l1.2 2.8"/></svg>`;
+
 function getCustomers(){ return load(KEYS.customers, []); }
 
 export function addCustomer(obj){
@@ -53,7 +56,7 @@ export function renderCustomers(container){
                 <td style="padding:12px">
                   <div style="display:flex;align-items:center;gap:10px">
                     <div style="width:42px;height:42px;border-radius:50%;background:#FFF3E0;display:flex;align-items:center;justify-content:center;overflow:hidden">
-                      ${c.dogPhoto? `<img src="${c.dogPhoto}" style="width:100%;height:100%;object-fit:cover">` : '🐾'}
+                      ${c.dogPhoto? `<img src="${c.dogPhoto}" style="width:100%;height:100%;object-fit:cover">` : DOG_ICON}
                     </div>
                     <div><div style="font-weight:600">${ownerName}</div><div style="font-size:13px;color:#666">${dogName} ${c.weight? `(${c.weight}kg)`:''}</div></div>
                   </div>
@@ -77,7 +80,7 @@ export function renderCustomers(container){
         <p style="color:#888;font-size:12px;margin:0 0 16px">* 필수 / 사진 선택 (NULL 허용)</p>
         <div style="display:flex;justify-content:center;margin-bottom:16px">
           <div style="text-align:center">
-            <div id="preview-dog" onclick="document.getElementById('inp-dogPhoto').click()" style="width:110px;height:110px;border-radius:50%;border:2px dashed #FF8C00;background:#FFF8F0;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden">🐾<small>사진 없음</small></div>
+            <div id="preview-dog" onclick="document.getElementById('inp-dogPhoto').click()" style="width:110px;height:110px;border-radius:50%;border:2px dashed #FF8C00;background:#FFF8F0;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden">${DOG_ICON}<small>사진 없음</small></div>
             <input type="file" id="inp-dogPhoto" accept="image/*" style="display:none" onchange="onDogPhotoChange(event)">
           </div>
         </div>
@@ -106,7 +109,7 @@ window.openCustomerFormFull = () => {
   if(!modal) return;
   document.getElementById('modal-title').textContent = '새 고객 등록';
   ['inp-name','inp-phone','inp-dogName','inp-breed','inp-weight','inp-birth','inp-notes'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
-  document.getElementById('preview-dog').innerHTML = `🐾<small>사진 없음</small>`;
+  document.getElementById('preview-dog').innerHTML = `${DOG_ICON}<small>사진 없음</small>`;
   document.getElementById('inp-dogPhoto').value='';
   modal.style.display='flex';
 };
@@ -130,7 +133,7 @@ window.editCustomerFull = (i) => {
   document.getElementById('inp-birth').value=c.birth||'';
   document.getElementById('inp-notes').value=c.notes||'';
   const prev=document.getElementById('preview-dog');
-  if(prev) prev.innerHTML = tempDogPhoto? `<img src="${tempDogPhoto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : `🐾<small>사진 없음</small>`;
+  if(prev) prev.innerHTML = tempDogPhoto? `<img src="${tempDogPhoto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : `${DOG_ICON}<small>사진 없음</small>`;
   document.getElementById('customer-modal').style.display='flex';
 };
 

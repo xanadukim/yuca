@@ -86,7 +86,7 @@ async function renderApp(){
 
   try{
     // 소문자 파일명 통일 + 캐시 방지 v=8.6.3 - Mobile.js 대문자 문제 해결!
-    const path = `./modules/${item.file.toLowerCase()}?v=8.9.3`;
+    const path = `./modules/${item.file.toLowerCase()}?v=8.9.4`;
     const mod = await import(path);
     const fn = mod[item.func] || mod[Object.keys(mod)[0]];
     if(typeof fn!== 'function') throw new Error(`${item.func} 함수 없음 - ${item.file.toLowerCase()}`);
@@ -237,6 +237,44 @@ function applySavedUI(){
     if(b) b.textContent = '☀️';
   }
 }
+
+// 모듈 UI 통일: 수정/삭제 파스텔 버튼 + 헤더 버튼 크기/간격
+function styleModuleUI(root){
+  if(!root || !root.querySelectorAll) return;
+  root.querySelectorAll('button').forEach(btn=>{
+    const t=(btn.textContent||'').replace(/\s/g,'');
+    const isEdit=t.includes('수정')||t.includes('편집');
+    const isDel=t.includes('삭제');
+    if(!isEdit&&!isDel) return;
+    btn.style.borderRadius='8px';
+    btn.style.fontWeight='700';
+    btn.style.fontSize='12px';
+    btn.style.padding='6px 12px';
+    if(isEdit){btn.style.background='#E3F2FD';btn.style.color='#1565C0';btn.style.border='1px solid #BBDEFB';}
+    if(isDel){btn.style.background='#FFEBEE';btn.style.color='#C62828';btn.style.border='1px solid #FFCDD2';}
+  });
+  // 페이지 헤더(h1~h3의 flex 부모) 안 버튼 그룹: 작게 + 간격 넓게
+  root.querySelectorAll('h1,h2,h3').forEach(h=>{
+    const p=h.parentElement; if(!p) return;
+    try{ if(!getComputedStyle(p).display.includes('flex')) return; }catch(e){ return; }
+    p.querySelectorAll(':scope > div').forEach(d=>{
+      const bs=d.querySelectorAll('button');
+      if(!bs.length) return;
+      try{ if(getComputedStyle(d).display.includes('flex')) d.style.gap='14px'; }catch(e){}
+      bs.forEach(b=>{b.style.padding='7px 14px';b.style.fontSize='12px';b.style.borderRadius='8px';});
+    });
+  });
+}
+(function watchModuleUI(){
+  const mc=document.getElementById('main-content');
+  if(!mc) return setTimeout(watchModuleUI,300);
+  let pending=false;
+  new MutationObserver(()=>{
+    if(pending) return; pending=true;
+    requestAnimationFrame(()=>{ pending=false; styleModuleUI(mc); });
+  }).observe(mc,{childList:true,subtree:true});
+  styleModuleUI(mc);
+})();
 
 // Service Worker 등록 (HTTPS/localhost에서만 동작)
 if('serviceWorker' in navigator){
