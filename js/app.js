@@ -89,7 +89,7 @@ async function renderApp(){
 
   try{
     // 소문자 파일명 통일 + 캐시 방지 v=8.6.3 - Mobile.js 대문자 문제 해결!
-    const path = `./modules/${item.file.toLowerCase()}?v=9.2.0`;
+    const path = `./modules/${item.file.toLowerCase()}?v=9.2.1`;
     const mod = await import(path);
     const fn = mod[item.func] || mod[Object.keys(mod)[0]];
     if(typeof fn!== 'function') throw new Error(`${item.func} 함수 없음 - ${item.file.toLowerCase()}`);
@@ -317,17 +317,21 @@ function styleModuleUI(root){
       if(!m) return;
       const r=+m[1],g=+m[2],b=+m[3];
       const mx=Math.max(r,g,b),mn=Math.min(r,g,b);
-      const saturated = mx-mn>=60 && mx<=245;
-      const isCTA = /^\+/.test(t) || /(등록|저장|확인|발송|보내기|신규)/.test(t);
+      // 포화색 판별: 채도차 충분 + 어두운 채널 존재 (밝은 파스텔/흰색 제외)
+      const saturated = (mx-mn)>=60 && mn<170;
+      // CTA: +시작 또는 생성/확정 동사 (내보내기는 보조 액션으로 제외)
+      const isCTA = /^\+/.test(t) || /(등록|저장|확인|발송|신규)/.test(t) || (t.includes('보내기') && !t.includes('내보내기'));
       if(isCTA){
-        // 파스텔로 변해있으면 진한색으로 복원 (텍스트색/0.72 ≈ 원래 색)
+        // 파스텔/밝은 배경이면 진한색으로 복원 (단, 텍스트가 어두울 때만)
         if(!saturated){
           const cm=cs.color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-          if(cm){
+          if(cm && (+cm[1]+ +cm[2]+ +cm[3])<600){
             const sr=Math.min(255,Math.round(+cm[1]/0.72)),sg=Math.min(255,Math.round(+cm[2]/0.72)),sb=Math.min(255,Math.round(+cm[3]/0.72));
-            btn.style.background=`rgb(${sr},${sg},${sb})`;
-            btn.style.color='#fff';
-            btn.style.border=`1px solid rgb(${Math.round(sr*.8)},${Math.round(sg*.8)},${Math.round(sb*.8)})`;
+            if(sr+sg+sb<=600){
+              btn.style.background=`rgb(${sr},${sg},${sb})`;
+              btn.style.color='#fff';
+              btn.style.border=`1px solid rgb(${Math.round(sr*.8)},${Math.round(sg*.8)},${Math.round(sb*.8)})`;
+            }
           }
         }
         return;
