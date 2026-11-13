@@ -2,7 +2,7 @@
 export const USE_FIREBASE = true;
 
 export const firebaseConfig = {
-  apiKey: "AIzaSyDRFsyVbZjc0ZrRHIzaId5tk6ZkrI081Y",
+  apiKey: "AIzaSyDRFsyVbZjc0ZrQRHIzaId5tk6ZkrIO81Y",
   authDomain: "yuca-2026-c22e8.firebaseapp.com",
   projectId: "yuca-2026-c22e8",
   storageBucket: "yuca-2026-c22e8.firebasestorage.app",
