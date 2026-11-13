@@ -22,17 +22,17 @@ export function renderEmployees(container){
 
   target.innerHTML = `
     <div class="header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
-      <h2>👩‍💼 직원관리 <span style="background:#FF6F00;color:white;padding:2px 10px;border-radius:12px;font-size:14px">${filtered.length}명</span>
+      <h2>👩‍💼 직원관리 <span style="background:#FFF3E0;color:#E65100;border:1px solid #FFCC80;padding:2px 10px;border-radius:12px;font-size:14px">${filtered.length}명</span>
         <small style="font-size:13px;color:#888;margin-left:8px">재직 ${working}명 · 월급여 합 ₩${totalSalary.toLocaleString()}</small>
       </h2>
       <div style="display:flex;gap:8px">
         <div style="display:flex;border:1px solid #ddd;border-radius:8px;overflow:hidden">
-          <button onclick="setEmpFilter('all')" style="padding:8px 12px;border:none;background:${empFilter==='all'?'#FF6F00':'white'};color:${empFilter==='all'?'white':'#666'};cursor:pointer;font-size:13px">전체</button>
-          <button onclick="setEmpFilter('working')" style="padding:8px 12px;border:none;background:${empFilter==='working'?'#FF6F00':'white'};color:${empFilter==='working'?'white':'#666'};cursor:pointer;font-size:13px;border-left:1px solid #ddd">재직</button>
-          <button onclick="setEmpFilter('groomer')" style="padding:8px 12px;border:none;background:${empFilter==='groomer'?'#FF6F00':'white'};color:${empFilter==='groomer'?'white':'#666'};cursor:pointer;font-size:13px;border-left:1px solid #ddd">미용사</button>
-          <button onclick="setEmpFilter('teacher')" style="padding:8px 12px;border:none;background:${empFilter==='teacher'?'#FF6F00':'white'};color:${empFilter==='teacher'?'white':'#666'};cursor:pointer;font-size:13px;border-left:1px solid #ddd">유치원/호텔</button>
+          <button onclick="setEmpFilter('all')" style="padding:8px 14px;border:none;background:${empFilter==='all'?'#FFF3E0':'white'};color:${empFilter==='all'?'#E65100':'#666'};font-weight:${empFilter==='all'?'700':'400'};cursor:pointer;font-size:13px;border-radius:8px 0 0 8px">전체</button>
+          <button onclick="setEmpFilter('working')" style="padding:8px 14px;border:none;background:${empFilter==='working'?'#FFF3E0':'white'};color:${empFilter==='working'?'#E65100':'#666'};font-weight:${empFilter==='working'?'700':'400'};cursor:pointer;font-size:13px;border-left:1px solid #eee">재직</button>
+          <button onclick="setEmpFilter('groomer')" style="padding:8px 14px;border:none;background:${empFilter==='groomer'?'#FFF3E0':'white'};color:${empFilter==='groomer'?'#E65100':'#666'};font-weight:${empFilter==='groomer'?'700':'400'};cursor:pointer;font-size:13px;border-left:1px solid #eee">미용사</button>
+          <button onclick="setEmpFilter('teacher')" style="padding:8px 14px;border:none;background:${empFilter==='teacher'?'#FFF3E0':'white'};color:${empFilter==='teacher'?'#E65100':'#666'};font-weight:${empFilter==='teacher'?'700':'400'};cursor:pointer;font-size:13px;border-left:1px solid #eee;border-radius:0 8px 8px 0">유치원/호텔</button>
         </div>
-        <button onclick="openEmpFormFull()" style="padding:10px 20px;background:#FF6F00;color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer">+ 직원 등록</button>
+        <button onclick="openEmpFormFull()" style="padding:10px 20px;background:#FFF3E0;color:#E65100;border:1px solid #FFCC80;border-radius:8px;font-weight:700;cursor:pointer">+ 직원 등록</button>
       </div>
     </div>
 
@@ -105,7 +105,7 @@ export function renderEmployees(container){
         <label style="display:block;margin-top:10px;font-size:13px">메모 <textarea id="emp-notes" rows="2" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;margin-top:3px" placeholder="특기, 자격증 등"></textarea></label>
         <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
           <button onclick="closeEmpModalFull()" style="padding:9px 18px;border:1px solid #ddd;border-radius:7px;background:white;cursor:pointer">취소</button>
-          <button onclick="saveEmpFull()" style="padding:9px 20px;border:none;border-radius:7px;background:#FF6F00;color:white;font-weight:600;cursor:pointer">💾 저장</button>
+          <button onclick="saveEmpFull()" style="padding:9px 20px;border:1px solid #FFCC80;border-radius:8px;background:#FFF3E0;color:#E65100;font-weight:700;cursor:pointer">저장</button>
         </div>
       </div>
     </div>

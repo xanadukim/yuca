@@ -39,14 +39,15 @@ export function renderDashboard(container){
   target.innerHTML = `
     <div style="display:grid;gap:20px">
 
-      <!-- Duo 히어로 -->
-      <div class="duo-hero">
-        <span class="duo-kicker">📅 ${today}</span>
-        <h1>${greet}, YUCA 팀! 👋<br>오늘도 활기찬 하루예요.</h1>
-        <p>오늘 예약 ${todayResCount}건 · 예상 매출 ₩${estimatedSales.toLocaleString()} · 투숙 ${hotel.length}마리 · 등원 ${kindergarten.length}마리</p>
-        <div style="margin-top:22px;display:flex;gap:10px;flex-wrap:wrap;position:relative;z-index:1">
-          <button class="duo-btn duo-btn--white" onclick="navigate('reservations')">📅 예약 보기</button>
-          <button class="duo-btn duo-btn--white" onclick="navigate('sms')" style="background:rgba(255,255,255,.85)">💬 문자 보내기</button>
+      <!-- Duo 히어로 (한 줄) -->
+      <div class="duo-hero" style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:20px 28px">
+        <div>
+          <div style="font-size:20px;font-weight:800;color:#fff">${greet}, YUCA 팀! 👋 오늘도 활기찬 하루예요.</div>
+          <div style="font-size:13px;color:rgba(255,255,255,.85);margin-top:6px">📅 ${today} · 오늘 예약 ${todayResCount}건 · 예상 매출 ₩${estimatedSales.toLocaleString()} · 투숙 ${hotel.length}마리 · 등원 ${kindergarten.length}마리</div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;position:relative;z-index:1;flex:none">
+          <button class="duo-btn duo-btn--white" onclick="navigate('reservations')">예약 보기</button>
+          <button class="duo-btn duo-btn--white" style="background:rgba(255,255,255,.85)" onclick="navigate('sms')">문자 보내기</button>
         </div>
       </div>
 
