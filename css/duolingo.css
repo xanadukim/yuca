@@ -30,9 +30,9 @@
   --duo-surface:    #F7F7F7;
   --duo-border:     #E5E5E5;
   --duo-border-2:   #C7C7C7;
-  --duo-text:       #3C3C3C;
-  --duo-text-2:     #777777;
-  --duo-text-3:     #AFAFAF;
+  --duo-text:       #222222;
+  --duo-text-2:     #666666;
+  --duo-text-3:     #888888;
 
   /* Shape / depth */
   --duo-radius-sm:  8px;
@@ -55,12 +55,12 @@ html, body {
   background: var(--duo-bg);
 }
 #main-content h2 {
-  font-weight: 900 !important;
-  letter-spacing: -0.02em;
+  font-weight: 700 !important;
+  letter-spacing: -0.01em;
   color: var(--duo-text) !important;
 }
 #main-content h3, #main-content h4 {
-  font-weight: 800;
+  font-weight: 700;
   color: var(--duo-text);
 }
 #main-content small { color: var(--duo-text-2); }
@@ -70,7 +70,7 @@ html, body {
 /* Buttons: 둥글고 두꺼운 기본기 */
 #main-content button {
   border-radius: var(--duo-radius-md) !important;
-  font-weight: 800 !important;
+  font-weight: 700 !important;
   letter-spacing: 0.01em;
   transition: transform 80ms ease, box-shadow 80ms ease, filter 150ms ease !important;
   cursor: pointer;
@@ -104,7 +104,7 @@ html, body {
 #main-content textarea {
   border: 2px solid var(--duo-border) !important;
   border-radius: var(--duo-radius-md) !important;
-  font-weight: 700 !important;
+  font-weight: 500 !important;
   box-shadow: 0 4px 0 var(--duo-border) !important;
   transition: border-color 120ms ease, box-shadow 120ms ease !important;
 }
@@ -228,9 +228,9 @@ body * {
 .duo-hero::after  { width: 120px; height: 24px; right: -24px; bottom: 30px; }
 .duo-hero h1 {
   font-size: clamp(26px, 4vw, 40px);
-  font-weight: 900;
-  line-height: 1.1;
-  letter-spacing: -0.03em;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
   margin: 14px 0 10px;
   color: #fff;
   position: relative; z-index: 1;
@@ -264,9 +264,7 @@ body * {
   border: 0;
   border-radius: var(--duo-radius-md);
   padding: 12px 20px;
-  font: 800 14px/1 'Pretendard Variable', Pretendard, sans-serif;
-  text-transform: uppercase;
-  letter-spacing: .04em;
+  font: 700 14px/1 'Pretendard Variable', Pretendard, sans-serif;
   cursor: pointer;
   box-shadow: none;
   transition: transform 80ms ease, filter 150ms ease;
@@ -310,9 +308,9 @@ body * {
   font-size: 24px;
   background: var(--duo-green-50);
 }
-.duo-stat__label { font-size: 12px; font-weight: 800; color: var(--duo-text-2); text-transform: uppercase; letter-spacing: .05em; }
-.duo-stat__value { font-size: 26px; font-weight: 900; letter-spacing: -0.02em; line-height: 1.15; }
-.duo-stat__sub   { font-size: 12px; font-weight: 700; color: var(--duo-text-3); }
+.duo-stat__label { font-size: 12px; font-weight: 700; color: var(--duo-text-2); letter-spacing: .02em; }
+.duo-stat__value { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; }
+.duo-stat__sub   { font-size: 12px; font-weight: 500; color: var(--duo-text-3); }
 
 .duo-tag {
   display: inline-flex;
@@ -321,8 +319,8 @@ body * {
   padding: 3px 11px;
   border-radius: var(--duo-radius-full);
   font-size: 11px;
-  font-weight: 800;
-  letter-spacing: .03em;
+  font-weight: 700;
+  letter-spacing: .02em;
 }
 .duo-tag--green  { background: var(--duo-green-50); color: var(--duo-green-dark); }
 .duo-tag--blue   { background: var(--duo-blue-50);  color: var(--duo-blue-dark); }
@@ -342,9 +340,9 @@ body * {
   cursor: pointer;
   margin-bottom: 3px;
   display: block;
-  font-weight: 700;
+  font-weight: 600;
   font-size: 14px;
-  transition: background 120ms ease, color 120ms ease, transform 80ms ease;
+  transition: background 120ms ease, color 120ms ease;
 }
 .duo-nav-btn:hover {
   background: var(--duo-surface);
@@ -353,6 +351,5 @@ body * {
 .duo-nav-btn.active {
   background: var(--duo-green-50);
   color: var(--duo-green-dark);
-  font-weight: 900;
+  font-weight: 800;
 }
-.duo-nav-btn:active { transform: translateY(1px); }
