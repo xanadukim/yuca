@@ -33,6 +33,13 @@ export function renderDashboard(container){
   // 최근 예약 5개
   const recentRes = [...reservations].sort((a,b)=> (b.date||'').localeCompare(a.date||'')).slice(0,5);
 
+  // 오늘의 일정 (예약+유치원+호텔 시간순)
+  const todayItems = [];
+  todayRes.forEach(r=>todayItems.push({t:r.time||'',icon:'✂️',title:`${r.petName||r.name||'고객'} 미용`,sub:r.service||'',st:r.status||'확정'}));
+  kindergarten.filter(k=>k.date===today||k.checkIn===today||k.checkin===today).forEach(k=>todayItems.push({t:k.time||'09:00',icon:'🏫',title:`${k.childName||k.petName||k.name||'-'} 등원`,sub:'유치원',st:'확정'}));
+  hotel.filter(h=>h.checkIn===today||h.checkin===today||h.startDate===today||h.date===today).forEach(h=>todayItems.push({t:h.checkInTime||h.time||'15:00',icon:'🏨',title:`${h.petName||h.name||'-'} 투숙`,sub:h.room||h.roomType||'호텔',st:'확정'}));
+  todayItems.sort((a,b)=>String(a.t).localeCompare(String(b.t)));
+
   const hour = new Date().getHours();
   const greet = hour < 12 ? '좋은 아침이에요' : hour < 18 ? '좋은 오후예요' : '좋은 저녁이에요';
 
@@ -93,6 +100,20 @@ export function renderDashboard(container){
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- 오늘의 일정 -->
+      <div class="duo-card">
+        <h3 style="margin:0 0 12px">🗓️ 오늘의 일정 <span style="font-size:12px;color:#888;font-weight:400">${todayItems.length}건</span></h3>
+        ${todayItems.length===0 ? '<div style="padding:16px;text-align:center;color:#999;font-size:13px">오늘 등록된 일정이 없습니다</div>' :
+        `<div style="display:flex;gap:10px;flex-wrap:wrap">${todayItems.map(it=>`
+          <div style="display:flex;align-items:center;gap:8px;background:#f7f7f7;border:1px solid #eee;border-radius:12px;padding:8px 14px">
+            <span style="font-size:15px">${it.icon}</span>
+            <span style="font-size:12px;color:#888;min-width:38px">${it.t||'--:--'}</span>
+            <b style="font-size:13px">${it.title}</b>
+            ${it.sub?`<span style="font-size:11px;color:#999">${it.sub}</span>`:''}
+            ${it.st==='취소'?'<span class="pb pb-red">취소</span>':'<span class="pb pb-green">확정</span>'}
+          </div>`).join('')}</div>`}
       </div>
 
       <!-- 아래 2단 -->

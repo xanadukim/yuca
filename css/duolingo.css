@@ -371,3 +371,107 @@ body * {
   color: var(--duo-green-dark);
   font-weight: 800;
 }
+
+/* ============================================================
+   v8.9.0 - 파스텔 배지 / 폰트 통일 / 사이드바 접기 / 다크모드
+   ============================================================ */
+
+/* 파스텔 배지 시스템 (역할/상태 공용) */
+.pb{display:inline-block;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:700;border:1px solid transparent;white-space:nowrap}
+.pb-green{background:#E8F5E9;color:#2E7D32;border-color:#C8E6C9}
+.pb-blue{background:#E3F2FD;color:#1565C0;border-color:#BBDEFB}
+.pb-orange{background:#FFF3E0;color:#E65100;border-color:#FFE0B2}
+.pb-purple{background:#F3E5F5;color:#6A1B9A;border-color:#E1BEE7}
+.pb-red{background:#FFEBEE;color:#C62828;border-color:#FFCDD2}
+.pb-yellow{background:#FFFDE7;color:#F57F17;border-color:#FFF9C4}
+.pb-gray{background:#F5F5F5;color:#616161;border-color:#E0E0E0}
+
+/* 폰트 사이즈 통일 - 9~11px 작은 글씨는 12px로 */
+#main-content{font-size:14px}
+#main-content [style*="font-size:8px"],#main-content [style*="font-size:9px"]{font-size:11px!important}
+#main-content [style*="font-size:10px"],#main-content [style*="font-size:11px"]{font-size:12px!important}
+
+/* 사이드바 접기 (아이콘 모드) */
+body.sb-collapsed #sidebar{width:64px;padding:14px 8px}
+body.sb-collapsed #sidebar .logo{padding:6px 0}
+body.sb-collapsed #sidebar .logo b{display:none}
+body.sb-collapsed #sidebar .logo svg{width:34px;height:34px}
+body.sb-collapsed #sidebar-nav{margin-top:14px}
+body.sb-collapsed .duo-nav-btn{justify-content:center;padding:12px}
+body.sb-collapsed .duo-nav-btn span:not(.mi){display:none}
+body.sb-collapsed #sbTools{flex-direction:column;align-items:center}
+body.sb-collapsed #sbTools button{width:40px}
+
+/* 다크모드 */
+body.dark{--duo-bg:#17171c;--duo-surface:#232329;--duo-border:#3d3d48;--duo-border-2:#4a4a56;--duo-text:#f2f2f5;--duo-text-2:#c4c4ce;--duo-text-3:#9a9aa6;--duo-green-50:rgba(88,204,2,.16);--duo-blue-50:rgba(28,176,246,.16);--duo-orange-50:rgba(255,152,0,.16);--duo-red-50:rgba(255,75,75,.16);--duo-purple-50:rgba(171,71,188,.18);background:#17171c!important}
+body.dark #sidebar{background:#1e1e24!important;border-color:#3d3d48!important;color:#eee!important}
+body.dark #main-content{background:#17171c!important;color:#e8e8ec}
+body.dark #sidebar-nav button:hover{background:#2c2c34!important;color:#fff!important}
+body.dark .duo-nav-btn.active{background:var(--duo-green-50);color:#7CFC4F}
+body.dark .duo-btn--ghost{background:#2c2c34;color:#eee}
+body.dark .duo-btn--ghost:hover{background:#3a3a44}
+body.dark .duo-card,body.dark .duo-stat{background:var(--duo-surface);border-color:var(--duo-border)}
+body.dark input,body.dark select,body.dark textarea{background:#232329!important;color:#eee!important}
+body.dark #main-content input,body.dark #main-content select,body.dark #main-content textarea{background:#232329!important;color:#eee!important;border-color:#3d3d48!important}
+body.dark #main-content input:focus,body.dark #main-content select:focus,body.dark #main-content textarea:focus{border-color:#58cc02!important;box-shadow:none!important}
+body.dark #main-content table thead{background:#1e1e24!important}
+body.dark #main-content table th{color:#9a9aa6!important}
+body.dark #main-content table tr:hover td{background:#232329!important}
+/* 흰/파스텔 카드 -> 다크 서피스 */
+body.dark #main-content div[style*="background:#fff"],
+body.dark #main-content div[style*="background: white"],
+body.dark #main-content div[style*="background:white"],
+body.dark #main-content div[style*="background:#f9fafb"],
+body.dark #main-content div[style*="background:#f8f9fa"],
+body.dark #main-content div[style*="background:#f3f4f6"],
+body.dark #main-content div[style*="background:#f7f7f7"],
+body.dark #main-content div[style*="background:#fff7ed"],
+body.dark #main-content div[style*="background:#fff3e0"],
+body.dark #main-content div[style*="background:#fef3c7"],
+body.dark #main-content div[style*="background:#dcfce7"],
+body.dark #main-content div[style*="background:#e8f5e9"],
+body.dark #main-content div[style*="background:#e3f2fd"],
+body.dark #main-content div[style*="background:#fff8e0"],
+body.dark #main-content div[style*="background:#fff8f0"],
+body.dark #main-content div[style*="background:#f0fdf4"],
+body.dark #main-content div[style*="background:#fef2f2"],
+body.dark #main-content div[style*="background:#fee2e2"],
+body.dark #main-content div[style*="background:#ffedd5"],
+body.dark #main-content div[style*="background:#fed7aa"],
+body.dark #main-content div[style*="background:#f1f8e9"],
+body.dark #main-content div[style*="background:#fff1f1"],
+body.dark #main-content div[style*="background:#f0f9ff"],
+body.dark #main-content div[style*="background:#eff6ff"],
+body.dark #main-content div[style*="background:#fdf2f8"],
+body.dark #main-content div[style*="background:#f3e5f5"],
+body.dark #main-content div[style*="background:#ecfdf5"],
+body.dark #main-content div[style*="background:#fffbeb"],
+body.dark #main-content div[style*="background:#fefce8"],
+body.dark #main-content div[style*="background:#f0fdfa"],
+body.dark #main-content div[style*="background:#eef2ff"],
+body.dark #main-content div[style*="background:#e0e7ff"],
+body.dark #main-content div[style*="background:#dbeafe"],
+body.dark #main-content div[style*="background:#cffafe"],
+body.dark #main-content div[style*="background:#e0f2fe"],
+body.dark #main-content div[style*="background:#f5f3ff"],
+body.dark #main-content div[style*="background:#ede9fe"],
+body.dark #main-content div[style*="background:#faf5ff"],
+body.dark #main-content div[style*="background:#fdf4ff"],
+body.dark #main-content div[style*="background:#fce7f3"],
+body.dark #main-content div[style*="background:#fff1f2"],
+body.dark #main-content div[style*="background:#ffe4e6"]{
+  background:#232329!important;border-color:#3d3d48!important;
+}
+/* 회색 텍스트 밝게 */
+body.dark #main-content [style*="color:#666"],body.dark #main-content [style*="color:#777"],body.dark #main-content [style*="color:#888"],body.dark #main-content [style*="color:#999"],body.dark #main-content [style*="color:#aaa"],body.dark #main-content [style*="color:#555"],body.dark #main-content [style*="color:#444"],body.dark #main-content [style*="color:#333"],body.dark #main-content [style*="color:#222"],body.dark #main-content [style*="color:#111"],body.dark #main-content [style*="color:#000"],body.dark #main-content [style*="color:#3c3c3c"]{color:#d6d6de!important}
+/* 상태 텍스트 색상 밝은 버전으로 */
+body.dark #main-content [style*="color:#2E7D32"],body.dark #main-content [style*="color:#2e7d32"]{color:#66bb6a!important}
+body.dark #main-content [style*="color:#C62828"],body.dark #main-content [style*="color:#c62828"]{color:#ef5350!important}
+body.dark #main-content [style*="color:#1565C0"],body.dark #main-content [style*="color:#1565c0"]{color:#64b5f6!important}
+body.dark #main-content [style*="color:#6A1B9A"],body.dark #main-content [style*="color:#6a1b9a"]{color:#ba68c7!important}
+body.dark #main-content [style*="color:#EF6C00"],body.dark #main-content [style*="color:#ef6c00"]{color:#ffb74d!important}
+body.dark #main-content [style*="color:#E65100"],body.dark #main-content [style*="color:#e65100"]{color:#ffb74d!important}
+body.dark #main-content [style*="color:#00838F"],body.dark #main-content [style*="color:#00838f"]{color:#4dd0e1!important}
+/* 파스텔 배지도 다크에서 진하게 */
+body.dark .pb{background:#2c2c34;border-color:#3d3d48}
+body.dark .pb-green{color:#66bb6a}body.dark .pb-blue{color:#64b5f6}body.dark .pb-orange{color:#ffb74d}body.dark .pb-purple{color:#ba68c7}body.dark .pb-red{color:#ef5350}body.dark .pb-yellow{color:#ffd54f}body.dark .pb-gray{color:#b0b0ba}

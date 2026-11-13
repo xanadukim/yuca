@@ -86,7 +86,7 @@ async function renderApp(){
 
   try{
     // 소문자 파일명 통일 + 캐시 방지 v=8.6.3 - Mobile.js 대문자 문제 해결!
-    const path = `./modules/${item.file.toLowerCase()}?v=8.8.8`;
+    const path = `./modules/${item.file.toLowerCase()}?v=8.9.0`;
     const mod = await import(path);
     const fn = mod[item.func] || mod[Object.keys(mod)[0]];
     if(typeof fn!== 'function') throw new Error(`${item.func} 함수 없음 - ${item.file.toLowerCase()}`);
@@ -218,12 +218,33 @@ window.YUCA_onAuthChange = (user)=>{
   }
 };
 
+// 사이드바 접기 / 다크모드 토글
+window.YUCA_toggleSidebar = ()=>{
+  const collapsed = document.body.classList.toggle('sb-collapsed');
+  localStorage.setItem('yuca_sb', collapsed ? '1' : '0');
+};
+window.YUCA_toggleTheme = ()=>{
+  const dark = document.body.classList.toggle('dark');
+  localStorage.setItem('yuca_theme', dark ? 'dark' : 'light');
+  const b = document.getElementById('themeBtn');
+  if(b) b.textContent = dark ? '☀️' : '🌙';
+};
+function applySavedUI(){
+  if(localStorage.getItem('yuca_sb')==='1') document.body.classList.add('sb-collapsed');
+  if(localStorage.getItem('yuca_theme')==='dark'){
+    document.body.classList.add('dark');
+    const b = document.getElementById('themeBtn');
+    if(b) b.textContent = '☀️';
+  }
+}
+
 // Service Worker 등록 (HTTPS/localhost에서만 동작)
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('./sw.js').catch((e)=> console.warn('SW 등록 실패:', e));
 }
 
 document.addEventListener('DOMContentLoaded', async ()=>{
+  applySavedUI();
   if(checkMobile()) return;
   // 인증 상태 복원 대기 후 앱 진입 (미인증이면 로그인 화면)
   const ready = window.yucaAuthReady || Promise.resolve(window.yucaUser || null);

@@ -46,13 +46,14 @@ export function renderEmployees(container){
             filtered.map((e)=>{
               const origIdx = empList.indexOf(e);
               const roleColor = e.role==='원장'?'#D32F2F':e.role?.includes('미용')?'#FF8C00':e.role?.includes('유치원')?'#2196F3':e.role?.includes('호텔')?'#9C27B0':'#4CAF50';
+              const pbCls = e.role==='원장'?'pb-red':e.role?.includes('미용')?'pb-orange':e.role?.includes('유치원')?'pb-blue':e.role?.includes('호텔')?'pb-purple':'pb-green';
               return `
               <tr style="border-top:1px solid #f0f0f0">
                 <td style="padding:12px"><div style="display:flex;align-items:center;gap:10px">
                   <div style="width:40px;height:40px;border-radius:50%;background:${roleColor}15;display:flex;align-items:center;justify-content:center;font-size:20px;border:2px solid ${roleColor}30">${e.role==='원장'?'👑':e.role?.includes('미용')?'✂️':e.role?.includes('유치원')?'🏫':e.role?.includes('호텔')?'🏨':'👩'}</div>
                   <div><div style="font-weight:700;font-size:14px">${e.name||'-'}</div><div style="font-size:12px;color:#888">${e.nickname||''}</div></div>
                 </div></td>
-                <td style="padding:12px"><span style="background:${roleColor}15;color:${roleColor};border:1px solid ${roleColor}30;padding:5px 12px;border-radius:12px;font-size:12px;font-weight:700">${e.role||'스태프'}</span></td>
+                <td style="padding:12px"><span class="pb ${pbCls}">${e.role||'스태프'}</span></td>
                 <td style="padding:12px"><div style="font-size:13px">${e.phone||'-'}</div><div style="font-size:11px;color:#888">입사 ${e.hireDate||'-'}</div></td>
                 <td style="padding:12px"><div style="font-weight:600">₩${(e.salary||0).toLocaleString()}</div><div style="font-size:11px;color:#888">${e.salaryType||'월급'}</div></td>
                 <td style="padding:12px"><span style="padding:4px 10px;border-radius:12px;font-size:12px;background:${e.status==='재직'?'#E8F5E9':e.status==='휴직'?'#FFF3E0':'#FFEBEE'};color:${e.status==='재직'?'#2E7D32':e.status==='휴직'?'#EF6C00':'#C62828'}">${e.status||'재직'}</span></td>
