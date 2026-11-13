@@ -464,3 +464,8 @@ body.dark #main-content div[style*="background:#fff1f2"],
 body.dark #main-content div[style*="background:#ffe4e6"]{
   background:#FFFCFE!important;border-color:#F0D3E0!important;
 }
+
+/* 이모지->SVG 아이콘 */
+.eico{width:1.1em;height:1.1em;vertical-align:-0.18em;display:inline-block;flex:none}
+button .eico{width:15px;height:15px;vertical-align:-3px}
+h1 .eico,h2 .eico,h3 .eico{width:1.15em;height:1.15em}

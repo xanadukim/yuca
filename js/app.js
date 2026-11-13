@@ -89,7 +89,7 @@ async function renderApp(){
 
   try{
     // 소문자 파일명 통일 + 캐시 방지 v=8.6.3 - Mobile.js 대문자 문제 해결!
-    const path = `./modules/${item.file.toLowerCase()}?v=9.0.0`;
+    const path = `./modules/${item.file.toLowerCase()}?v=9.1.0`;
     const mod = await import(path);
     const fn = mod[item.func] || mod[Object.keys(mod)[0]];
     if(typeof fn!== 'function') throw new Error(`${item.func} 함수 없음 - ${item.file.toLowerCase()}`);
@@ -241,9 +241,65 @@ function applySavedUI(){
   }
 }
 
+// 이모지 -> SVG 라인 아이콘 맵 (전역 후처리)
+const EICO = {
+  '👥':'<circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3 2.8-4.8 5.5-4.8s4.9 1.8 5.5 4.8"/><circle cx="17" cy="9" r="2.6"/><path d="M15.5 14.4c2.6.2 4.4 1.8 4.9 4.1"/>',
+  '📅':'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  '🏫':'<path d="M3 10l9-6 9 6"/><path d="M5 9.5V20h14V9.5"/><path d="M10 20v-5h4v5"/>',
+  '🏨':'<rect x="5" y="3" width="14" height="18" rx="1"/><path d="M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2"/>',
+  '🎁':'<rect x="4" y="9" width="16" height="4"/><path d="M6 13v8h12v-8M12 9v12M12 9c-4 0-5-1.5-4-3.5C9 4 11 5 12 9Zm0 0c4 0 5-1.5 4-3.5C15 4 13 5 12 9Z"/>',
+  '👨‍💼':'<rect x="3" y="8" width="18" height="12" rx="2"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/><path d="M3 13h18"/>',
+  '📦':'<path d="M3 8l9-5 9 5v8l-9 5-9-5V8Z"/><path d="M3 8l9 5 9-5M12 13v8"/>',
+  '💰':'<circle cx="12" cy="12" r="9"/><path d="M12 7v10M15.5 9.5c-.7-1-2-1.5-3.5-1.5-2 0-3.5 1-3.5 2.5s1.5 2 3.5 2.5 3.5 1 3.5 2.5-1.5 2.5-3.5 2.5c-1.5 0-2.8-.5-3.5-1.5"/>',
+  '💬':'<path d="M4 5h16v11H9l-5 4V5Z"/><path d="M8 9h8M8 12h5"/>',
+  '📱':'<rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/>',
+  '⚙️':'<path d="M4 8h8M16 8h4M4 16h2M10 16h10"/><circle cx="14" cy="8" r="2"/><circle cx="8" cy="16" r="2"/>',
+  '🐶':'<circle cx="12" cy="13" r="7"/><path d="M6 8c-1-3 0-5 2-6M18 8c1-3 0-5-2-6"/><circle cx="9.5" cy="12" r=".8" fill="currentColor"/><circle cx="14.5" cy="12" r=".8" fill="currentColor"/><path d="M11 15.5c.7.6 1.3.6 2 0"/>',
+  '✂️':'<circle cx="6" cy="7" r="2.4"/><circle cx="6" cy="17" r="2.4"/><path d="M8 8.5L20 19M8 15.5L20 5"/>',
+  '💾':'<path d="M4 4h12l4 4v12H4V4Z"/><path d="M8 4v6h8V4M8 20v-6h8v6"/>',
+  '🗑️':'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/>',
+  '✏️':'<path d="M4 20l1-4L16.5 4.5a2.1 2.1 0 0 1 3 3L8 19l-4 1Z"/>',
+  '👑':'<path d="M3 18l1-9 5 4 3-7 3 7 5-4 1 9H3Z"/>',
+  '👩':'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.5 3.5-7 8-7s8 2.5 8 7"/>',
+  '🔒':'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+  '⏳':'<path d="M7 3h10M7 21h10M8 3c0 5 8 6 8 9s-8 4-8 9M16 3c0 5-8 6-8 9s8 4 8 9"/>',
+  '📊':'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  '📌':'<path d="M9 4h6l-1 7 3 3v2H7v-2l3-3-1-7Z"/><path d="M12 16v5"/>',
+  '⚡':'<path d="M13 2L4 14h6l-1 8 9-12h-6l1-8Z"/>',
+  '💡':'<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.8.6 1.5 1.6 1.5 2.6h4c0-1 .7-2 1.5-2.6A6 6 0 0 0 12 3Z"/>',
+  '🏷️':'<path d="M3 12V4h8l10 10-8 8L3 12Z"/><circle cx="8" cy="9" r="1.5"/>',
+  '📞':'<path d="M5 4h4l2 5-2.5 1.5a12 12 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"/>',
+  '🧾':'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"/><path d="M9 8h6M9 12h6"/>',
+  '🐾':'<circle cx="12" cy="15" r="4"/><circle cx="6.5" cy="10" r="1.6"/><circle cx="10" cy="7.5" r="1.6"/><circle cx="14" cy="7.5" r="1.6"/><circle cx="17.5" cy="10" r="1.6"/>',
+};
+function svgIcon(path){
+  return `<svg class="eico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${path}</svg>`;
+}
+function replaceEmojis(root){
+  const tw=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+  const nodes=[];let n;
+  while(n=tw.nextNode()) nodes.push(n);
+  nodes.forEach(node=>{
+    let txt=node.nodeValue, changed=false, out='';
+    let segs;
+    try{ segs=[...new Intl.Segmenter('ko',{granularity:'grapheme'}).segment(txt)].map(s=>s.segment); }
+    catch(e){ segs=Array.from(txt); }
+    segs.forEach(ch=>{
+      if(EICO[ch]){ out+=svgIcon(EICO[ch]); changed=true; }
+      else out+=ch;
+    });
+    if(changed){
+      const span=document.createElement('span');
+      span.innerHTML=out;
+      node.parentNode.replaceChild(span,node);
+    }
+  });
+}
+
 // 모듈 UI 통일: 수정/삭제 파스텔 버튼 + 헤더 버튼 크기/간격
 function styleModuleUI(root){
   if(!root || !root.querySelectorAll) return;
+  try{ replaceEmojis(root); }catch(e){}
   root.querySelectorAll('button').forEach(btn=>{
     const t=(btn.textContent||'').replace(/\s/g,'');
     const isEdit=t.includes('수정')||t.includes('편집');
