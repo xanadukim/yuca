@@ -380,16 +380,16 @@ body * {
 .pb{display:inline-block;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:700;border:1px solid transparent;white-space:nowrap}
 .pb-green{background:#E8F5E9;color:#2E7D32;border-color:#C8E6C9}
 .pb-blue{background:#E3F2FD;color:#1565C0;border-color:#BBDEFB}
-.pb-orange{background:#FFF3E0;color:#E65100;border-color:#FFE0B2}
+.pb-orange{background:#FFF3E0;color:#D84315;border-color:#FFCC80}
 .pb-purple{background:#F3E5F5;color:#6A1B9A;border-color:#E1BEE7}
 .pb-red{background:#FFEBEE;color:#C62828;border-color:#FFCDD2}
-.pb-yellow{background:#FFFDE7;color:#F57F17;border-color:#FFF9C4}
+.pb-yellow{background:#FFFDE7;color:#E65100;border-color:#FFF3B0}
 .pb-gray{background:#F5F5F5;color:#616161;border-color:#E0E0E0}
 
-/* 폰트 사이즈 통일 - 9~11px 작은 글씨는 12px로 */
+/* 폰트 사이즈 통일 - 작은 글씨 최소 12~13px (WCAG 가독성) */
 #main-content{font-size:14px}
-#main-content [style*="font-size:8px"],#main-content [style*="font-size:9px"]{font-size:11px!important}
-#main-content [style*="font-size:10px"],#main-content [style*="font-size:11px"]{font-size:12px!important}
+#main-content [style*="font-size:8px"],#main-content [style*="font-size:9px"]{font-size:12px!important}
+#main-content [style*="font-size:10px"],#main-content [style*="font-size:11px"],#main-content [style*="font-size:12px"]{font-size:13px!important}
 
 /* 사이드바 접기 (아이콘 모드) */
 body.sb-collapsed #sidebar{width:64px;padding:14px 8px}
