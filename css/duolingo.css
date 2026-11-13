@@ -469,3 +469,37 @@ body.dark #main-content div[style*="background:#ffe4e6"]{
 .eico{width:1.1em;height:1.1em;vertical-align:-0.18em;display:inline-block;flex:none}
 button .eico{width:15px;height:15px;vertical-align:-3px}
 h1 .eico,h2 .eico,h3 .eico{width:1.15em;height:1.15em}
+
+/* ============================================================
+   v9.2 공통 컴포넌트 클래스 (모듈 리팩터링 기반)
+   - 스타일러가 자동 부여, 모듈에서 직접 사용 가능
+   ============================================================ */
+.yu-btn{border-radius:12px!important;font-weight:700!important;font-size:13px!important;padding:9px 18px!important;cursor:pointer;transition:filter .12s}
+.yu-btn:hover{filter:brightness(.96)}
+/* 보조: 파스텔 채움 */
+.yu-s{background:#F5F5F7!important;color:#3a3a3f!important;border:1px solid #e2e2e6!important;border-radius:12px!important;font-weight:600!important;font-size:13px!important;padding:8px 16px!important}
+/* 수정/삭제 파스텔 */
+.yu-e{background:#E3F2FD!important;color:#1565C0!important;border:1px solid #BBDEFB!important;border-radius:8px!important;font-weight:700!important;font-size:12px!important;padding:6px 12px!important}
+.yu-d{background:#FFEBEE!important;color:#C62828!important;border:1px solid #FFCDD2!important;border-radius:8px!important;font-weight:700!important;font-size:12px!important;padding:6px 12px!important}
+/* 헤더 pill 버튼 */
+.yu-hbtn{padding:7px 14px!important;font-size:12px!important;border-radius:20px!important}
+/* 뱃지 베이스 */
+.yu-bdg{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;border:1px solid transparent;white-space:nowrap}
+.yu-bdg-g{background:#E8F5E9;color:#2E7D32;border-color:#C8E6C9}
+.yu-bdg-b{background:#E3F2FD;color:#1565C0;border-color:#BBDEFB}
+.yu-bdg-o{background:#FFF3E0;color:#D84315;border-color:#FFCC80}
+.yu-bdg-p{background:#F3E5F5;color:#6A1B9A;border-color:#E1BEE7}
+.yu-bdg-r{background:#FFEBEE;color:#C62828;border-color:#FFCDD2}
+.yu-bdg-y{background:#FFFDE7;color:#E65100;border-color:#FFF3B0}
+.yu-bdg-gr{background:#F5F5F5;color:#616161;border-color:#E0E0E0}
+/* 저녁모드 클래스 대응 */
+body.dark .yu-s{background:#F8E4EE!important;color:#402E3A!important;border-color:#F0D3E0!important}
+body.dark .yu-e{background:#E8F0FE!important;color:#1A56B8!important;border-color:#C4D7F5!important}
+body.dark .yu-d{background:#FDE8E8!important;color:#B71C1C!important;border-color:#F5C4C4!important}
+body.dark .yu-bdg-g{background:#DFF2D8;color:#2E7D32;border-color:#BFE3B0}
+body.dark .yu-bdg-b{background:#DDF0FE;color:#1565C0;border-color:#B8DDF7}
+body.dark .yu-bdg-o{background:#FDEBD8;color:#D84315;border-color:#F5D4A8}
+body.dark .yu-bdg-p{background:#EFE0F7;color:#6A1B9A;border-color:#DCC4EE}
+body.dark .yu-bdg-r{background:#FBDCDC;color:#C62828;border-color:#F2B8B8}
+body.dark .yu-bdg-y{background:#FBF3D0;color:#E65100;border-color:#EFE0A0}
+body.dark .yu-bdg-gr{background:#F0E8EE;color:#5C4A58;border-color:#DCCDD8}

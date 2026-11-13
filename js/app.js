@@ -89,7 +89,7 @@ async function renderApp(){
 
   try{
     // 소문자 파일명 통일 + 캐시 방지 v=8.6.3 - Mobile.js 대문자 문제 해결!
-    const path = `./modules/${item.file.toLowerCase()}?v=9.1.0`;
+    const path = `./modules/${item.file.toLowerCase()}?v=9.2.0`;
     const mod = await import(path);
     const fn = mod[item.func] || mod[Object.keys(mod)[0]];
     if(typeof fn!== 'function') throw new Error(`${item.func} 함수 없음 - ${item.file.toLowerCase()}`);
@@ -305,12 +305,8 @@ function styleModuleUI(root){
     const isEdit=t.includes('수정')||t.includes('편집');
     const isDel=t.includes('삭제');
     if(!isEdit&&!isDel) return;
-    btn.style.borderRadius='8px';
-    btn.style.fontWeight='700';
-    btn.style.fontSize='12px';
-    btn.style.padding='6px 12px';
-    if(isEdit){btn.style.background='#E3F2FD';btn.style.color='#1565C0';btn.style.border='1px solid #BBDEFB';}
-    if(isDel){btn.style.background='#FFEBEE';btn.style.color='#C62828';btn.style.border='1px solid #FFCDD2';}
+    if(isEdit) btn.classList.add('yu-btn','yu-e');
+    else btn.classList.add('yu-btn','yu-d');
   });
   // 버튼 3단계: CTA(생성/확정 동사)는 진한색 유지, 나머지 색상 버튼은 파스텔로
   root.querySelectorAll('button').forEach(btn=>{
@@ -366,7 +362,7 @@ function styleModuleUI(root){
       const bs=d.querySelectorAll('button');
       if(!bs.length) return;
       try{ if(getComputedStyle(d).display.includes('flex')) d.style.gap='14px'; }catch(e){}
-      bs.forEach(b=>{b.style.padding='7px 14px';b.style.fontSize='12px';b.style.borderRadius='20px';});
+      bs.forEach(b=>b.classList.add('yu-hbtn'));
     });
   });
 }
