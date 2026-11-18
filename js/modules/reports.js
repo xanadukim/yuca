@@ -5,19 +5,19 @@ import { depForMonth } from './assets.js';
 const fmt=n=>Number(n||0).toLocaleString('ko-KR');
 const won=n=>'₩'+fmt(n);
 const ymOf=d=>d?String(d).slice(0,7):'';
-let reportMonth=ymOf(new Date().toISOString().slice(0,7));
+const ymLocal=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+let reportMonth=ymLocal(new Date());
 
 function inMonth(dateStr,ym){ return ym==='all' || ymOf(dateStr)===ym; }
 function monthList(n){
   const out=[];const d=new Date();
   for(let i=n-1;i>=0;i--){
-    const t=new Date(d.getFullYear(),d.getMonth()-i,1);
-    out.push(t.toISOString().slice(0,7));
+    out.push(ymLocal(new Date(d.getFullYear(),d.getMonth()-i,1)));
   }
   return out;
 }
 function monthLabel(ym){ const[y,m]=ym.split('-');return `${y}년 ${m}월`; }
-function prevMonth(ym){ const[y,m]=ym.split('-').map(Number);return new Date(y,m-2,1).toISOString().slice(0,7); }
+function prevMonth(ym){ const[y,m]=ym.split('-').map(Number);return ymLocal(new Date(y,m-2,1)); }
 
 // ---- 샘플 데이터 (차트 확인용) ----
 const SAMPLE_DOGS=[['말숙이','푸들','4.2'],['콩이','말티즈','3.1'],['보리','시바견','11.5'],['누리','비숑','8.7'],['하늘','골든리트리버','28.0'],['몽실','포메라니안','4.8'],['콩알','치와와','2.3'],['해피','코카스패니엘','12.4']];
@@ -39,7 +39,6 @@ function seedSample(){
   const now=new Date();
   for(let m=11;m>=0;m--){
     const base=new Date(now.getFullYear(),now.getMonth()-m,1);
-    const ym=base.toISOString().slice(0,7);
     const dim=new Date(base.getFullYear(),base.getMonth()+1,0).getDate();
     const seasonal=1+0.15*Math.sin((base.getMonth()/12)*Math.PI*2); // 여름 성수기
     const count=Math.round(rnd(14,22)*seasonal);
