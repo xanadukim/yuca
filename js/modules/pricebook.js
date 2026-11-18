@@ -1,5 +1,5 @@
 // YUCA v9.6 - 가격표 관리: 체급 구간 + 서비스×체급 행렬 + 가산규칙 + 추가요금
-import { getPricebook, savePricebook, calcPrice, calcHotelPrice, calcKgPrice } from '../price-engine.js?v=9.9.2';
+import { getPricebook, savePricebook, calcPrice, calcHotelPrice, calcKgPrice } from '../price-engine.js?v=9.9.3';
 
 const $=s=>document.querySelector(s);
 const fmt=n=>Number(n||0).toLocaleString('ko-KR')+'원';

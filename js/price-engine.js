@@ -106,7 +106,27 @@ export function getPricebook(){
   if(!pb){
     pb = JSON.parse(JSON.stringify(PB_SEED));
     savePricebook(pb);
+    return pb;
   }
+  // 구버전 데이터 마이그레이션: hotel/kg 섹션 없으면 시드로 채움
+  ['hotel','kg'].forEach(sec=>{
+    if(!pb[sec]) pb[sec]=JSON.parse(JSON.stringify(PB_SEED[sec]));
+    else{
+      const def=PB_SEED[sec];
+      ['tiers','roomTypes','oneTime','monthly','longStay','addons','services','prices','hourly','coats','styles'].forEach(k=>{
+        if(def[k]!==undefined && pb[sec][k]===undefined) pb[sec][k]=JSON.parse(JSON.stringify(def[k]));
+      });
+      if(def.peak && !pb[sec].peak) pb[sec].peak=JSON.parse(JSON.stringify(def.peak));
+    }
+  });
+  // 배열 필드 보정
+  ['hotel','kg'].forEach(sec=>{
+    const s=pb[sec];
+    ['tiers','roomTypes','longStay','addons'].forEach(k=>{ if(s[k]!==undefined && !Array.isArray(s[k])) s[k]=[]; });
+    if(!s.prices) s.prices={};
+    if(sec==='kg'){ if(!s.oneTime)s.oneTime={}; if(!s.monthly)s.monthly={}; if(!s.hourly)s.hourly={}; }
+    if(sec==='hotel'){ if(!s.roomTypes)s.roomTypes=[]; if(!s.longStay)s.longStay=[]; if(!s.addons)s.addons=[]; }
+  });
   return pb;
 }
 export function savePricebook(pb){ pb.updatedAt=Date.now(); save(KEYS.pricebook, pb); }
