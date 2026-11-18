@@ -1,6 +1,6 @@
 // YUCA v9.9 - 유치원 + 유치원 요금제 자동계산 (1회/반일/시간제/월정액)
 import { load, save, KEYS } from '../storage.js';
-import { getPricebook, calcKgPrice } from '../price-engine.js?v=9.9.1';
+import { getPricebook, calcKgPrice } from '../price-engine.js?v=9.9.2';
 
 let editingKgIdx = null;
 let kgFilter = 'today'; // today, all, week

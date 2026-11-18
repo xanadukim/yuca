@@ -1,5 +1,5 @@
 // YUCA v9.6 - 가격표 관리: 체급 구간 + 서비스×체급 행렬 + 가산규칙 + 추가요금
-import { getPricebook, savePricebook, calcPrice, calcHotelPrice, calcKgPrice } from '../price-engine.js?v=9.9.1';
+import { getPricebook, savePricebook, calcPrice, calcHotelPrice, calcKgPrice } from '../price-engine.js?v=9.9.2';
 
 const $=s=>document.querySelector(s);
 const fmt=n=>Number(n||0).toLocaleString('ko-KR')+'원';
@@ -315,6 +315,7 @@ function collectEdits(){
 function persist(){collectEdits();savePricebook(pb);}
 
 function bind(root){
+  if(pbTab!=='groom') return; // 호텔/유치원 탭일 때 미용 요소 없음
   // 체급 입력 → 라벨 변경 시 가격 행렬 키도 갱신 필요하므로 가격저장 시 처리
   document.querySelectorAll('#tier-body input').forEach(el=>el.addEventListener('change',()=>{collectEdits();savePricebook(pb);}));
   document.querySelectorAll('#coat-body input').forEach(el=>el.addEventListener('change',()=>{collectEdits();savePricebook(pb);}));
