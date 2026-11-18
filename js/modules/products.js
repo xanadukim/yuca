@@ -1,5 +1,6 @@
 // YUCA v9.4 - 제품관리: 소모품 3단 분류 + 입고일/유통기한
 import { load, save, KEYS } from '../storage.js';
+function d(offsetDays){ const t=new Date(); t.setDate(t.getDate()+offsetDays); return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`; }
 
 // 대분류 -> 중분류 트리 (소분류는 자유 입력)
 const CATS = {
@@ -13,7 +14,6 @@ const CATS = {
 const CAT1_LIST = Object.keys(CATS);
 
 const MIGRATION_FLAG = 'yuca_products_v2';
-function d(offsetDays){ return new Date(Date.now()+offsetDays*864e5).toISOString().slice(0,10); }
 function seedProducts(){
   return [
     {id:'p1',name:'고보습 샴푸 500ml',cat1:'미용 및 목욕 용품',cat2:'목욕/스파제',sub:'일반 샴푸',brand:'YUCA',spec:'500ml',inDate:d(-20),expiry:d(160),price:25000,stock:12,minStock:3,notes:''},

@@ -4,6 +4,12 @@ import {isFirebaseEnabled} from './firebase.js';
 
 export const KEYS=LK;
 
+// 로컬 시간 기준 오늘 날짜 (toISOString은 UTC라 KST에서 하루 밀림)
+export function localToday(){
+  const d=new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
 export function load(k,f=[]){
   return LL(k,f);
 }

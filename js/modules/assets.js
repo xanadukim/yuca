@@ -1,10 +1,10 @@
 // YUCA v9.5 - 장비관리: 고정자산 대장 + 세무/내부 2단계 감가상각 + 수리이력
-import { load, save, KEYS } from '../storage.js';
+import { load, save, KEYS, localToday } from '../storage.js';
 
 const $=s=>document.querySelector(s);
 const fmt=n=>Number(n||0).toLocaleString('ko-KR')+'원';
 const uid=()=>'a'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
-const today=()=>new Date().toISOString().slice(0,10);
+const today=localToday;
 const ymOf=d=>d?d.slice(0,7):'';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 

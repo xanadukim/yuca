@@ -1,6 +1,6 @@
 // YUCA v9.6 - 예약관리 + 가격표 자동계산 (체급/가산/추가요금 → priceDetail 스냅샷)
-import { load, save, KEYS } from '../storage.js';
-import { getPricebook, calcPrice, isPricedService } from '../price-engine.js?v=10.0.3';
+import { load, save, KEYS, localToday } from '../storage.js';
+import { getPricebook, calcPrice, isPricedService } from '../price-engine.js?v=10.0.4';
 
 let editingResIndex = null;
 let filterMode = 'all'; // all, today, week
@@ -13,7 +13,7 @@ export function renderReservations(container){
   if(!target) return;
   const reservations = getReservations();
   const customers = getCustomers();
-  const today = new Date().toISOString().slice(0,10);
+  const today = localToday();
 
   // 필터
   let filtered = reservations;
@@ -235,7 +235,7 @@ window.openResFormFull = ()=>{
   document.getElementById('res-name').value='';
   document.getElementById('res-phone').value='';
   document.getElementById('res-dogName').value='';
-  document.getElementById('res-date').value=new Date().toISOString().slice(0,10);
+  document.getElementById('res-date').value=localToday();
   document.getElementById('res-time').value='10:00';
   document.getElementById('res-service').value='미용';
   document.getElementById('res-price').value='32000';

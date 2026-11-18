@@ -1,5 +1,5 @@
 // YUCA v6.7 - 대시보드 v6.7 (실시간 데이터 연동)
-import { load, KEYS } from '../storage.js';
+import { load, KEYS, localToday } from '../storage.js';
 
 export function renderDashboard(container){
   const target = container || document.getElementById('main-content');
@@ -11,7 +11,7 @@ export function renderDashboard(container){
   const products = load(KEYS.products, []);
   
   // 오늘 날짜
-  const today = new Date().toISOString().slice(0,10);
+  const today = localToday();
   const todayRes = reservations.filter(r => r.date === today || r.date === today.replace(/-/g,'/'));
   
   // 통계 계산

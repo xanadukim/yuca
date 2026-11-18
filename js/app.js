@@ -1,5 +1,5 @@
 // app.js - YUCA v8.6.3 FINAL - mascot.png 원복 + 여백 통일 + 클릭 복구 + active 메뉴 + 방어 코드
-import { load, KEYS } from './storage.js';
+import { load, KEYS, localToday } from './storage.js';
 
 const MENU = [
   { id: 'dashboard', label: '대시보드', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>', file: 'dashboard.js', func: 'renderDashboard' },
@@ -68,7 +68,7 @@ window.exportDB = ()=>{
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `YUCA_backup_${new Date().toISOString().slice(0,10)}.json`;
+  a.download = `YUCA_backup_${localToday()}.json`;
   a.click();
   URL.revokeObjectURL(url);
   localStorage.setItem('yuca_last_backup', new Date().toLocaleString());
@@ -89,7 +89,7 @@ async function renderApp(){
 
   try{
     // 소문자 파일명 통일 + 캐시 방지 v=8.6.3 - Mobile.js 대문자 문제 해결!
-    const path = `./modules/${item.file.toLowerCase()}?v=10.0.3`;
+    const path = `./modules/${item.file.toLowerCase()}?v=10.0.4`;
     const mod = await import(path);
     const fn = mod[item.func] || mod[Object.keys(mod)[0]];
     if(typeof fn!== 'function') throw new Error(`${item.func} 함수 없음 - ${item.file.toLowerCase()}`);

@@ -1,5 +1,5 @@
 // YUCA v7.1 - 직원관리 완전 복구 (역할별 + 급여 + 입사일 + 고객연동 패턴)
-import { load, save, KEYS } from '../storage.js';
+import { load, save, KEYS, localToday } from '../storage.js';
 
 let editingEmpIdx = null;
 let empFilter = 'all'; // all, working, groomer, teacher
@@ -115,7 +115,7 @@ window.openEmpFormFull = ()=>{
   document.getElementById('emp-nickname').value='';
   document.getElementById('emp-role').value='미용사';
   document.getElementById('emp-phone').value='';
-  document.getElementById('emp-hireDate').value=new Date().toISOString().slice(0,10);
+  document.getElementById('emp-hireDate').value=localToday();
   document.getElementById('emp-salary').value='2500000';
   document.getElementById('emp-salaryType').value='월급';
   document.getElementById('emp-status').value='재직';

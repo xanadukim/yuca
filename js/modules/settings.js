@@ -1,5 +1,5 @@
 // settings.js - YUCA v8.5 고급 설정 - 데이터 관리 + 사용 매뉴얼 + 고급 설정 통합
-import { load, save, KEYS } from '../storage.js';
+import { load, save, KEYS, localToday } from '../storage.js';
 
 export function renderSettings(container){
   const SETTINGS_KEY = 'yuca_settings';
@@ -110,7 +110,7 @@ export function renderSettings(container){
     const dataStr = JSON.stringify(allData, null, 2);
     const blob = new Blob([dataStr], {type:'application/json'});
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href=url; a.download=`YUCA_backup_${new Date().toISOString().slice(0,10)}.json`; a.click();
+    const a = document.createElement('a'); a.href=url; a.download=`YUCA_backup_${localToday()}.json`; a.click();
     localStorage.setItem('yuca_last_backup', new Date().toLocaleString());
   });
   container.querySelector('#btnSaveAdvanced')?.addEventListener('click', ()=>{
@@ -129,7 +129,7 @@ export function renderSettings(container){
     const csv = '﻿' + rows.map(r=> r.map(x=> `"${String(x).replace(/"/g,'""')}"`).join(',')).join('\n');
     const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href=url; a.download=`YUCA_customers_${new Date().toISOString().slice(0,10)}.csv`; a.click();
+    const a = document.createElement('a'); a.href=url; a.download=`YUCA_customers_${localToday()}.csv`; a.click();
     URL.revokeObjectURL(url);
   });
 
