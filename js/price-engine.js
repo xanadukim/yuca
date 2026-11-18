@@ -16,6 +16,14 @@ export const PB_SEED = {
     '가위컷':   {'소형':120000,'중형':140000,'대형':170000},
     '부분미용': {'소형':30000,'중형':40000,'대형':50000},
   },
+  // 셀별 원가 구조 (내부용): 직접재료비 + 표준 소요시간 — BEP 공헌이익 계산용
+  costs: {
+    '목욕':     {'소형':{material:4000,minutes:50}, '중형':{material:5500,minutes:60}, '대형':{material:7500,minutes:80}},
+    '위생미용': {'소형':{material:5000,minutes:70}, '중형':{material:6500,minutes:85}, '대형':{material:8500,minutes:110}},
+    '전체미용': {'소형':{material:6000,minutes:120},'중형':{material:8000,minutes:140},'대형':{material:10500,minutes:180}},
+    '가위컷':   {'소형':{material:6500,minutes:140},'중형':{material:8500,minutes:160},'대형':{material:11000,minutes:200}},
+    '부분미용': {'소형':{material:3000,minutes:40}, '중형':{material:4000,minutes:50}, '대형':{material:5500,minutes:65}},
+  },
   coats: [
     { id:'c1', label:'A 보통', add:0 },
     { id:'c2', label:'B 많음/장모', add:10000 },
@@ -48,6 +56,7 @@ export function getPricebook(){
   }
   // 구버전 데이터 정리: 제거된 hotel/kg 섹션 삭제
   delete pb.hotel; delete pb.kg;
+  if(!pb.costs) pb.costs=JSON.parse(JSON.stringify(PB_SEED.costs));
   return pb;
 }
 export function savePricebook(pb){ pb.updatedAt=Date.now(); save(KEYS.pricebook, pb); }
@@ -63,6 +72,11 @@ export function tierByLabel(pb,label){ return (pb.tiers||[]).find(t=>t.label===l
 // 서비스 기본가
 export function basePrice(pb, service, tierLabel){
   return pb.prices?.[service]?.[tierLabel] ?? null;
+}
+// 셀별 원가 (재료비/소요시간)
+export function cellCost(pb, service, tierLabel){
+  const c=pb.costs?.[service]?.[tierLabel];
+  return { material:Number(c?.material)||0, minutes:Number(c?.minutes)||0 };
 }
 // 가격 계산 - 반환: {tierLabel, base, coatAdd, styleAdd, doubleAdd, addonItems, total, manualBase}
 export function calcPrice(pb, opt){

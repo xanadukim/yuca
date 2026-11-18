@@ -1,5 +1,5 @@
 // YUCA v10.0 - 가격표 관리: 체급 구간 + 서비스×체급 행렬 + 가산규칙 + 추가요금 (미용 전용)
-import { getPricebook, savePricebook } from '../price-engine.js?v=10.3.0';
+import { getPricebook, savePricebook } from '../price-engine.js?v=10.3.1';
 
 const $=s=>document.querySelector(s);
 const fmt=n=>Number(n||0).toLocaleString('ko-KR')+'원';
@@ -52,15 +52,22 @@ export function renderPricebook(container){
           <b>서비스 × 체급 기본 가격</b>
           <button class="yu-btn" style="padding:6px 14px;font-size:12px" id="btn-save-prices">가격 저장</button>
         </div>
-        <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:560px">
+        <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:640px">
           <thead><tr style="background:#f9fafb;text-align:left"><th style="padding:8px">서비스</th>${tiers.map(t=>`<th style="padding:8px;text-align:right">${esc(t.label)}</th>`).join('')}</tr></thead>
           <tbody>${services.map((s,si)=>`
             <tr style="border-top:1px solid #f3f4f6">
               <td style="padding:6px;font-weight:600">${esc(s)}</td>
-              ${tiers.map(t=>`<td style="padding:6px;width:130px">${numInp(`price-${si}-${t.id}`,pb.prices?.[s]?.[t.label],'원')}</td>`).join('')}
+              ${tiers.map(t=>`<td style="padding:6px;width:150px">
+                ${numInp(`price-${si}-${t.id}`,pb.prices?.[s]?.[t.label],'원')}
+                <div style="display:flex;gap:4px;margin-top:4px">
+                  <input type="number" class="mat-${si}-${t.id}" value="${pb.costs?.[s]?.[t.label]?.material??''}" placeholder="재료비" style="width:50%;padding:4px 6px;border:1px solid #eee;border-radius:6px;font-size:11px;text-align:right">
+                  <input type="number" class="min-${si}-${t.id}" value="${pb.costs?.[s]?.[t.label]?.minutes??''}" placeholder="분" title="표준 소요시간(분)" style="width:50%;padding:4px 6px;border:1px solid #eee;border-radius:6px;font-size:11px;text-align:right">
+                </div>
+              </td>`).join('')}
             </tr>`).join('')}
           </tbody>
         </table></div>
+        <div style="font-size:11px;color:#9ca3af;margin-top:6px">각 셀: 위=가격, 아래 왼쪽=직접재료비, 오른쪽=표준 소요시간(분) — BEP 분석의 공헌이익 계산에 사용됩니다.</div>
         <div style="margin-top:10px;display:flex;gap:8px;align-items:center">
           <input id="new-service" placeholder="새 서비스명" style="padding:7px 10px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;width:200px">
           <button class="yu-btn yu-s" style="padding:6px 12px;font-size:12px" id="btn-add-service">+ 서비스 추가</button>
@@ -146,12 +153,15 @@ function bind(root){
 
   $('#btn-save-prices').onclick=()=>{
     collectEdits();
-    pb.prices={};
+    pb.prices={}; pb.costs={};
     pb.services.forEach((s,si)=>{
-      pb.prices[s]={};
+      pb.prices[s]={}; pb.costs[s]={};
       pb.tiers.forEach(t=>{
         const v=document.querySelector(`.price-${si}-${t.id}`)?.value;
         pb.prices[s][t.label]=v===''?0:(Number(v)||0);
+        const m=document.querySelector(`.mat-${si}-${t.id}`)?.value;
+        const n=document.querySelector(`.min-${si}-${t.id}`)?.value;
+        pb.costs[s][t.label]={material:m===''?0:(Number(m)||0),minutes:n===''?0:(Number(n)||0)};
       });
     });
     savePricebook(pb);
@@ -159,7 +169,7 @@ function bind(root){
   };
 
   $('#btn-add-tier').onclick=()=>{pb.tiers.push({id:uid(),label:`체급${pb.tiers.length+1}`,minKg:0,maxKg:null});savePricebook(pb);renderPricebook(document.getElementById('main-content'));};
-  $('#btn-add-service').onclick=()=>{const v=$('#new-service').value.trim();if(!v)return alert('서비스명을 입력하세요');if(pb.services.includes(v))return alert('이미 있는 서비스입니다');pb.services.push(v);pb.prices[v]={};pb.tiers.forEach(t=>pb.prices[v][t.label]=0);savePricebook(pb);renderPricebook(document.getElementById('main-content'));};
+  $('#btn-add-service').onclick=()=>{const v=$('#new-service').value.trim();if(!v)return alert('서비스명을 입력하세요');if(pb.services.includes(v))return alert('이미 있는 서비스입니다');pb.services.push(v);pb.prices[v]={};pb.costs[v]={};pb.tiers.forEach(t=>{pb.prices[v][t.label]=0;pb.costs[v][t.label]={material:0,minutes:0}});savePricebook(pb);renderPricebook(document.getElementById('main-content'));};
   $('#btn-add-coat').onclick=()=>{pb.coats.push({id:uid(),label:'신규 등급',add:0});savePricebook(pb);renderPricebook(document.getElementById('main-content'));};
   $('#btn-add-style').onclick=()=>{pb.styles.push({id:uid(),label:'신규 스타일',add:0});savePricebook(pb);renderPricebook(document.getElementById('main-content'));};
   $('#btn-add-addon').onclick=()=>{pb.addons.push({id:uid(),name:'신규 항목',price:0,autoOver:null});savePricebook(pb);renderPricebook(document.getElementById('main-content'));};

@@ -1,5 +1,6 @@
 // YUCA v10.3 - BEP(손익분기점) 분석: 고정비 테이블 + 공헌이익 기반 BEP/시뮬레이션
 import { load, save, KEYS, localToday } from '../storage.js';
+import { getPricebook, basePrice, cellCost } from '../price-engine.js?v=10.3.1';
 
 const fmt=n=>Number(n||0).toLocaleString('ko-KR');
 const won=n=>'₩'+fmt(Math.round(n));
@@ -39,10 +40,29 @@ export function renderBEP(container){
   const cfg=getCfg();
   const F=cfg.fixedCosts.reduce((s,x)=>s+(Number(x.amount)||0),0);
 
-  // 가중평균 추정: 실제 평균 단가 - 평균 재료비 - 카드수수료
-  const {avg:avgP,count:sampleN}=avgTicket();
-  const avgPrice=avgP||85000; // 데이터 없으면 기본 추정
-  const Mavg=avgPrice*(1-cfg.cardFee)-cfg.avgMaterial;
+  // 가중평균 공헌이익: 가격표 셀별 (가격-재료비-카드수수료) × 서비스믹스 가중
+  const pb=getPricebook();
+  const weights={}; let wTotal=0;
+  const since=new Date(); since.setDate(since.getDate()-90); const sinceStr=since.toISOString().slice(0,10);
+  (load(KEYS.reservations,[])||[]).forEach(r=>{
+    if(r.status!=='완료'||!r.date||r.date<sinceStr)return;
+    const svc=r.service==='미용'?'전체미용':r.service;
+    const tier=r.priceDetail?.tierLabel; if(!svc||!tier)return;
+    const k=svc+'|'+tier; weights[k]=(weights[k]||0)+1; wTotal++;
+  });
+  let Msum=0,Psum=0,Tsum=0,W=0;
+  (pb.services||[]).forEach(s=>(pb.tiers||[]).forEach(t=>{
+    const p=basePrice(pb,s,t.label); if(!p)return;
+    const c=cellCost(pb,s,t.label);
+    const w=weights[s+'|'+t.label]||(wTotal?0:1); // 믹스 데이터 없으면 균등 가중
+    Msum+=w*(p-c.material-p*cfg.cardFee); Psum+=w*p; Tsum+=w*(c.minutes||cfg.avgMinutes); W+=w;
+  }));
+  let Mavg,avgPrice,avgMin,sampleN=wTotal;
+  if(W>0){ Mavg=Msum/W; avgPrice=Psum/W; avgMin=Tsum/W; }
+  else{ // 가격표 데이터 없으면 예약 평균단가 기반 추정
+    const {avg:avgP,count}=avgTicket();
+    avgPrice=avgP||85000; Mavg=avgPrice*(1-cfg.cardFee)-cfg.avgMaterial; avgMin=cfg.avgMinutes; sampleN=count;
+  }
   const marginRate=Mavg/avgPrice;
 
   const bepCount=F/Mavg;
@@ -52,7 +72,7 @@ export function renderBEP(container){
 
   // 수용능력
   const availMin=cfg.workDays*cfg.workMinutes*cfg.utilRate*cfg.groomers;
-  const maxCount=availMin/cfg.avgMinutes;
+  const maxCount=availMin/avgMin;
   const feasible=bepCount<=maxCount;
 
   const inp=(id,label,val,step='1')=>`<label style="font-size:12px;color:#555">${label}<input id="${id}" type="number" step="${step}" value="${val}" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:7px;margin-top:3px"></label>`;
@@ -70,7 +90,7 @@ export function renderBEP(container){
            ['월 BEP 건수',Math.ceil(bepCount)+'건',`일일 ${dailyTarget.toFixed(1)}건`,'#1d4ed8'],
            ['월 BEP 매출',won(bepRevenue),'공헌이익률 '+(marginRate*100).toFixed(1)+'%','#7c3aed'],
            ['목표이익 BEP',Math.ceil(profitBepCount)+'건',`목표 ${won(cfg.targetProfit)}`,'#d97706'],
-           ['월 최대 처리 가능',Math.floor(maxCount)+'건',`가동률 ${cfg.utilRate*100}% 기준`,feasible?'#059669':'#dc2626']
+           ['월 최대 처리 가능',Math.floor(maxCount)+'건',`평균 ${Math.round(avgMin)}분/건 · 가동률 ${cfg.utilRate*100}%`,feasible?'#059669':'#dc2626']
           ].map(([l,v,s,c])=>`
           <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px">
             <div style="font-size:12px;color:#6b7280">${l}</div>
@@ -107,7 +127,7 @@ export function renderBEP(container){
             ${inp('cfg-avgMaterial','건당 평균 재료비(원)',cfg.avgMaterial)}
             ${inp('cfg-avgMinutes','평균 소요시간(분)',cfg.avgMinutes)}
           </div>
-          <div style="font-size:11px;color:#9ca3af;margin-top:8px">💡 평균 단가는 최근 90일 완료 예약에서 자동 추정됩니다. 재료비·소요시간은 가격표 정밀화 전 임시값입니다.</div>
+          <div style="font-size:11px;color:#9ca3af;margin-top:8px">💡 공헌이익·소요시간은 가격표의 셀별 재료비/표준시간에서 자동 계산됩니다(최근 90일 예약 믹스 가중, 데이터 없으면 균등). 아래 값은 셀에 원가가 없을 때의 fallback입니다.</div>
         </div>
       </div>
 
