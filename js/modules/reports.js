@@ -137,17 +137,17 @@ export function renderReports(container){
       ${sub?`<div style="font-size:11px;color:#9ca3af;margin-top:2px">${sub}</div>`:''}
     </div>`;
 
-  const bw=26,gap=10,W=chartData.length*(bw+gap)+20,H=180,pad=30;
+  // 월별 차트 (좌측, 좁은 폭)
+  const bw=18,gap=6,W=chartData.length*(bw+gap)+20,H=180,pad=30;
   const cumMax=Math.max(...chartData.map(d=>d.cum),1);
   const bars=chartData.map((d,i)=>{
     const x=10+i*(bw+gap);
     const rh=Math.max(2,(d.tot/chartMax)*(H-pad));
     return `<g>
-      <rect x="${x}" y="${H-rh}" width="${bw}" height="${rh}" fill="#f97316" rx="3"/>
+      <rect x="${x}" y="${H-rh}" width="${bw}" height="${rh}" fill="#f97316" rx="2"/>
       ${i%2===0?`<text x="${x+bw/2}" y="${H+14}" font-size="9" fill="#6b7280" text-anchor="middle">${d.ym.slice(2)}</text>`:''}
     </g>`;
   }).join('');
-  // 누적 매출 꺾은선
   const cumPts=chartData.map((d,i)=>{
     const x=10+i*(bw+gap)+bw/2;
     const y=H-(d.cum/cumMax)*(H-pad);
@@ -158,6 +158,32 @@ export function renderReports(container){
     const y=H-(d.cum/cumMax)*(H-pad);
     return `<circle cx="${x}" cy="${y}" r="2.5" fill="#7c3aed"/>`;
   }).join('');
+
+  // 일별 차트 (우측) — 선택된 월, 'all'이면 최근 30일
+  const pad2=n=>String(n).padStart(2,'0');
+  const dailyKeys=[];
+  if(ym==='all'){
+    const d=new Date();
+    for(let i=29;i>=0;i--){const t=new Date(d.getFullYear(),d.getMonth(),d.getDate()-i);dailyKeys.push(`${t.getFullYear()}-${pad2(t.getMonth()+1)}-${pad2(t.getDate())}`);}
+  }else{
+    const[yy,mm]=ym.split('-').map(Number);
+    const dim=new Date(yy,mm,0).getDate();
+    for(let day=1;day<=dim;day++)dailyKeys.push(`${ym}-${pad2(day)}`);
+  }
+  const dailyData=dailyKeys.map(k=>({key:k,tot:reservations.filter(x=>x.status!=='취소'&&x.date===k).reduce((s,x)=>s+(Number(x.price)||0),0)}));
+  const dMax=Math.max(...dailyData.map(d=>d.tot),1);
+  const dbw=13,dgap=3,dH=150,dpad=26;
+  const dW=dailyData.length*(dbw+dgap)+20;
+  const dbars=dailyData.map((d,i)=>{
+    const x=10+i*(dbw+dgap);
+    const rh=Math.max(1,(d.tot/dMax)*(dH-dpad));
+    const dayNum=+d.key.slice(8);
+    return `<g>
+      <rect x="${x}" y="${dH-rh}" width="${dbw}" height="${rh}" fill="#fbbf24" rx="2"/>
+      ${dayNum%5===1||i===dailyData.length-1?`<text x="${x+dbw/2}" y="${dH+13}" font-size="8" fill="#6b7280" text-anchor="middle">${ym==='all'?d.key.slice(5):dayNum}</text>`:''}
+    </g>`;
+  }).join('');
+  const dailyTitle=ym==='all'?'최근 30일 일별 매출':`${ym.split('-')[1]}월 일별 매출`;
 
   target.innerHTML=`
     <div class="yu-page" style="padding:24px">
@@ -183,16 +209,30 @@ export function renderReports(container){
       </div>
 
       <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:16px">
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
-          <b style="font-size:14px">월별 매출 추이 (최근 12개월)</b>
-          <div style="font-size:12px;color:#6b7280"><span style="color:#f97316">■</span> 월 매출 <span style="color:#7c3aed">—</span> 누적 매출</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px">
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
+              <b style="font-size:14px">월별 매출 추이 (최근 12개월)</b>
+              <div style="font-size:11px;color:#6b7280"><span style="color:#f97316">■</span> 월 매출 <span style="color:#7c3aed">—</span> 누적</div>
+            </div>
+            <svg viewBox="0 0 ${W} ${H+30}" style="width:100%;height:auto;max-height:200px;margin-top:8px">
+              <line x1="0" y1="${H}" x2="${W}" y2="${H}" stroke="#e5e7eb"/>
+              ${bars}
+              <polyline points="${cumPts}" fill="none" stroke="#7c3aed" stroke-width="2"/>
+              ${cumDots}
+            </svg>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
+              <b style="font-size:14px">${dailyTitle}</b>
+              <div style="font-size:11px;color:#6b7280"><span style="color:#fbbf24">■</span> 일 매출</div>
+            </div>
+            <svg viewBox="0 0 ${dW} ${dH+24}" style="width:100%;height:auto;max-height:200px;margin-top:8px">
+              <line x1="0" y1="${dH}" x2="${dW}" y2="${dH}" stroke="#e5e7eb"/>
+              ${dbars}
+            </svg>
+          </div>
         </div>
-        <svg viewBox="0 0 ${W} ${H+30}" style="width:100%;height:auto;max-height:220px;margin-top:8px">
-          <line x1="0" y1="${H}" x2="${W}" y2="${H}" stroke="#e5e7eb"/>
-          ${bars}
-          <polyline points="${cumPts}" fill="none" stroke="#7c3aed" stroke-width="2"/>
-          ${cumDots}
-        </svg>
       </div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
