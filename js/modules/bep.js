@@ -1,6 +1,6 @@
 // YUCA v10.3 - BEP(손익분기점) 분석: 고정비 테이블 + 공헌이익 기반 BEP/시뮬레이션
 import { load, save, KEYS, localToday } from '../storage.js';
-import { getPricebook, basePrice, cellCost } from '../price-engine.js?v=10.3.2';
+import { getPricebook, basePrice, cellCost } from '../price-engine.js?v=10.4.0';
 
 const fmt=n=>Number(n||0).toLocaleString('ko-KR');
 const won=n=>'₩'+fmt(Math.round(n));
