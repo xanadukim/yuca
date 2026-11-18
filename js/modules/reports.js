@@ -208,30 +208,28 @@ export function renderReports(container){
         ${card('매출 − 비용',won(profit),'상각+수선비 차감',profit>=0?'#059669':'#dc2626')}
       </div>
 
-      <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:16px">
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px">
-          <div>
-            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
-              <b style="font-size:14px">월별 매출 추이 (최근 12개월)</b>
-              <div style="font-size:11px;color:#6b7280"><span style="color:#f97316">■</span> 월 매출 <span style="color:#7c3aed">—</span> 누적</div>
-            </div>
-            <svg viewBox="0 0 ${W} ${H+30}" style="width:100%;height:auto;max-height:200px;margin-top:8px">
-              <line x1="0" y1="${H}" x2="${W}" y2="${H}" stroke="#e5e7eb"/>
-              ${bars}
-              <polyline points="${cumPts}" fill="none" stroke="#7c3aed" stroke-width="2"/>
-              ${cumDots}
-            </svg>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;margin-bottom:16px">
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
+            <b style="font-size:14px">월별 매출 추이 (최근 12개월)</b>
+            <div style="font-size:11px;color:#6b7280"><span style="color:#f97316">■</span> 월 매출 <span style="color:#7c3aed">—</span> 누적</div>
           </div>
-          <div>
-            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
-              <b style="font-size:14px">${dailyTitle}</b>
-              <div style="font-size:11px;color:#6b7280"><span style="color:#fbbf24">■</span> 일 매출</div>
-            </div>
-            <svg viewBox="0 0 ${dW} ${dH+24}" style="width:100%;height:auto;max-height:200px;margin-top:8px">
-              <line x1="0" y1="${dH}" x2="${dW}" y2="${dH}" stroke="#e5e7eb"/>
-              ${dbars}
-            </svg>
+          <svg viewBox="0 0 ${W} ${H+30}" style="width:100%;height:auto;max-height:200px;margin-top:8px">
+            <line x1="0" y1="${H}" x2="${W}" y2="${H}" stroke="#e5e7eb"/>
+            ${bars}
+            <polyline points="${cumPts}" fill="none" stroke="#7c3aed" stroke-width="2"/>
+            ${cumDots}
+          </svg>
+        </div>
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
+            <b style="font-size:14px">${dailyTitle}</b>
+            <div style="font-size:11px;color:#6b7280"><span style="color:#fbbf24">■</span> 일 매출</div>
           </div>
+          <svg viewBox="0 0 ${dW} ${dH+24}" style="width:100%;height:auto;max-height:200px;margin-top:8px">
+            <line x1="0" y1="${dH}" x2="${dW}" y2="${dH}" stroke="#e5e7eb"/>
+            ${dbars}
+          </svg>
         </div>
       </div>
 
