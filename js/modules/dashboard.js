@@ -1,5 +1,6 @@
 // YUCA v6.7 - 대시보드 v6.7 (실시간 데이터 연동)
 import { load, KEYS, localToday } from '../storage.js';
+import { loadCustomers } from './customers.js';
 
 export function renderDashboard(container){
   const target = container || document.getElementById('main-content');
@@ -25,9 +26,21 @@ export function renderDashboard(container){
   // 최근 예약 5개
   const recentRes = [...reservations].sort((a,b)=> (b.date||'').localeCompare(a.date||'')).slice(0,5);
 
+  // 주의 플래그 조회 (고객 pets[] 기준)
+  const custs = loadCustomers();
+  const flagByPetId = {}, flagByCustPet = {};
+  custs.forEach(c=>{(c.pets||[]).forEach(p=>{ if(p.flags&&p.flags.length){ flagByPetId[p.id]=p.flags; flagByCustPet[c.id+'|'+p.name]=p.flags; } })});
+  const resFlags = r=>{
+    if(r.petId && flagByPetId[r.petId]) return flagByPetId[r.petId];
+    const c = custs.find(x=>x.id===r.customerId || (x.phone&&r.phone&&x.phone===r.phone) || x.name===r.name);
+    if(!c) return [];
+    const p = (c.pets||[]).find(p=>p.name===(r.dogName||r.dog_name||r.petName));
+    return p?.flags||[];
+  };
+
   // 오늘의 일정 (예약 시간순)
   const todayItems = [];
-  todayRes.forEach(r=>todayItems.push({t:r.time||'',icon:'✂️',title:`${r.petName||r.name||'고객'} 미용`,sub:r.service||'',st:r.status||'확정'}));
+  todayRes.forEach(r=>todayItems.push({t:r.time||'',icon:'✂️',title:`${r.petName||r.dogName||r.name||'고객'} 미용`,sub:r.service||'',st:r.status||'확정',flags:resFlags(r)}));
   todayItems.sort((a,b)=>String(a.t).localeCompare(String(b.t)));
 
   const hour = new Date().getHours();
@@ -82,6 +95,7 @@ export function renderDashboard(container){
             <span style="font-size:12px;color:#888;min-width:38px">${it.t||'--:--'}</span>
             <b style="font-size:13px">${it.title}</b>
             ${it.sub?`<span style="font-size:11px;color:#999">${it.sub}</span>`:''}
+            ${(it.flags&&it.flags.length)?`<span title="${it.flags.join(', ')}" style="color:#dc2626;font-size:13px;font-weight:700">⚠️</span>`:''}
             ${it.st==='취소'?'<span class="pb pb-red">취소</span>':'<span class="pb pb-green">확정</span>'}
           </div>`).join('')}</div>`}
       </div>

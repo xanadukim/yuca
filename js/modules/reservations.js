@@ -1,6 +1,6 @@
 // YUCA v9.6 - 예약관리 + 가격표 자동계산 (체급/가산/추가요금 → priceDetail 스냅샷)
 import { load, save, KEYS, localToday } from '../storage.js';
-import { getPricebook, calcPrice, isPricedService } from '../price-engine.js?v=10.2.1';
+import { getPricebook, calcPrice, isPricedService } from '../price-engine.js?v=10.2.2';
 import { loadCustomers, backfillReservationLinks } from './customers.js';
 
 let editingResIndex = null;
@@ -15,6 +15,7 @@ export function renderReservations(container){
   const reservations = getReservations();
   backfillReservationLinks();
   const customers = getCustomers();
+  const employees = load(KEYS.employees, []) || [];
   const today = localToday();
 
   // 필터
@@ -142,6 +143,12 @@ export function renderReservations(container){
               <option value="취소">취소</option>
             </select>
           </label>
+          <label style="font-size:13px">담당 직원
+            <select id="res-employee" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;margin-top:3px">
+              <option value="">미지정</option>
+              ${employees.map(e=>`<option value="${e.name}">${e.name}${e.role?` (${e.role})`:''}</option>`).join('')}
+            </select>
+          </label>
         </div>
         <label style="display:block;margin-top:10px;font-size:13px">메모 <textarea id="res-notes" rows="2" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;margin-top:3px"></textarea></label>
         <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
@@ -246,6 +253,7 @@ window.openResFormFull = ()=>{
   document.getElementById('res-service').value='미용';
   document.getElementById('res-price').value='32000';
   document.getElementById('res-status').value='확정';
+  const ee=document.getElementById('res-employee');if(ee)ee.value='';
   document.getElementById('res-notes').value='';
   document.getElementById('res-customer').value='';
   const pw=document.getElementById('res-pet-wrap');if(pw)pw.style.display='none';
@@ -280,6 +288,7 @@ window.editResFull = (idx)=>{
   document.getElementById('res-service').value=r.service||'미용';
   document.getElementById('res-price').value=r.price||'';
   document.getElementById('res-status').value=r.status||'확정';
+  const ee2=document.getElementById('res-employee');if(ee2)ee2.value=r.employee||r.staff||'';
   document.getElementById('res-notes').value=r.notes||'';
   // 고객/강아지 연결 복원
   const custs=getCustomers();
@@ -339,6 +348,7 @@ window.saveResFull = ()=>{
     status:document.getElementById('res-status').value,
     customerId:document.getElementById('res-customer')?.value||null,
     petId:document.getElementById('res-pet')?.value||null,
+    employee:document.getElementById('res-employee')?.value||'',
     notes:document.getElementById('res-notes').value.trim(),
     createdAt: editingResIndex!==null? list[editingResIndex].createdAt : new Date().toISOString(),
     updatedAt: new Date().toISOString()
