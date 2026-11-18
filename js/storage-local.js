@@ -7,7 +7,9 @@ export const KEYS={
     employees:'yuca_employees',
     products:'yuca_products',
     logs:'yuca_product_logs',
-    messages:'yuca_messages'
+    messages:'yuca_messages',
+    assets:'yuca_assets',
+    repairs:'yuca_repairs'
 };
 export function load(k,f=[]){try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch(e){return f}}
 export function save(k,d){localStorage.setItem(k,JSON.stringify(d))}
