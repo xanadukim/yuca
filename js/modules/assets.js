@@ -23,7 +23,7 @@ function startFrac(a){ // 첫 달 사용 일수 비율
   return (dim(y,m)-d+1)/dim(y,m);
 }
 // 해당 월의 감가상각액 (월 단위 근사, 첫 달/처분월 일할)
-function depForMonth(a,ym){
+export function depForMonth(a,ym){
   if(!a.startDate) return 0;
   const sm=ymOf(a.startDate);
   if(ym<sm) return 0;
@@ -41,7 +41,7 @@ function depForMonth(a,ym){
   if(i<p1+p2) return Math.round(m2*frac);
   return 0;
 }
-function bookValue(a,asOfYm){
+export function bookValue(a,asOfYm){
   const sm=ymOf(a.startDate); if(!sm) return a.cost||0;
   const end=asOfYm||ymOf(today());
   let acc=0;
