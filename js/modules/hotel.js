@@ -1,6 +1,6 @@
 // YUCA v9.8 - 호텔 + 호텔 요금제 자동계산 (체급×객실 1박요금 + 장기할인/성수기/옵션)
 import { load, save, KEYS } from '../storage.js';
-import { getPricebook, calcHotelPrice } from '../price-engine.js';
+import { getPricebook, calcHotelPrice } from '../price-engine.js?v=9.9.1';
 
 let editingHotelIdx = null;
 let hotelFilter = 'stay'; // stay, today, all, week
