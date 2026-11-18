@@ -100,9 +100,12 @@ export function calcPrice(pb, opt){
       addonItems.push({ name:ad.name, price:ad.price, auto });
     }
   });
-  const addonSum = addonItems.reduce((s,x)=>s+x.price,0);
+  let addonSum = addonItems.reduce((s,x)=>s+x.price,0);
+  // 추가요금 상한: 기본가격의 50% (외부 검토 문서 규칙)
+  let addonCapped=false;
+  if(base!=null && addonSum > base*0.5){ addonSum=base*0.5; addonCapped=true; }
   const total = (base??0)+coatAdd+styleAdd+doubleAdd+addonSum;
-  return { tierLabel:tLabel, base, coatAdd, styleAdd, doubleAdd, addonItems, addonSum, total, manualBase: base==null };
+  return { tierLabel:tLabel, base, coatAdd, styleAdd, doubleAdd, addonItems, addonSum, total, manualBase: base==null, addonCapped };
 }
 // 가격표 적용 가능 서비스인지 (미용 계열)
 export function isPricedService(pb, service){

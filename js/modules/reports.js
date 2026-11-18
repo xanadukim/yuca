@@ -74,6 +74,7 @@ export function renderReports(container){
   const reservations=load(KEYS.reservations,[])||[];
   const products=load(KEYS.products,[])||[];
   const employees=load(KEYS.employees,[])||[];
+  const customers=load(KEYS.customers,[])||[];
   const assets=load(KEYS.assets,[])||[];
   const repairs=load(KEYS.repairs,[])||[];
 
@@ -117,6 +118,19 @@ export function renderReports(container){
     fixCost=repairs.filter(r=>r.type==='수익적').reduce((s,r)=>s+(Number(r.amount)||0),0);
   }
   const profit=rev-dep-fixCost;
+
+  // 고객 구조 KPI (재방문/휴면/노쇼)
+  const custRes=c=>reservations.filter(r=>r.customerId===c.id||(r.name===c.name&&r.phone===c.phone));
+  const doneRes=reservations.filter(r=>r.status==='완료'&&r.date);
+  const revisitCnt=customers.filter(c=>custRes(c).filter(r=>r.status==='완료').length>=2).length;
+  const dormantCnt=customers.filter(c=>{
+    const ds=custRes(c).filter(r=>r.status==='완료'&&r.date).map(r=>r.date).sort();
+    if(!ds.length)return false;
+    const days=(Date.now()-new Date(ds[ds.length-1]).getTime())/86400000;
+    return days>90;
+  }).length;
+  const noShows=active.filter(r=>r.status==='노쇼').length;
+  const noShowRate=cnt?Math.round(noShows/cnt*1000)/10:0;
 
   const prodVal=products.reduce((s,x)=>s+(Number(x.price)||0)*(Number(x.stock)||0),0);
   const lowStock=products.filter(x=>x.stock<=(x.minStock||3));
@@ -262,6 +276,14 @@ export function renderReports(container){
           <div style="margin-top:10px;font-size:13px;line-height:2;color:#374151">
             직원 ${employees.length}명 · 제품 ${products.length}개 · 장비 ${assets.length}개<br>
             재고 원가 <b>${won(prodVal)}</b>
+          </div>
+        </div>
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px">
+          <b style="font-size:14px">고객 구조</b>
+          <div style="margin-top:10px;font-size:13px;line-height:2;color:#374151">
+            총 고객 <b>${customers.length}</b>명 · 재방문 <b>${revisitCnt}</b>명 (${customers.length?Math.round(revisitCnt/customers.length*100):0}%)<br>
+            휴면(90일+) <b style="color:#d97706">${dormantCnt}</b>명<br>
+            노쇼율 <b style="color:${noShowRate>10?'#dc2626':'#059669'}">${noShowRate}%</b> <span style="font-size:11px;color:#9ca3af">(기준: 완료 2회+ = 재방문, 마지막 방문 90일+ = 휴면)</span>
           </div>
         </div>
       </div>

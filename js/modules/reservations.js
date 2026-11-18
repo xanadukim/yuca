@@ -1,6 +1,6 @@
 // YUCA v9.6 - 예약관리 + 가격표 자동계산 (체급/가산/추가요금 → priceDetail 스냅샷)
 import { load, save, KEYS, localToday } from '../storage.js';
-import { getPricebook, calcPrice, isPricedService } from '../price-engine.js?v=10.3.1';
+import { getPricebook, calcPrice, isPricedService } from '../price-engine.js?v=10.3.2';
 import { loadCustomers, backfillReservationLinks } from './customers.js';
 
 let editingResIndex = null;
@@ -140,6 +140,7 @@ export function renderReservations(container){
               <option value="확정">확정</option>
               <option value="대기">대기</option>
               <option value="완료">완료</option>
+              <option value="노쇼">노쇼</option>
               <option value="취소">취소</option>
             </select>
           </label>
@@ -147,6 +148,11 @@ export function renderReservations(container){
             <select id="res-employee" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;margin-top:3px">
               <option value="">미지정</option>
               ${employees.map(e=>`<option value="${e.name}">${e.name}${e.role?` (${e.role})`:''}</option>`).join('')}
+            </select>
+          </label>
+          <label style="font-size:13px">결제수단
+            <select id="res-pay" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;margin-top:3px">
+              <option value="">미정</option><option value="현금">현금</option><option value="카드">카드</option><option value="계좌이체">계좌이체</option><option value="기타">기타</option>
             </select>
           </label>
         </div>
@@ -223,6 +229,7 @@ function refreshResPrice(){
     if(r.styleAdd) lines.push(`스타일 +${r.styleAdd.toLocaleString()}`);
     if(r.doubleAdd) lines.push(`이중모 +${r.doubleAdd.toLocaleString()}`);
     r.addonItems.forEach(x=>lines.push(`${x.name} +${x.price.toLocaleString()}${x.auto?' (자동)':''}`));
+    if(r.addonCapped) lines.push(`<span style="color:#C62828">⚠️ 추가요금이 기본가의 50%를 초과해 상한 적용되었습니다. 원장 확인 필요.</span>`);
     lines.push(`<b>합계 ${r.total.toLocaleString()}원</b>`);
     d.innerHTML=lines.join('<br>');
   }
@@ -254,6 +261,7 @@ window.openResFormFull = ()=>{
   document.getElementById('res-price').value='32000';
   document.getElementById('res-status').value='확정';
   const ee=document.getElementById('res-employee');if(ee)ee.value='';
+  const rp=document.getElementById('res-pay');if(rp)rp.value='';
   document.getElementById('res-notes').value='';
   document.getElementById('res-customer').value='';
   const pw=document.getElementById('res-pet-wrap');if(pw)pw.style.display='none';
@@ -289,6 +297,7 @@ window.editResFull = (idx)=>{
   document.getElementById('res-price').value=r.price||'';
   document.getElementById('res-status').value=r.status||'확정';
   const ee2=document.getElementById('res-employee');if(ee2)ee2.value=r.employee||r.staff||'';
+  const rp2=document.getElementById('res-pay');if(rp2)rp2.value=r.payMethod||r.pay||'';
   document.getElementById('res-notes').value=r.notes||'';
   // 고객/강아지 연결 복원
   const custs=getCustomers();
@@ -349,6 +358,7 @@ window.saveResFull = ()=>{
     customerId:document.getElementById('res-customer')?.value||null,
     petId:document.getElementById('res-pet')?.value||null,
     employee:document.getElementById('res-employee')?.value||'',
+    payMethod:document.getElementById('res-pay')?.value||'',
     notes:document.getElementById('res-notes').value.trim(),
     createdAt: editingResIndex!==null? list[editingResIndex].createdAt : new Date().toISOString(),
     updatedAt: new Date().toISOString()
