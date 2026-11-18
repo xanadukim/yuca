@@ -1,6 +1,6 @@
 // YUCA v9.6 - 예약관리 + 가격표 자동계산 (체급/가산/추가요금 → priceDetail 스냅샷)
 import { load, save, KEYS } from '../storage.js';
-import { getPricebook, calcPrice, isPricedService } from '../price-engine.js?v=9.9.3';
+import { getPricebook, calcPrice, isPricedService } from '../price-engine.js?v=10.0.0';
 
 let editingResIndex = null;
 let filterMode = 'all'; // all, today, week
@@ -112,8 +112,6 @@ export function renderReservations(container){
               <option value="가위컷">✂️ 가위컷</option>
               <option value="부분미용">✂️ 부분미용</option>
               <option value="스파">💆 스파</option>
-              <option value="유치원">🏫 유치원</option>
-              <option value="호텔">🏨 호텔</option>
             </select>
           </label>
           <label style="font-size:13px">가격 <input id="res-price" type="number" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;margin-top:3px" placeholder="자동계산"></label>

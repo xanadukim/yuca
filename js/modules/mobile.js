@@ -70,7 +70,7 @@ export function renderMobile(container){
           <div style="padding:16px;font-size:13px;line-height:1.8">
             1️⃣ 고객이 QR 스캔<br>
             2️⃣ 네이버 로그인 (자동)<br>
-            3️⃣ 서비스 선택: 미용/유치원/호텔<br>
+            3️⃣ 서비스 선택: 미용<br>
             4️⃣ 날짜/시간 선택<br>
             5️⃣ 네이버페이 결제 (선택)<br>
             6️⃣ 확정 알림톡 발송 (네이버가 무료로!)<br>

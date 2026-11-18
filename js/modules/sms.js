@@ -4,8 +4,6 @@ import { load, KEYS } from '../storage.js';
 const TEMPLATES = {
   reserve: { name: '예약 확정', text: '[YUCA] {name}님, {date} {service} 예약 확정! 내일 봬요 🐶' },
   done: { name: '미용 완료', text: '[YUCA] {name}님, {pet} 미용 완료! 예쁘게 단장했어요 ✂️' },
-  kinder: { name: '유치원 등원', text: '[YUCA] {name}님, {pet} 오늘 유치원 등원 완료! 즐겁게 놀고 있어요 🏫' },
-  hotel: { name: '호텔 체크아웃', text: '[YUCA] {name}님, {pet} 호텔 체크아웃! 편히 쉬다 갔어요 🎁' },
 };
 
 export function renderSMS(container){
@@ -31,8 +29,6 @@ export function renderSMS(container){
 
       let matchFilter = true;
       if(activeFilter==='grooming') matchFilter = service.includes('미용');
-      if(activeFilter==='kinder') matchFilter = service.includes('유치원') || service.includes('kinder');
-      if(activeFilter==='hotel') matchFilter = service.includes('호텔') || service.includes('hotel');
 
       return matchSearch && matchFilter;
     });
@@ -52,7 +48,7 @@ export function renderSMS(container){
     listEl.innerHTML = filtered.map((c)=>{
       const origIdx = customers.indexOf(c);
       const service = c.service || getLastService(c.name||c.owner) || '미용';
-      const badge = service.includes('미용')? '✂️미용' : service.includes('유치원')? '🏫유치원' : service.includes('호텔')? '🎁호텔' : '🐶고객';
+      const badge = service.includes('미용')? '✂️미용' : '🐶고객';
       return `
         <label style="display:flex;gap:10px;padding:10px;border-bottom:1px solid #f5f5f5;cursor:pointer;align-items:center">
           <input type="checkbox" class="smsCheck" value="${origIdx}" checked>
@@ -97,8 +93,6 @@ export function renderSMS(container){
         <div style="display:flex;gap:6px;margin-top:12px;flex-wrap:wrap">
           <button class="filterBtn" data-f="all" style="padding:6px 12px;border-radius:20px;background:#f97316;color:#fff;border:none;cursor:pointer">전체</button>
           <button class="filterBtn" data-f="grooming" style="padding:6px 12px;border-radius:20px;background:#fff;border:1px solid #ddd;cursor:pointer">✂️미용</button>
-          <button class="filterBtn" data-f="kinder" style="padding:6px 12px;border-radius:20px;background:#fff;border:1px solid #ddd;cursor:pointer">🏫유치원</button>
-          <button class="filterBtn" data-f="hotel" style="padding:6px 12px;border-radius:20px;background:#fff;border:1px solid #ddd;cursor:pointer">🎁호텔</button>
         </div>
         <div style="margin-top:10px;display:flex;gap:8px">
           <input id="smsSearch" type="text" placeholder="고객명, 전화번호, 반려견 이름 검색... (예: 콩이, 010)" style="flex:1;padding:10px 14px;border:1px solid #ddd;border-radius:20px">

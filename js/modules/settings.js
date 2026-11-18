@@ -51,7 +51,7 @@ export function renderSettings(container){
           <div style="font-size:12px;line-height:1.7;margin-top:8px">
             <b>변수:</b> {이름} {반려견} {날짜} {서비스} {시간}<br>
             <div style="padding:8px;background:#fff;border-radius:8px;margin-top:6px">안녕하세요 {이름}님! {반려견}의 {날짜} {서비스} 예약 확정!</div>
-            <br><b>필터:</b> 전체/미용/유치원/호텔별 발송, 검색 가능
+            <br><b>필터:</b> 전체/미용별 발송, 검색 가능
           </div>
         </div>
         <div style="padding:14px;background:#e8f5e9;border-radius:12px;border-left:4px solid #2db400">

@@ -15,7 +15,6 @@ export function renderEmployees(container){
   let filtered = empList;
   if(empFilter==='working') filtered = empList.filter(e=> (e.status||'').trim() === '재직');
   else if(empFilter==='groomer') filtered = empList.filter(e=> (e.role||'').includes('미용'));
-  else if(empFilter==='teacher') filtered = empList.filter(e=> (e.role||'').includes('유치원') || (e.role||'').includes('호텔') || (e.role||'').includes('매니저'));
 
   const working = empList.filter(e=> (e.status||'').trim() === '재직').length;
   const totalSalary = filtered.reduce((s,e)=>s+(parseInt(e.salary)||0),0);
@@ -29,7 +28,6 @@ export function renderEmployees(container){
         <button onclick="setEmpFilter('all')" style="padding:8px 14px;border-radius:20px;border:1px solid #ddd;background:${empFilter==='all'?'#FFF3E0':'#fff'};color:${empFilter==='all'?'#D84315':'#333'};cursor:pointer;font-size:13px">전체</button>
         <button onclick="setEmpFilter('working')" style="padding:8px 14px;border-radius:20px;border:1px solid #ddd;background:${empFilter==='working'?'#FFF3E0':'#fff'};color:${empFilter==='working'?'#D84315':'#333'};cursor:pointer;font-size:13px">재직</button>
         <button onclick="setEmpFilter('groomer')" style="padding:8px 14px;border-radius:20px;border:1px solid #ddd;background:${empFilter==='groomer'?'#FFF3E0':'#fff'};color:${empFilter==='groomer'?'#D84315':'#333'};cursor:pointer;font-size:13px">미용사</button>
-        <button onclick="setEmpFilter('teacher')" style="padding:8px 14px;border-radius:20px;border:1px solid #ddd;background:${empFilter==='teacher'?'#FFF3E0':'#fff'};color:${empFilter==='teacher'?'#D84315':'#333'};cursor:pointer;font-size:13px">유치원/호텔</button>
         <button onclick="openEmpFormFull()" style="padding:8px 16px;border-radius:20px;background:#FFF3E0;color:#D84315;border:1px solid #FFCC80;cursor:pointer;font-weight:700">+ 직원 등록</button>
       </div>
     </div>
@@ -43,12 +41,12 @@ export function renderEmployees(container){
           ${filtered.length===0? `<tr><td colspan="6" style="text-align:center;padding:40px;color:#888">등록된 직원이 없습니다. 👩‍💼<br><small>+ 직원 등록으로 추가!</small></td></tr>` :
             filtered.map((e)=>{
               const origIdx = empList.indexOf(e);
-              const roleColor = e.role==='원장'?'#D32F2F':e.role?.includes('미용')?'#FF8C00':e.role?.includes('유치원')?'#2196F3':e.role?.includes('호텔')?'#9C27B0':'#4CAF50';
-              const pbCls = e.role==='원장'?'pb-red':e.role?.includes('미용')?'pb-orange':e.role?.includes('유치원')?'pb-blue':e.role?.includes('호텔')?'pb-purple':'pb-green';
+              const roleColor = e.role==='원장'?'#D32F2F':e.role?.includes('미용')?'#FF8C00':'#4CAF50';
+              const pbCls = e.role==='원장'?'pb-red':e.role?.includes('미용')?'pb-orange':'pb-green';
               return `
               <tr style="border-top:1px solid #f0f0f0">
                 <td style="padding:12px"><div style="display:flex;align-items:center;gap:10px">
-                  <div style="width:40px;height:40px;border-radius:50%;background:${roleColor}15;display:flex;align-items:center;justify-content:center;font-size:20px;border:2px solid ${roleColor}30">${e.role==='원장'?'👑':e.role?.includes('미용')?'✂️':e.role?.includes('유치원')?'🏫':e.role?.includes('호텔')?'🏨':'👩'}</div>
+                  <div style="width:40px;height:40px;border-radius:50%;background:${roleColor}15;display:flex;align-items:center;justify-content:center;font-size:20px;border:2px solid ${roleColor}30">${e.role==='원장'?'👑':e.role?.includes('미용')?'✂️':'👩'}</div>
                   <div><div style="font-weight:700;font-size:14px">${e.name||'-'}</div><div style="font-size:12px;color:#888">${e.nickname||''}</div></div>
                 </div></td>
                 <td style="padding:12px"><span class="pb ${pbCls}">${e.role||'스태프'}</span></td>
@@ -76,8 +74,6 @@ export function renderEmployees(container){
               <option value="원장">👑 원장</option>
               <option value="미용사">✂️ 미용사</option>
               <option value="미용 보조">✂️ 미용 보조</option>
-              <option value="유치원 교사">🏫 유치원 교사</option>
-              <option value="호텔 매니저">🏨 호텔 매니저</option>
               <option value="인턴">👩 인턴</option>
               <option value="스태프">스태프</option>
             </select>

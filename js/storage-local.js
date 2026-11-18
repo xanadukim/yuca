@@ -2,8 +2,6 @@ export const KEYS={
     customers:'yuca_customers',
     reservations:'yuca_reservations',
     visits:'yuca_visits',
-    kindergarten:'yuca_kindergarten',
-    hotel:'yuca_hotel',
     employees:'yuca_employees',
     products:'yuca_products',
     logs:'yuca_product_logs',

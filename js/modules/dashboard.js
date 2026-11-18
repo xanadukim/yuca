@@ -14,14 +14,6 @@ export function renderDashboard(container){
   const today = new Date().toISOString().slice(0,10);
   const todayRes = reservations.filter(r => r.date === today || r.date === today.replace(/-/g,'/'));
   
-  // 유치원/호텔은 아직 데이터가 없으면 0
-  let kindergarten = [];
-  let hotel = [];
-  try{ kindergarten = load(KEYS.kindergarten, []); }catch(e){}
-  try{ hotel = load(KEYS.hotel, []); }catch(e){}
-  if(!Array.isArray(kindergarten)) kindergarten = [];
-  if(!Array.isArray(hotel)) hotel = [];
-
   // 통계 계산
   const todayResCount = todayRes.length;
   const totalCustomers = customers.length;
@@ -33,11 +25,9 @@ export function renderDashboard(container){
   // 최근 예약 5개
   const recentRes = [...reservations].sort((a,b)=> (b.date||'').localeCompare(a.date||'')).slice(0,5);
 
-  // 오늘의 일정 (예약+유치원+호텔 시간순)
+  // 오늘의 일정 (예약 시간순)
   const todayItems = [];
   todayRes.forEach(r=>todayItems.push({t:r.time||'',icon:'✂️',title:`${r.petName||r.name||'고객'} 미용`,sub:r.service||'',st:r.status||'확정'}));
-  kindergarten.filter(k=>k.date===today||k.checkIn===today||k.checkin===today).forEach(k=>todayItems.push({t:k.time||'09:00',icon:'🏫',title:`${k.childName||k.petName||k.name||'-'} 등원`,sub:'유치원',st:'확정'}));
-  hotel.filter(h=>h.checkIn===today||h.checkin===today||h.startDate===today||h.date===today).forEach(h=>todayItems.push({t:h.checkInTime||h.time||'15:00',icon:'🏨',title:`${h.petName||h.name||'-'} 투숙`,sub:h.room||h.roomType||'호텔',st:'확정'}));
   todayItems.sort((a,b)=>String(a.t).localeCompare(String(b.t)));
 
   const hour = new Date().getHours();
@@ -50,7 +40,7 @@ export function renderDashboard(container){
       <div class="duo-hero" style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:30px 42px">
         <div>
           <div style="font-family:'Jua',sans-serif;font-size:34px;font-weight:400;color:#fff;letter-spacing:0.5px">${greet}, YUCA 팀! 👋 오늘도 활기찬 하루예요.</div>
-          <div style="font-size:15px;color:rgba(255,255,255,.92);margin-top:20px">📅 ${today} · 오늘 예약 ${todayResCount}건 · 예상 매출 ₩${estimatedSales.toLocaleString()} · 투숙 ${hotel.length}마리 · 등원 ${kindergarten.length}마리</div>
+          <div style="font-size:15px;color:rgba(255,255,255,.92);margin-top:20px">📅 ${today} · 오늘 예약 ${todayResCount}건 · 예상 매출 ₩${estimatedSales.toLocaleString()}</div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;position:relative;z-index:1;flex:none">
           <button class="duo-btn duo-btn--white" onclick="navigate('reservations')">예약 보기</button>
@@ -77,26 +67,6 @@ export function renderDashboard(container){
               <div class="duo-stat__label">오늘 예상 매출</div>
               <div class="duo-stat__value" style="font-size:22px">₩${estimatedSales.toLocaleString()}</div>
               <div class="duo-stat__sub">고객 ${totalCustomers}명 · 제품 ${totalProducts}개</div>
-            </div>
-          </div>
-        </div>
-        <div class="duo-card">
-          <div class="duo-stat">
-            <div class="duo-stat__icon" style="background:#ddf4fe">🏫</div>
-            <div>
-              <div class="duo-stat__label">유치원 등원</div>
-              <div class="duo-stat__value">${kindergarten.length}<span style="font-size:15px;color:#777">마리</span></div>
-              <div class="duo-stat__sub">일 3만원 · 알림 필요</div>
-            </div>
-          </div>
-        </div>
-        <div class="duo-card">
-          <div class="duo-stat">
-            <div class="duo-stat__icon" style="background:#f3e8ff">🏨</div>
-            <div>
-              <div class="duo-stat__label">호텔 투숙</div>
-              <div class="duo-stat__value">${hotel.length}<span style="font-size:15px;color:#777">마리</span></div>
-              <div class="duo-stat__sub">S01 M01 L01 SUITE</div>
             </div>
           </div>
         </div>

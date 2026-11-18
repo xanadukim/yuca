@@ -5,8 +5,6 @@ const MENU = [
   { id: 'dashboard', label: '대시보드', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>', file: 'dashboard.js', func: 'renderDashboard' },
   { id: 'customers', label: '고객관리', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="16" r="4.2"/><circle cx="6.8" cy="10.5" r="1.7"/><circle cx="10.2" cy="7.8" r="1.7"/><circle cx="13.8" cy="7.8" r="1.7"/><circle cx="17.2" cy="10.5" r="1.7"/></svg>', file: 'customers.js', func: 'renderCustomers' },
   { id: 'reservations', label: '예약관리', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M12 14v4M10 16h4"/></svg>', file: 'reservations.js', func: 'renderReservations' },
-  { id: 'kindergarten', label: '유치원', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="8" r="2.6"/><circle cx="16.5" cy="8" r="2.6"/><path d="M10 8h4M9.5 10.5c-1.5 3-1.5 7 0 9.5M14.5 10.5c1.5 3 1.5 7 0 9.5"/></svg>', file: 'kindergarten.js', func: 'renderKindergarten' },
-  { id: 'hotel', label: '호텔', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="1"/><path d="M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2M10 21v-3h4v3"/></svg>', file: 'hotel.js', func: 'renderHotel' },
   { id: 'staff', label: '직원관리', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M6.5 16c.6-1.4 1.5-2 2.5-2s1.9.6 2.5 2M14 10h4M14 13h4"/></svg>', file: 'employees.js', func: 'renderEmployees' },
   { id: 'products', label: '제품관리', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l9-5 9 5v8l-9 5-9-5V8Z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>', file: 'products.js', func: 'renderProducts' },
   { id: 'assets', label: '장비관리', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.6 5.6L4 16.9V20h3.1l5-5.1a4 4 0 0 0 5.6-5.6l-2.7 2.7-2.4-.6-.6-2.4 2.8-2.6Z"/></svg>', file: 'assets.js', func: 'renderAssets' },
@@ -91,7 +89,7 @@ async function renderApp(){
 
   try{
     // 소문자 파일명 통일 + 캐시 방지 v=8.6.3 - Mobile.js 대문자 문제 해결!
-    const path = `./modules/${item.file.toLowerCase()}?v=9.9.3`;
+    const path = `./modules/${item.file.toLowerCase()}?v=10.0.0`;
     const mod = await import(path);
     const fn = mod[item.func] || mod[Object.keys(mod)[0]];
     if(typeof fn!== 'function') throw new Error(`${item.func} 함수 없음 - ${item.file.toLowerCase()}`);
