@@ -1,17 +1,19 @@
 // YUCA v9.6 - 예약관리 + 가격표 자동계산 (체급/가산/추가요금 → priceDetail 스냅샷)
 import { load, save, KEYS, localToday } from '../storage.js';
-import { getPricebook, calcPrice, isPricedService } from '../price-engine.js?v=10.1.1';
+import { getPricebook, calcPrice, isPricedService } from '../price-engine.js?v=10.2.0';
+import { loadCustomers, backfillReservationLinks } from './customers.js';
 
 let editingResIndex = null;
 let filterMode = 'all'; // all, today, week
 
 function getReservations(){ return load(KEYS.reservations, []); }
-function getCustomers(){ return load(KEYS.customers, []); }
+function getCustomers(){ return loadCustomers(); }
 
 export function renderReservations(container){
   const target = container || document.getElementById('main-content');
   if(!target) return;
   const reservations = getReservations();
+  backfillReservationLinks();
   const customers = getCustomers();
   const today = localToday();
 
@@ -95,8 +97,12 @@ export function renderReservations(container){
           <label style="font-size:13px;grid-column:1/-1">고객 선택*
             <select id="res-customer" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;margin-top:3px">
               <option value="">직접 입력</option>
-              ${customers.map(c=>`<option value="${c.name}">${c.name} (${c.dogName||c.dog_name||''}) - ${c.phone||''}</option>`).join('')}
+              ${customers.map(c=>`<option value="${c.id||''}">${c.name} (${(c.pets||[]).map(p=>p.name).join(', ')||c.dogName||''}) - ${c.phone||''}</option>`).join('')}
             </select>
+          </label>
+          <label id="res-pet-wrap" style="font-size:13px;grid-column:1/-1;display:none">강아지 선택
+            <select id="res-pet" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;margin-top:3px"></select>
+            <div id="res-pet-warn" style="display:none;margin-top:6px;background:#fef2f2;border:1px solid #fecaca;color:#dc2626;border-radius:8px;padding:8px 10px;font-size:12px"></div>
           </label>
           <label style="font-size:13px">고객명* <input id="res-name" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;margin-top:3px" placeholder="홍길동"></label>
           <label style="font-size:13px">전화번호 <input id="res-phone" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;margin-top:3px" placeholder="010-..."></label>
@@ -242,6 +248,9 @@ window.openResFormFull = ()=>{
   document.getElementById('res-status').value='확정';
   document.getElementById('res-notes').value='';
   document.getElementById('res-customer').value='';
+  const pw=document.getElementById('res-pet-wrap');if(pw)pw.style.display='none';
+  const ps=document.getElementById('res-pet');if(ps)ps.innerHTML='';
+  const pwn=document.getElementById('res-pet-warn');if(pwn)pwn.style.display='none';
   // 가격 패널 초기화
   ['res-weight','res-tier','res-coat','res-style'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});
   const db=document.getElementById('res-double');if(db)db.checked=false;
@@ -272,7 +281,14 @@ window.editResFull = (idx)=>{
   document.getElementById('res-price').value=r.price||'';
   document.getElementById('res-status').value=r.status||'확정';
   document.getElementById('res-notes').value=r.notes||'';
-  document.getElementById('res-customer').value='';
+  // 고객/강아지 연결 복원
+  const custs=getCustomers();
+  const cust=custs.find(x=>x.id===(r.customerId)) || custs.find(x=>(x.phone&&r.phone&&x.phone===r.phone)||(x.name===(r.name||r.owner)));
+  const cSel=document.getElementById('res-customer');
+  if(cSel&&cust){ cSel.value=cust.id||''; fillPetSelect(cust);
+    const pSel=document.getElementById('res-pet');
+    if(pSel&&r.petId){ pSel.value=r.petId; const p=(cust.pets||[]).find(p=>p.id===r.petId); applyPet(p,cust); }
+  }else{ const pw=document.getElementById('res-pet-wrap');if(pw)pw.style.display='none'; }
   // 가격 스냅샷 복원
   const pd=r.priceDetail||{};
   const w=document.getElementById('res-weight');if(w)w.value=pd.weightKg??'';
@@ -321,6 +337,8 @@ window.saveResFull = ()=>{
     price:document.getElementById('res-price').value,
     priceDetail,
     status:document.getElementById('res-status').value,
+    customerId:document.getElementById('res-customer')?.value||null,
+    petId:document.getElementById('res-pet')?.value||null,
     notes:document.getElementById('res-notes').value.trim(),
     createdAt: editingResIndex!==null? list[editingResIndex].createdAt : new Date().toISOString(),
     updatedAt: new Date().toISOString()
@@ -337,21 +355,50 @@ document.addEventListener('input', (e)=>{
   if(e.target && e.target.id==='res-price') window.__resPriceManual?.();
 });
 
-// 고객 선택 시 자동 입력
-const _origCustomerChange = window.__resCustomerChange;
+// 고객 선택 시 자동 입력 + 강아지 선택
+function fillPetSelect(c){
+  const wrap=document.getElementById('res-pet-wrap');
+  const sel=document.getElementById('res-pet');
+  if(!wrap||!sel) return;
+  const pets=c?.pets||[];
+  if(!pets.length){ wrap.style.display='none'; sel.innerHTML=''; return; }
+  wrap.style.display='block';
+  sel.innerHTML=pets.map(p=>`<option value="${p.id}">${p.name}${p.breed?` (${p.breed})`:''}${p.weight?` ${p.weight}kg`:''}</option>`).join('');
+  applyPet(pets[0], c);
+}
+function applyPet(p, c){
+  if(!p) return;
+  document.getElementById('res-dogName').value=p.name||'';
+  const w=document.getElementById('res-weight');
+  if(w && p.weight) w.value=p.weight;
+  const warn=document.getElementById('res-pet-warn');
+  if(warn){
+    const flags=p.flags||[];
+    if(flags.length){
+      warn.style.display='block';
+      warn.innerHTML=`⚠️ <b>${p.name}</b>: ${flags.map(f=>`<span style="background:#dc2626;color:#fff;padding:1px 7px;border-radius:8px;font-size:11px;margin-left:4px">${f}</span>`).join('')}`;
+    }else warn.style.display='none';
+  }
+  window.__refreshResPrice?.();
+}
 document.addEventListener('change', (e)=>{
   if(e.target && e.target.id==='res-customer'){
     const customers=getCustomers();
-    const selected = customers.find(c=>c.name===e.target.value);
+    const selected = customers.find(c=>c.id===e.target.value);
+    document.getElementById('res-pet-warn') && (document.getElementById('res-pet-warn').style.display='none');
     if(selected){
       document.getElementById('res-name').value=selected.name||'';
       document.getElementById('res-phone').value=selected.phone||'';
-      document.getElementById('res-dogName').value=selected.dogName||selected.dog_name||'';
-      // 체중 자동 입력 (고객 DB에 weight 필드가 있는 경우)
-      const w=document.getElementById('res-weight');
-      const cw=selected.weight||selected.weightKg||selected.dogWeight;
-      if(w && cw && !w.value) w.value=cw;
+      fillPetSelect(selected);
       window.__refreshResPrice?.();
+    }else{
+      const wrap=document.getElementById('res-pet-wrap'); if(wrap) wrap.style.display='none';
     }
+  }
+  if(e.target && e.target.id==='res-pet'){
+    const customers=getCustomers();
+    const c=customers.find(x=>x.id===document.getElementById('res-customer')?.value);
+    const p=(c?.pets||[]).find(p=>p.id===e.target.value);
+    applyPet(p, c);
   }
 });
