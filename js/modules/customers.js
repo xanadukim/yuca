@@ -149,6 +149,12 @@ function petRowHTML(p={}, idx=0){
   return `
   <div class="pet-row" data-idx="${idx}" data-pet-id="${p.id||''}" style="border:1px solid #eee;border-radius:10px;padding:12px;margin-top:10px;background:#fafafa">
     <input type="hidden" class="pet-photo" value="${p.photo||''}">
+    <input type="file" class="pet-photo-input" accept="image/*" style="display:none">
+    <div style="display:flex;gap:12px;align-items:flex-start">
+      <div class="pet-photo-preview" onclick="this.closest('.pet-row').querySelector('.pet-photo-input').click()" title="사진 등록/변경" style="width:56px;height:56px;border-radius:50%;background:#FFF3E0;border:2px dashed #FF8C00;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;flex-shrink:0">
+        ${p.photo?`<img src="${p.photo}" style="width:100%;height:100%;object-fit:cover">`:DOG_ICON}
+      </div>
+      <div style="flex:1">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
       <b style="font-size:13px">강아지 ${idx+1}</b>
       <button type="button" class="pet-del" style="border:none;background:none;color:#dc2626;font-size:12px;cursor:pointer">삭제</button>
@@ -165,6 +171,8 @@ function petRowHTML(p={}, idx=0){
     <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center">
       <span style="font-size:11px;color:#888">주의 플래그:</span>${chips}
       <input class="pet-flag-custom" placeholder="직접 입력" value="${flags.filter(f=>!FLAG_PRESETS.includes(f)).join(',')}" style="padding:4px 8px;border:1px solid #ddd;border-radius:12px;font-size:11px;width:110px">
+    </div>
+      </div>
     </div>
   </div>`;
 }
@@ -188,6 +196,29 @@ document.addEventListener('click', (e)=>{
   }
   const del = e.target.closest('.pet-del');
   if(del){ del.closest('.pet-row')?.remove(); reindexPetRows(); }
+});
+
+// 강아지 사진 업로드 (모바일: 카메라/앨범 선택)
+document.addEventListener('change', (e)=>{
+  if(!(e.target.classList && e.target.classList.contains('pet-photo-input')) || !e.target.files || !e.target.files[0]) return;
+  const file=e.target.files[0];
+  const row=e.target.closest('.pet-row');
+  if(!row) return;
+  const reader=new FileReader();
+  reader.onload=(ev)=>{
+    const img=new Image();
+    img.onload=()=>{
+      const canvas=document.createElement('canvas'); const max=480; let w=img.width,h=img.height;
+      if(w>max||h>max){ if(w>h){ h=h*max/w; w=max; } else { w=w*max/h; h=max; } }
+      canvas.width=w; canvas.height=h; canvas.getContext('2d').drawImage(img,0,0,w,h);
+      const dataUrl=canvas.toDataURL('image/jpeg',0.7);
+      const hid=row.querySelector('.pet-photo'); if(hid) hid.value=dataUrl;
+      const prev=row.querySelector('.pet-photo-preview');
+      if(prev) prev.innerHTML=`<img src="${dataUrl}" style="width:100%;height:100%;object-fit:cover">`;
+    };
+    img.src=ev.target.result;
+  };
+  reader.readAsDataURL(file);
 });
 function reindexPetRows(){
   document.querySelectorAll('#pets-box .pet-row').forEach((r,i)=>{

@@ -1,6 +1,6 @@
 // YUCA v9.6 - 예약관리 + 가격표 자동계산 (체급/가산/추가요금 → priceDetail 스냅샷)
 import { load, save, KEYS, localToday } from '../storage.js';
-import { getPricebook, calcPrice, isPricedService } from '../price-engine.js?v=10.2.0';
+import { getPricebook, calcPrice, isPricedService } from '../price-engine.js?v=10.2.1';
 import { loadCustomers, backfillReservationLinks } from './customers.js';
 
 let editingResIndex = null;
