@@ -1,5 +1,5 @@
 // YUCA v10.0 - 매출리포트: 미용 전용 (기간 필터 + 차트 + 비용 연동)
-import { load, KEYS } from '../storage.js';
+import { load, save, KEYS } from '../storage.js';
 import { depForMonth } from './assets.js';
 
 const fmt=n=>Number(n||0).toLocaleString('ko-KR');
@@ -18,6 +18,56 @@ function monthList(n){
 }
 function monthLabel(ym){ const[y,m]=ym.split('-');return `${y}년 ${m}월`; }
 function prevMonth(ym){ const[y,m]=ym.split('-').map(Number);return new Date(y,m-2,1).toISOString().slice(0,7); }
+
+// ---- 샘플 데이터 (차트 확인용) ----
+const SAMPLE_DOGS=[['말숙이','푸들','4.2'],['콩이','말티즈','3.1'],['보리','시바견','11.5'],['누리','비숑','8.7'],['하늘','골든리트리버','28.0'],['몽실','포메라니안','4.8'],['콩알','치와와','2.3'],['해피','코카스패니엘','12.4']];
+const SAMPLE_SVCS=[['전체미용',78000],['목욕',35000],['위생미용',45000],['가위컷',55000],['부분미용',42000],['스파',60000]];
+const SAMPLE_ADDS=[['엉킴 케어',20000],['장모 케어',20000],['위생 클리닝',15000],['노령견 케어',15000],['픽업·야간',10000]];
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const pick=arr=>arr[Math.floor(Math.random()*arr.length)];
+
+function seedSample(){
+  // 기존 샘플 삭제 후 재생성
+  const res=load(KEYS.reservations,[]).filter(r=>!r.sample);
+  const custs=load(KEYS.customers,[]).filter(c=>!c.sample);
+  const emps=load(KEYS.employees,[]);
+  const empNames=emps.length?emps.map(e=>e.name).filter(Boolean):['김미용'];
+  const customers=[];
+  SAMPLE_DOGS.forEach(([dog,breed,w],i)=>{
+    customers.push({name:'샘플보호자'+(i+1),phone:'010-1000-'+String(2000+i),dogName:dog,breed,weight:w,sample:true,createdAt:new Date().toISOString()});
+  });
+  const now=new Date();
+  for(let m=11;m>=0;m--){
+    const base=new Date(now.getFullYear(),now.getMonth()-m,1);
+    const ym=base.toISOString().slice(0,7);
+    const dim=new Date(base.getFullYear(),base.getMonth()+1,0).getDate();
+    const seasonal=1+0.15*Math.sin((base.getMonth()/12)*Math.PI*2); // 여름 성수기
+    const count=Math.round(rnd(14,22)*seasonal);
+    const lastDay=m===0?now.getDate():dim;
+    for(let i=0;i<count;i++){
+      const day=1+Math.floor(Math.random()*Math.min(lastDay,dim));
+      const d=new Date(base.getFullYear(),base.getMonth(),day);
+      const date=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      const isPast=d<now;
+      const roll=Math.random();
+      const status=!isPast?(roll<0.7?'확정':'대기'):(roll<0.06?'취소':roll<0.9?'완료':'확정');
+      const [svc,baseP]=pick(SAMPLE_SVCS);
+      const extra=pick(SAMPLE_ADDS);
+      const price=Math.round((baseP+rnd(-5000,8000)+ (Math.random()<0.3?extra[1]:0))/1000)*1000;
+      const c=pick(customers);
+      res.push({
+        name:c.name,phone:c.phone,dogName:c.dogName,date,
+        time:`${String(Math.floor(rnd(9,18))).padStart(2,'0')}:${pick(['00','30'])}`,
+        service:svc,price,status,sample:true,
+        employee:pick(empNames),notes:'',
+        createdAt:new Date(d.getTime()-rnd(1,10)*86400000).toISOString(),
+        updatedAt:new Date().toISOString()
+      });
+    }
+  }
+  save(KEYS.customers,[...custs,...customers]);
+  save(KEYS.reservations,res);
+}
 
 export function renderReports(container){
   const target=container||document.getElementById('main-content');
@@ -117,7 +167,10 @@ export function renderReports(container){
           <h2 style="margin:0;font-size:22px;font-weight:800">매출 리포트</h2>
           <div style="font-size:13px;color:#6b7280;margin-top:4px">${ym==='all'?'전체 기간':monthLabel(ym)} 기준 · 취소 제외</div>
         </div>
-        <select id="rpt-month" style="padding:8px 12px;border:1px solid #e5e7eb;border-radius:10px;font-size:14px">${monthOpts}</select>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button id="btn-sample" style="padding:8px 14px;border:1px solid #e5e7eb;background:#fff;border-radius:10px;font-size:13px;cursor:pointer">🧪 샘플 데이터</button>
+          <select id="rpt-month" style="padding:8px 12px;border:1px solid #e5e7eb;border-radius:10px;font-size:14px">${monthOpts}</select>
+        </div>
       </div>
 
       ${noPrice?`<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:10px 14px;font-size:13px;color:#92400e;margin-bottom:16px">⚠️ 가격 미입력 ${noPrice}건 — 가격표 관리에서 자동계산을 사용하면 정확해집니다.</div>`:''}
@@ -185,4 +238,17 @@ export function renderReports(container){
     </div>`;
 
   document.getElementById('rpt-month').onchange=e=>{reportMonth=e.target.value;renderReports(target)};
+  document.getElementById('btn-sample').onclick=()=>{
+    const hasSample=(load(KEYS.reservations,[])||[]).some(r=>r.sample);
+    if(hasSample){
+      if(confirm('기존 샘플 데이터를 삭제할까요?\n(취소를 누르면 삭제 후 새로 생성합니다)')){
+        save(KEYS.reservations,load(KEYS.reservations,[]).filter(r=>!r.sample));
+        save(KEYS.customers,load(KEYS.customers,[]).filter(c=>!c.sample));
+        alert('샘플 데이터 삭제 완료');renderReports(target);return;
+      }
+    }else if(!confirm('최근 12개월 샘플 예약 데이터를 생성할까요? (차트 확인용)'))return;
+    seedSample();
+    alert('샘플 데이터 생성 완료! 차트가 채워집니다.\n삭제하려면 다시 "샘플 데이터" 버튼을 누르세요.');
+    renderReports(target);
+  };
 }
