@@ -42,12 +42,19 @@ export function renderReports(container){
     mom=pTot?Math.round((rev-pTot)/pTot*100):null;
   }
 
-  // 월별 추이 (최근 6개월)
-  const chartMonths=monthList(6);
+  // 월별 추이 (최근 12개월) + 누적 선
+  const chartMonths=monthList(12);
   const chartData=chartMonths.map(cm=>({
     ym:cm,
     tot:reservations.filter(x=>x.status!=='취소'&&ymOf(x.date)===cm).reduce((s,x)=>s+(Number(x.price)||0),0)
   }));
+  // 누적 계산 (연도 바뀌면 리셋)
+  let cum=0,prevYear=null;
+  chartData.forEach(d=>{
+    const y=+d.ym.slice(0,4);
+    if(prevYear!==null&&y!==prevYear) cum=0;
+    cum+=d.tot; d.cum=cum; prevYear=y;
+  });
   const chartMax=Math.max(...chartData.map(d=>d.tot),1);
 
   // 비용
@@ -81,15 +88,26 @@ export function renderReports(container){
       ${sub?`<div style="font-size:11px;color:#9ca3af;margin-top:2px">${sub}</div>`:''}
     </div>`;
 
-  const bw=44,gap=16,W=chartData.length*(bw+gap)+20,H=180,pad=30;
+  const bw=26,gap=10,W=chartData.length*(bw+gap)+20,H=180,pad=30;
+  const cumMax=Math.max(...chartData.map(d=>d.cum),1);
   const bars=chartData.map((d,i)=>{
     const x=10+i*(bw+gap);
     const rh=Math.max(2,(d.tot/chartMax)*(H-pad));
     return `<g>
       <rect x="${x}" y="${H-rh}" width="${bw}" height="${rh}" fill="#f97316" rx="3"/>
-      <text x="${x+bw/2}" y="${H+14}" font-size="10" fill="#6b7280" text-anchor="middle">${d.ym.slice(5)}월</text>
-      <text x="${x+bw/2}" y="${H-rh-5}" font-size="10" fill="#374151" text-anchor="middle">${d.tot>=10000?(d.tot/10000).toFixed(0)+'만':''}</text>
+      ${i%2===0?`<text x="${x+bw/2}" y="${H+14}" font-size="9" fill="#6b7280" text-anchor="middle">${d.ym.slice(2)}</text>`:''}
     </g>`;
+  }).join('');
+  // 누적 매출 꺾은선
+  const cumPts=chartData.map((d,i)=>{
+    const x=10+i*(bw+gap)+bw/2;
+    const y=H-(d.cum/cumMax)*(H-pad);
+    return `${x},${y}`;
+  }).join(' ');
+  const cumDots=chartData.map((d,i)=>{
+    const x=10+i*(bw+gap)+bw/2;
+    const y=H-(d.cum/cumMax)*(H-pad);
+    return `<circle cx="${x}" cy="${y}" r="2.5" fill="#7c3aed"/>`;
   }).join('');
 
   target.innerHTML=`
@@ -113,10 +131,15 @@ export function renderReports(container){
       </div>
 
       <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:16px">
-        <b style="font-size:14px">월별 매출 추이 (최근 6개월)</b>
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
+          <b style="font-size:14px">월별 매출 추이 (최근 12개월)</b>
+          <div style="font-size:12px;color:#6b7280"><span style="color:#f97316">■</span> 월 매출 <span style="color:#7c3aed">—</span> 누적 매출</div>
+        </div>
         <svg viewBox="0 0 ${W} ${H+30}" style="width:100%;height:auto;max-height:220px;margin-top:8px">
           <line x1="0" y1="${H}" x2="${W}" y2="${H}" stroke="#e5e7eb"/>
           ${bars}
+          <polyline points="${cumPts}" fill="none" stroke="#7c3aed" stroke-width="2"/>
+          ${cumDots}
         </svg>
       </div>
 

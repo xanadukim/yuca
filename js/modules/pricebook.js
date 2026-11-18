@@ -1,5 +1,5 @@
 // YUCA v10.0 - 가격표 관리: 체급 구간 + 서비스×체급 행렬 + 가산규칙 + 추가요금 (미용 전용)
-import { getPricebook, savePricebook } from '../price-engine.js?v=10.0.0';
+import { getPricebook, savePricebook } from '../price-engine.js?v=10.0.1';
 
 const $=s=>document.querySelector(s);
 const fmt=n=>Number(n||0).toLocaleString('ko-KR')+'원';
