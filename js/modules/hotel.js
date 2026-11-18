@@ -1,5 +1,6 @@
-// YUCA v7.0 - 호텔 완전 복구 (체크인/체크아웃 + 방타입 + 숙박일수 자동)
+// YUCA v9.8 - 호텔 + 호텔 요금제 자동계산 (체급×객실 1박요금 + 장기할인/성수기/옵션)
 import { load, save, KEYS } from '../storage.js';
+import { getPricebook, calcHotelPrice } from '../price-engine.js';
 
 let editingHotelIdx = null;
 let hotelFilter = 'stay'; // stay, today, all, week
@@ -108,15 +109,26 @@ export function renderHotel(container){
           <label style="font-size:13px">체크아웃 시간 <input id="hotel-checkOutTime" type="time" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;margin-top:3px" value="11:00"></label>
           <label style="font-size:13px">객실 타입
             <select id="hotel-roomType" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;margin-top:3px">
-              <option value="S">S - 소형 (3만/박)</option>
-              <option value="M">M - 중형 (4만/박)</option>
-              <option value="L">L - 대형 (5만/박)</option>
-              <option value="SUITE">SUITE - 특실 (8만/박)</option>
+              <option value="S">S - 케이지</option>
+              <option value="M">M - 룸</option>
+              <option value="L">L - 대형룸</option>
+              <option value="SUITE">SUITE - 프리미엄</option>
             </select>
           </label>
           <label style="font-size:13px">객실 번호 <input id="hotel-roomNo" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;margin-top:3px" placeholder="101"></label>
           <label style="font-size:13px">1박 요금 <input id="hotel-price" type="number" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;margin-top:3px" value="30000"></label>
           <label style="font-size:13px">총 금액 <input id="hotel-totalPrice" type="number" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;margin-top:3px;background:#f8f9fa" readonly></label>
+          <!-- 호텔 요금제 자동계산 패널 -->
+          <div id="hotel-price-panel" style="display:none;grid-column:1/-1;background:#F5F0FA;border:1px solid #D9C7F0;border-radius:10px;padding:12px">
+            <div style="font-size:12px;font-weight:700;color:#6A1B9A;margin-bottom:8px">💰 호텔 요금제 자동계산</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px">
+              <label style="font-size:12px">체중(kg) <input id="ht-weight" type="number" min="0" step="0.5" placeholder="예: 8" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:7px;margin-top:3px"></label>
+              <label style="font-size:12px">체급 <select id="ht-tier" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:7px;margin-top:3px"></select></label>
+              <div id="ht-discount-info" style="font-size:12px;color:#555;align-self:end;padding-bottom:8px"></div>
+            </div>
+            <div id="ht-addons" style="margin-top:8px"></div>
+            <div id="ht-price-detail" style="margin-top:10px;font-size:12px;color:#444;line-height:1.7"></div>
+          </div>
           <label style="font-size:13px">상태
             <select id="hotel-status" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;margin-top:3px">
               <option value="예약">예약</option>
@@ -135,8 +147,64 @@ export function renderHotel(container){
       </div>
     </div>
   `;
+  initHotelPricePanel();
 }
 
+// ---------- 호텔 요금제 자동계산 ----------
+function hv(id){return document.getElementById(id)?.value||''}
+function initHotelPricePanel(){
+  const pb=getPricebook(); const h=pb?.hotel;
+  const panel=document.getElementById('hotel-price-panel');
+  if(!panel||!h) return;
+  const tierSel=document.getElementById('ht-tier');
+  tierSel.innerHTML='<option value="">체급 선택</option>'+(h.tiers||[]).map(t=>`<option value="${t.label}">${t.label} (${t.minKg}~${t.maxKg??'∞'}kg)</option>`).join('');
+  document.getElementById('ht-addons').innerHTML=(h.addons||[]).map(ad=>`<label style="display:inline-flex;align-items:center;gap:4px;margin:0 10px 6px 0;font-size:12px;cursor:pointer"><input type="checkbox" class="ht-addon" value="${ad.name}"> ${ad.name} +${ad.price.toLocaleString()}</label>`).join('');
+  const refresh=()=>{
+    const nights=calcNights(hv('hotel-checkInDate'),hv('hotel-checkOutDate'));
+    const addonNames=[...document.querySelectorAll('.ht-addon:checked')].map(c=>c.value);
+    const weight=hv('ht-weight');
+    const r=calcHotelPrice(pb,{
+      weightKg:weight===''?null:Number(weight),
+      tierLabel:hv('ht-tier')||null,
+      roomType:hv('hotel-roomType'),
+      nights,
+      checkInDate:hv('hotel-checkInDate'),
+      addonNames
+    });
+    // 1박 요금/총액 자동 입력
+    if(r.perNight!=null){
+      document.getElementById('hotel-price').value=r.perNight;
+      document.getElementById('hotel-totalPrice').value=r.total;
+    }
+    const dinfo=document.getElementById('ht-discount-info');
+    if(dinfo){
+      let s=`${nights}박`;
+      if(r.discPct) s+=` · 장기할인 -${r.discPct}%`;
+      if(r.peak) s+=` · 성수기 +${r.peakPct}%`;
+      dinfo.textContent=s;
+    }
+    const d=document.getElementById('ht-price-detail');
+    if(d){
+      const lines=[];
+      if(r.tierLabel) lines.push(`체급: ${r.tierLabel} / 객실: ${hv('hotel-roomType')}`);
+      if(r.perNight!=null) lines.push(`1박 ${r.perNight.toLocaleString()}원 × ${nights}박 = ${r.base.toLocaleString()}원`);
+      else lines.push(`<span style="color:#C62828">해당 객실×체급 요금이 가격표에 없습니다.</span>`);
+      if(r.discount) lines.push(`장기 할인 -${r.discount.toLocaleString()}원 (${r.discPct}%)`);
+      if(r.surcharge) lines.push(`성수기 할증 +${r.surcharge.toLocaleString()}원 (${r.peakPct}%)`);
+      r.addonItems.forEach(x=>lines.push(`${x.name} +${x.price.toLocaleString()}`));
+      lines.push(`<b>합계 ${r.total.toLocaleString()}원</b>`);
+      d.innerHTML=lines.join('<br>');
+    }
+    return r;
+  };
+  window.__hotelRefreshPrice=refresh;
+  ['ht-weight','ht-tier','hotel-checkInDate','hotel-checkOutDate','hotel-roomType'].forEach(id=>{
+    document.getElementById(id)?.addEventListener('change',refresh);
+    document.getElementById(id)?.addEventListener('input',refresh);
+  });
+  document.getElementById('ht-addons')?.addEventListener('change',refresh);
+  refresh();
+}
 window.setHotelFilter = (mode)=>{ hotelFilter=mode; renderHotel(document.getElementById('main-content')); };
 window.openHotelFormFull = ()=>{
   editingHotelIdx=null;
@@ -155,6 +223,12 @@ window.openHotelFormFull = ()=>{
   document.getElementById('hotel-alarm').value='';
   document.getElementById('hotel-notes').value='';
   document.getElementById('hotel-customer').value='';
+  // 가격 패널 초기화
+  const hw=document.getElementById('ht-weight');if(hw)hw.value='';
+  const ht=document.getElementById('ht-tier');if(ht)ht.value='';
+  document.querySelectorAll('.ht-addon').forEach(c=>c.checked=false);
+  const hd=document.getElementById('ht-price-detail');if(hd)hd.innerHTML='';
+  window.__hotelRefreshPrice?.();
   updateHotelTotal();
   document.getElementById('hotel-modal').style.display='flex';
 };
@@ -176,6 +250,12 @@ window.editHotelFull = (idx)=>{
   document.getElementById('hotel-status').value=h.status||'예약';
   document.getElementById('hotel-alarm').value=h.alarm||'';
   document.getElementById('hotel-notes').value=h.notes||'';
+  // 가격 스냅샷 복원
+  const hp=h.priceDetail||{};
+  const hw=document.getElementById('ht-weight');if(hw)hw.value=hp.weightKg??'';
+  const ht=document.getElementById('ht-tier');if(ht)ht.value=hp.tierLabel||'';
+  document.querySelectorAll('.ht-addon').forEach(c=>{c.checked=(hp.addonNames||[]).includes(c.value)});
+  window.__hotelRefreshPrice?.();
   document.getElementById('hotel-modal').style.display='flex';
 };
 window.deleteHotelFull = (idx)=>{
@@ -208,6 +288,20 @@ window.saveHotelFull = ()=>{
   const outDate=document.getElementById('hotel-checkOutDate').value;
   if(!name||!dogName||!inDate||!outDate){ alert('고객명, 강아지명, 체크인/아웃 날짜 필수!'); return; }
   const list=getHotel();
+  // 호텔 요금 스냅샷
+  let priceDetail=null;
+  const pb=getPricebook();
+  if(pb?.hotel){
+    const r=window.__hotelRefreshPrice?.()||calcHotelPrice(pb,{roomType:document.getElementById('hotel-roomType').value,nights:calcNights(inDate,outDate),checkInDate:inDate});
+    priceDetail={
+      weightKg:hv('ht-weight')===''?null:Number(hv('ht-weight')),
+      tierLabel:hv('ht-tier')||null,
+      roomType:document.getElementById('hotel-roomType').value,
+      nights:calcNights(inDate,outDate),
+      addonNames:[...document.querySelectorAll('.ht-addon:checked')].map(c=>c.value),
+      calcTotal:r.total
+    };
+  }
   const data={
     name, dogName,
     checkInDate:inDate, checkInTime:document.getElementById('hotel-checkInTime').value,
@@ -219,6 +313,7 @@ window.saveHotelFull = ()=>{
     status:document.getElementById('hotel-status').value,
     alarm:document.getElementById('hotel-alarm').value.trim(),
     notes:document.getElementById('hotel-notes').value.trim(),
+    priceDetail,
     createdAt: editingHotelIdx!==null? list[editingHotelIdx].createdAt : new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };
@@ -236,11 +331,14 @@ document.addEventListener('change', (e)=>{
     if(sel){
       document.getElementById('hotel-name').value=sel.name||'';
       document.getElementById('hotel-dogName').value=sel.dogName||sel.dog_name||'';
+      const hw=document.getElementById('ht-weight');
+      const cw=sel.weight||sel.weightKg||sel.dogWeight;
+      if(hw && cw && !hw.value) hw.value=cw;
+      window.__hotelRefreshPrice?.();
     }
   }
   if(e.target && (e.target.id==='hotel-roomType')){
-    const map={ 'S':30000, 'M':40000, 'L':50000, 'SUITE':80000 };
-    document.getElementById('hotel-price').value=map[e.target.value]||30000;
+    window.__hotelRefreshPrice?.();
     updateHotelTotal();
   }
   if(e.target && (e.target.id==='hotel-checkInDate' || e.target.id==='hotel-checkOutDate' || e.target.id==='hotel-price')){

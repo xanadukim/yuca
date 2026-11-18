@@ -36,6 +36,38 @@ export const PB_SEED = {
     { id:'a7', name:'약욕·스파', price:20000, autoOver:null },
     { id:'a8', name:'픽업·야간', price:10000, autoOver:null },
   ],
+  // 호텔 요금제: 1박(24h) × 체급 × 객실타입 + 장기할인/성수기할증/추가옵션
+  hotel: {
+    tiers: [
+      { id:'h1', label:'미니', minKg:0,  maxKg:5  },
+      { id:'h2', label:'소형', minKg:5,  maxKg:10 },
+      { id:'h3', label:'중형', minKg:10, maxKg:15 },
+      { id:'h4', label:'대형', minKg:15, maxKg:25 },
+      { id:'h5', label:'특대', minKg:25, maxKg:null },
+    ],
+    roomTypes: [
+      { id:'S',      label:'S 케이지' },
+      { id:'M',      label:'M 룸' },
+      { id:'L',      label:'L 룸' },
+      { id:'SUITE',  label:'SUITE 프리미엄' },
+    ],
+    prices: {
+      'S':     {'미니':25000,'소형':30000,'중형':35000,'대형':40000,'특대':45000},
+      'M':     {'미니':30000,'소형':35000,'중형':40000,'대형':45000,'특대':50000},
+      'L':     {'미니':35000,'소형':40000,'중형':45000,'대형':50000,'특대':55000},
+      'SUITE': {'미니':50000,'소형':60000,'중형':70000,'대형':80000,'특대':90000},
+    },
+    longStay: [ { nights:4, pct:5 }, { nights:8, pct:10 } ],
+    peak: { enabled:false, start:'', end:'', pct:15 },
+    addons: [
+      { id:'ha1', name:'1회 식사', price:2000 },
+      { id:'ha2', name:'무제한 간식', price:3000 },
+      { id:'ha3', name:'산책 서비스', price:5000 },
+      { id:'ha4', name:'개별 CCTV', price:5000 },
+      { id:'ha5', name:'목욕 서비스', price:20000 },
+      { id:'ha6', name:'픽업/샌딩', price:5000 },
+    ],
+  },
   updatedAt: null,
 };
 
@@ -93,4 +125,48 @@ export function isPricedService(pb, service){
   if(pb.services.includes(service)) return true;
   if(service==='미용') return pb.services.includes('전체미용'); // '미용'은 전체미용으로 간주
   return false;
+}
+
+// ---------- 호텔 요금 계산 ----------
+// pb.hotel: {tiers, roomTypes, prices[roomType][tierLabel], longStay, peak, addons}
+export function hotelTierForWeight(hotel, kg){
+  if(kg===null||kg===undefined||kg==='') return null;
+  kg=Number(kg);
+  return (hotel.tiers||[]).find(t=>kg>=t.minKg && (t.maxKg==null || kg<t.maxKg)) || null;
+}
+export function hotelBasePerNight(hotel, roomType, tierLabel){
+  return hotel.prices?.[roomType]?.[tierLabel] ?? null;
+}
+// 장기 할인율 (가장 큰 적용 가능 pct)
+export function longStayPct(hotel, nights){
+  let best=0;
+  (hotel.longStay||[]).forEach(r=>{ if(nights>=r.nights && r.pct>best) best=r.pct; });
+  return best;
+}
+// 성수기 여부 (체크인 날짜 기준)
+export function isPeak(hotel, dateStr){
+  const p=hotel.peak;
+  if(!p||!p.enabled||!p.start||!p.end||!dateStr) return false;
+  return dateStr>=p.start && dateStr<=p.end;
+}
+// 호텔 가격 계산
+// opt: {weightKg, tierLabel, roomType, nights, checkInDate, addonNames[]}
+export function calcHotelPrice(pb, opt){
+  const h=pb?.hotel; if(!h) return {total:0};
+  const {weightKg, tierLabel, roomType, nights=1, checkInDate, addonNames=[]}=opt||{};
+  let tier=null;
+  if(weightKg!==null&&weightKg!==undefined&&weightKg!=='') tier=hotelTierForWeight(h,weightKg);
+  if(!tier&&tierLabel) tier=(h.tiers||[]).find(t=>t.label===tierLabel)||null;
+  const tLabel=tier?.label||tierLabel||null;
+  const perNight=tLabel!=null?hotelBasePerNight(h,roomType,tLabel):null;
+  const base=(perNight??0)*nights;
+  const discPct=longStayPct(h,nights);
+  const discount=Math.round(base*discPct/100);
+  const peak=isPeak(h,checkInDate);
+  const peakPct=peak?(h.peak.pct||0):0;
+  const surcharge=Math.round((base-discount)*peakPct/100);
+  const addonItems=(h.addons||[]).filter(a=>addonNames.includes(a.name)).map(a=>({name:a.name,price:a.price}));
+  const addonSum=addonItems.reduce((s,x)=>s+x.price,0);
+  const total=base-discount+surcharge+addonSum;
+  return {tierLabel:tLabel,roomType,perNight,nights,base,discPct,discount,peak,peakPct,surcharge,addonItems,addonSum,total,manualBase:perNight==null};
 }
