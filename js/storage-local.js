@@ -9,7 +9,8 @@ export const KEYS={
     logs:'yuca_product_logs',
     messages:'yuca_messages',
     assets:'yuca_assets',
-    repairs:'yuca_repairs'
+    repairs:'yuca_repairs',
+    pricebook:'yuca_pricebook'
 };
 export function load(k,f=[]){try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch(e){return f}}
 export function save(k,d){localStorage.setItem(k,JSON.stringify(d))}

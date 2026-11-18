@@ -1,5 +1,6 @@
-// YUCA v6.8 - 예약관리 완전 복구 (전체입력폼 + 수정삭제 + 고객연동 + 오늘필터)
+// YUCA v9.6 - 예약관리 + 가격표 자동계산 (체급/가산/추가요금 → priceDetail 스냅샷)
 import { load, save, KEYS } from '../storage.js';
+import { getPricebook, calcPrice, isPricedService } from '../price-engine.js';
 
 let editingResIndex = null;
 let filterMode = 'all'; // all, today, week
@@ -106,14 +107,29 @@ export function renderReservations(container){
             <select id="res-service" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;margin-top:3px">
               <option value="미용">✂️ 미용</option>
               <option value="목욕">🛁 목욕</option>
+              <option value="위생미용">🧼 위생미용</option>
+              <option value="전체미용">✨ 전체미용</option>
+              <option value="가위컷">✂️ 가위컷</option>
+              <option value="부분미용">✂️ 부분미용</option>
               <option value="스파">💆 스파</option>
               <option value="유치원">🏫 유치원</option>
               <option value="호텔">🏨 호텔</option>
-              <option value="부분미용">부분미용</option>
-              <option value="전체미용">전체미용</option>
             </select>
           </label>
-          <label style="font-size:13px">가격 <input id="res-price" type="number" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;margin-top:3px" placeholder="32000"></label>
+          <label style="font-size:13px">가격 <input id="res-price" type="number" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;margin-top:3px" placeholder="자동계산"></label>
+          <!-- 가격표 자동계산 패널 (미용 계열 서비스 선택 시 표시) -->
+          <div id="res-price-panel" style="display:none;grid-column:1/-1;background:#FFF8F0;border:1px solid #FFD9B3;border-radius:10px;padding:12px">
+            <div style="font-size:12px;font-weight:700;color:#E65100;margin-bottom:8px">💰 가격표 자동계산</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px">
+              <label style="font-size:12px">체중(kg) <input id="res-weight" type="number" min="0" step="0.5" placeholder="예: 8.5" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:7px;margin-top:3px"></label>
+              <label style="font-size:12px">체급 <select id="res-tier" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:7px;margin-top:3px"></select></label>
+              <label style="font-size:12px">모량/기장 <select id="res-coat" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:7px;margin-top:3px"></select></label>
+              <label style="font-size:12px">스타일 <select id="res-style" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:7px;margin-top:3px"></select></label>
+              <label style="font-size:12px;display:flex;align-items:flex-end;gap:6px;padding-bottom:8px"><input type="checkbox" id="res-double"> 이중모</label>
+            </div>
+            <div id="res-addons" style="margin-top:8px"></div>
+            <div id="res-price-detail" style="margin-top:10px;font-size:12px;color:#555;line-height:1.7"></div>
+          </div>
           <label style="font-size:13px">상태
             <select id="res-status" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;margin-top:3px">
               <option value="확정">확정</option>
@@ -131,7 +147,81 @@ export function renderReservations(container){
       </div>
     </div>
   `;
+  initPricePanel();
 }
+
+// ---------- 가격표 자동계산 ----------
+function resVal(id){return document.getElementById(id)?.value||''}
+function resChecked(id){return document.getElementById(id)?.checked||false}
+
+function initPricePanel(){
+  const pb=getPricebook();
+  const tierSel=document.getElementById('res-tier');
+  const coatSel=document.getElementById('res-coat');
+  const styleSel=document.getElementById('res-style');
+  const addonBox=document.getElementById('res-addons');
+  const detail=document.getElementById('res-price-detail');
+  const panel=document.getElementById('res-price-panel');
+  if(!tierSel||!panel) return;
+  tierSel.innerHTML='<option value="">체급 선택</option>'+(pb.tiers||[]).map(t=>`<option value="${t.label}">${t.label} (${t.minKg}~${t.maxKg??'∞'}kg)</option>`).join('');
+  coatSel.innerHTML=(pb.coats||[]).map(c=>`<option value="${c.label}">${c.label} ${c.add?('+'+c.add.toLocaleString()):'±0'}</option>`).join('');
+  styleSel.innerHTML=(pb.styles||[]).map(s=>`<option value="${s.label}">${s.label} ${s.add?('+'+s.add.toLocaleString()):'±0'}</option>`).join('');
+  addonBox.innerHTML=(pb.addons||[]).map(ad=>`<label style="display:inline-flex;align-items:center;gap:4px;margin:0 10px 6px 0;font-size:12px;cursor:pointer"><input type="checkbox" class="res-addon" value="${ad.name}" ${ad.autoOver!=null?'disabled':''}> ${ad.name} +${ad.price.toLocaleString()}${ad.autoOver!=null?` <small style="color:#E65100">(>${ad.autoOver}kg 자동)</small>`:''}</label>`).join('');
+  detail.textContent='';
+
+  const sync=()=>{
+    const service=resVal('res-service');
+    const show=isPricedService(pb,service);
+    panel.style.display=show?'block':'none';
+    if(!show){document.getElementById('res-price').value='';return}
+    refreshResPrice();
+  };
+  ['res-service','res-weight','res-tier','res-coat','res-style','res-double'].forEach(id=>{
+    document.getElementById(id)?.addEventListener('change',refreshResPrice);
+    document.getElementById(id)?.addEventListener('input',refreshResPrice);
+  });
+  document.getElementById('res-service')?.addEventListener('change',sync);
+  addonBox.addEventListener('change',refreshResPrice);
+  window.__resSyncPrice=sync;
+}
+
+function refreshResPrice(){
+  const pb=getPricebook();
+  const service=resVal('res-service');
+  if(service==='미용') {/* 전체미용으로 간주됨 */}
+  const addonNames=[...document.querySelectorAll('.res-addon:checked')].map(c=>c.value);
+  const weight=resVal('res-weight');
+  const r=calcPrice(pb,{
+    service: service==='미용'?'전체미용':service,
+    weightKg: weight===''?null:Number(weight),
+    tierLabel: resVal('res-tier')||null,
+    coatLabel: resVal('res-coat')||null,
+    styleLabel: resVal('res-style')||null,
+    doubleCoat: resChecked('res-double'),
+    addonNames
+  });
+  const priceInput=document.getElementById('res-price');
+  if(priceInput && !priceInput.dataset.manual) priceInput.value=r.total||'';
+  const d=document.getElementById('res-price-detail');
+  if(d){
+    const lines=[];
+    if(r.tierLabel) lines.push(`체급: ${r.tierLabel}`);
+    if(r.base!=null) lines.push(`기본가 ${r.base.toLocaleString()}원`);
+    else if(r.tierLabel||weight) lines.push(`<span style="color:#C62828">해당 서비스×체급 가격이 가격표에 없습니다. 가격표 관리에서 등록하세요.</span>`);
+    if(r.coatAdd) lines.push(`모량/기장 +${r.coatAdd.toLocaleString()}`);
+    if(r.styleAdd) lines.push(`스타일 +${r.styleAdd.toLocaleString()}`);
+    if(r.doubleAdd) lines.push(`이중모 +${r.doubleAdd.toLocaleString()}`);
+    r.addonItems.forEach(x=>lines.push(`${x.name} +${x.price.toLocaleString()}${x.auto?' (자동)':''}`));
+    lines.push(`<b>합계 ${r.total.toLocaleString()}원</b>`);
+    d.innerHTML=lines.join('<br>');
+  }
+  return r;
+}
+window.__refreshResPrice=refreshResPrice;
+window.__resSyncPrice=window.__resSyncPrice||(()=>{});
+
+// 수동 가격 수정 감지
+window.__resPriceManual=()=>{const p=document.getElementById('res-price');if(p)p.dataset.manual='1'};
 
 // 전역 함수들 - document에서 찾음 (클로저 버그 해결)
 window.setResFilter = (mode)=>{
@@ -154,6 +244,13 @@ window.openResFormFull = ()=>{
   document.getElementById('res-status').value='확정';
   document.getElementById('res-notes').value='';
   document.getElementById('res-customer').value='';
+  // 가격 패널 초기화
+  ['res-weight','res-tier','res-coat','res-style'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});
+  const db=document.getElementById('res-double');if(db)db.checked=false;
+  document.querySelectorAll('.res-addon').forEach(c=>{if(c.disabled===false)c.checked=false});
+  const pd=document.getElementById('res-price-detail');if(pd)pd.innerHTML='';
+  const pi=document.getElementById('res-price');if(pi){pi.value='';delete pi.dataset.manual}
+  window.__resSyncPrice?.();
   modal.style.display='flex';
 };
 
@@ -178,6 +275,15 @@ window.editResFull = (idx)=>{
   document.getElementById('res-status').value=r.status||'확정';
   document.getElementById('res-notes').value=r.notes||'';
   document.getElementById('res-customer').value='';
+  // 가격 스냅샷 복원
+  const pd=r.priceDetail||{};
+  const w=document.getElementById('res-weight');if(w)w.value=pd.weightKg??'';
+  const tr=document.getElementById('res-tier');if(tr)tr.value=pd.tierLabel||'';
+  const co=document.getElementById('res-coat');if(co)co.value=pd.coatLabel||'';
+  const st=document.getElementById('res-style');if(st)st.value=pd.styleLabel||'';
+  const db=document.getElementById('res-double');if(db)db.checked=!!pd.doubleCoat;
+  document.querySelectorAll('.res-addon').forEach(c=>{c.checked=(pd.addonNames||[]).includes(c.value)});
+  window.__resSyncPrice?.();
   document.getElementById('res-modal').style.display='flex';
 };
 
@@ -193,6 +299,21 @@ window.saveResFull = ()=>{
   const service=document.getElementById('res-service').value;
   if(!name||!date||!service){ alert('고객명, 날짜, 서비스 필수!'); return; }
   const list=getReservations();
+  // 가격 스냅샷 (가격표 계산 결과)
+  let priceDetail=null;
+  if(isPricedService(getPricebook(),service)){
+    const r=refreshResPrice();
+    priceDetail={
+      weightKg:resVal('res-weight')===''?null:Number(resVal('res-weight')),
+      tierLabel:resVal('res-tier')||null,
+      coatLabel:resVal('res-coat')||null,
+      styleLabel:resVal('res-style')||null,
+      doubleCoat:resChecked('res-double'),
+      addonNames:[...document.querySelectorAll('.res-addon:checked')].map(c=>c.value),
+      calcTotal:r.total,
+      manual:!!document.getElementById('res-price')?.dataset.manual
+    };
+  }
   const data={
     name, date,
     phone:document.getElementById('res-phone').value.trim(),
@@ -200,6 +321,7 @@ window.saveResFull = ()=>{
     time:document.getElementById('res-time').value,
     service,
     price:document.getElementById('res-price').value,
+    priceDetail,
     status:document.getElementById('res-status').value,
     notes:document.getElementById('res-notes').value.trim(),
     createdAt: editingResIndex!==null? list[editingResIndex].createdAt : new Date().toISOString(),
@@ -212,7 +334,13 @@ window.saveResFull = ()=>{
   renderReservations(document.getElementById('main-content'));
 };
 
+// 수동 가격 입력 시 자동계산 덮어쓰기 표시
+document.addEventListener('input', (e)=>{
+  if(e.target && e.target.id==='res-price') window.__resPriceManual?.();
+});
+
 // 고객 선택 시 자동 입력
+const _origCustomerChange = window.__resCustomerChange;
 document.addEventListener('change', (e)=>{
   if(e.target && e.target.id==='res-customer'){
     const customers=getCustomers();
@@ -221,6 +349,11 @@ document.addEventListener('change', (e)=>{
       document.getElementById('res-name').value=selected.name||'';
       document.getElementById('res-phone').value=selected.phone||'';
       document.getElementById('res-dogName').value=selected.dogName||selected.dog_name||'';
+      // 체중 자동 입력 (고객 DB에 weight 필드가 있는 경우)
+      const w=document.getElementById('res-weight');
+      const cw=selected.weight||selected.weightKg||selected.dogWeight;
+      if(w && cw && !w.value) w.value=cw;
+      window.__refreshResPrice?.();
     }
   }
 });
