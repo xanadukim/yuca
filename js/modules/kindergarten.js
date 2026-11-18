@@ -1,5 +1,6 @@
-// YUCA v6.9 - 유치원 완전 복구 (등원/하원 + 일일권 + 고객연동)
+// YUCA v9.9 - 유치원 + 유치원 요금제 자동계산 (1회/반일/시간제/월정액)
 import { load, save, KEYS } from '../storage.js';
+import { getPricebook, calcKgPrice } from '../price-engine.js';
 
 let editingKgIdx = null;
 let kgFilter = 'today'; // today, all, week
@@ -95,13 +96,33 @@ export function renderKindergarten(container){
           <label style="font-size:13px">하원 시간 <input id="kg-checkOut" type="time" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;margin-top:3px"></label>
           <label style="font-size:13px">이용권
             <select id="kg-pass" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;margin-top:3px">
-              <option value="일일권">일일권 (3만원)</option>
-              <option value="월정기권">월정기권 (50만원)</option>
-              <option value="10회권">10회권 (25만원)</option>
+              <option value="일일권">일일권</option>
+              <option value="반일권">반일권</option>
+              <option value="시간제">시간제</option>
+              <option value="월정액">월정액</option>
               <option value="체험">체험</option>
             </select>
           </label>
-          <label style="font-size:13px">가격 <input id="kg-price" type="number" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;margin-top:3px" value="30000"></label>
+          <label style="font-size:13px">가격 <input id="kg-price" type="number" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;margin-top:3px" placeholder="자동계산"></label>
+          <!-- 유치원 요금제 자동계산 패널 -->
+          <div id="kg-price-panel" style="display:none;grid-column:1/-1;background:#EAF4FF;border:1px solid #BBD8F5;border-radius:10px;padding:12px">
+            <div style="font-size:12px;font-weight:700;color:#1565C0;margin-bottom:8px">💰 유치원 요금제 자동계산</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px">
+              <label style="font-size:12px">체중(kg) <input id="kgw-weight" type="number" min="0" step="0.5" placeholder="예: 8" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:7px;margin-top:3px"></label>
+              <label style="font-size:12px">체급 <select id="kgw-tier" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:7px;margin-top:3px"></select></label>
+              <label style="font-size:12px">요금제 <select id="kgw-plan" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:7px;margin-top:3px">
+                <option value="1회">1회 (종일)</option>
+                <option value="반일">반일</option>
+                <option value="시간제">시간제</option>
+                <option value="월정액">월정액 결제</option>
+                <option value="월정액 이용">월정액 이용 (무료)</option>
+                <option value="체험">체험 (무료)</option>
+              </select></label>
+              <label style="font-size:12px">월정액 횟수 <select id="kgw-freq" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:7px;margin-top:3px"></select></label>
+            </div>
+            <div id="kgw-addons" style="margin-top:8px"></div>
+            <div id="kgw-price-detail" style="margin-top:10px;font-size:12px;color:#444;line-height:1.7"></div>
+          </div>
           <label style="font-size:13px">알림/특이사항 <input id="kg-alarm" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;margin-top:3px" placeholder="알러지, 약 등"></label>
         </div>
         <label style="display:block;margin-top:10px;font-size:13px">메모 <textarea id="kg-notes" rows="2" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;margin-top:3px"></textarea></label>
@@ -112,6 +133,62 @@ export function renderKindergarten(container){
       </div>
     </div>
   `;
+  initKgPricePanel();
+}
+
+// ---------- 유치원 요금제 자동계산 ----------
+function kgv(id){return document.getElementById(id)?.value||''}
+function initKgPricePanel(){
+  const pb=getPricebook(); const k=pb?.kg;
+  const panel=document.getElementById('kg-price-panel');
+  if(!panel||!k) return;
+  const tierSel=document.getElementById('kgw-tier');
+  const freqSel=document.getElementById('kgw-freq');
+  tierSel.innerHTML='<option value="">체급 선택</option>'+(k.tiers||[]).map(t=>`<option value="${t.label}">${t.label} (${t.minKg}~${t.maxKg??'∞'}kg)</option>`).join('');
+  freqSel.innerHTML=Object.keys(k.monthly||{}).map(f=>`<option value="${f}">${f}</option>`).join('');
+  document.getElementById('kgw-addons').innerHTML=(k.addons||[]).map(ad=>`<label style="display:inline-flex;align-items:center;gap:4px;margin:0 10px 6px 0;font-size:12px;cursor:pointer"><input type="checkbox" class="kgw-addon" value="${ad.name}"> ${ad.name} +${ad.price.toLocaleString()}</label>`).join('');
+  const refresh=()=>{
+    const plan=kgv('kgw-plan');
+    const addonNames=[...document.querySelectorAll('.kgw-addon:checked')].map(c=>c.value);
+    const weight=kgv('kgw-weight');
+    const r=calcKgPrice(pb,{
+      weightKg:weight===''?null:Number(weight),
+      tierLabel:kgv('kgw-tier')||null,
+      plan,
+      freqLabel:kgv('kgw-freq')||null,
+      checkIn:kgv('kg-checkIn'),
+      checkOut:kgv('kg-checkOut'),
+      addonNames
+    });
+    const priceInput=document.getElementById('kg-price');
+    if(priceInput && !priceInput.dataset.manual) priceInput.value=r.total||0;
+    // 이용권 select 동기화
+    const passSel=document.getElementById('kg-pass');
+    if(passSel && plan){
+      const map={'1회':'일일권','반일':'반일권','시간제':'시간제','월정액':'월정액','월정액 이용':'월정액','체험':'체험'};
+      passSel.value=map[plan]||passSel.value;
+    }
+    const d=document.getElementById('kgw-price-detail');
+    if(d){
+      const lines=[];
+      if(r.tierLabel) lines.push(`체급: ${r.tierLabel}`);
+      if(r.detail) lines.push(r.detail);
+      if(r.base) lines.push(`기본 ${r.base.toLocaleString()}원`);
+      else if(plan==='월정액 이용'||plan==='체험') lines.push('무료');
+      else if((plan==='1회'||plan==='반일'||plan==='시간제'||plan==='월정액')&&!r.base) lines.push(`<span style="color:#C62828">해당 요금이 가격표에 없습니다. 가격표 관리에서 등록하세요.</span>`);
+      r.addonItems.forEach(x=>lines.push(`${x.name} +${x.price.toLocaleString()}`));
+      lines.push(`<b>합계 ${r.total.toLocaleString()}원</b>`);
+      d.innerHTML=lines.join('<br>');
+    }
+    return r;
+  };
+  window.__kgRefreshPrice=refresh;
+  ['kgw-weight','kgw-tier','kgw-plan','kgw-freq','kg-checkIn','kg-checkOut'].forEach(id=>{
+    document.getElementById(id)?.addEventListener('change',refresh);
+    document.getElementById(id)?.addEventListener('input',refresh);
+  });
+  document.getElementById('kgw-addons')?.addEventListener('change',refresh);
+  refresh();
 }
 
 window.setKgFilter = (mode)=>{ kgFilter=mode; renderKindergarten(document.getElementById('main-content')); };
@@ -128,6 +205,13 @@ window.openKgFormFull = ()=>{
   document.getElementById('kg-alarm').value='';
   document.getElementById('kg-notes').value='';
   document.getElementById('kg-customer').value='';
+  // 가격 패널 초기화
+  ['kgw-weight','kgw-tier','kgw-freq'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});
+  document.getElementById('kgw-plan').value='1회';
+  document.querySelectorAll('.kgw-addon').forEach(c=>c.checked=false);
+  const kd=document.getElementById('kgw-price-detail');if(kd)kd.innerHTML='';
+  const kp=document.getElementById('kg-price');if(kp){kp.value='';delete kp.dataset.manual}
+  window.__kgRefreshPrice?.();
   document.getElementById('kg-modal').style.display='flex';
 };
 window.closeKgModalFull = ()=>{ document.getElementById('kg-modal').style.display='none'; editingKgIdx=null; };
@@ -144,6 +228,14 @@ window.editKgFull = (idx)=>{
   document.getElementById('kg-price').value=k.price||30000;
   document.getElementById('kg-alarm').value=k.alarm||'';
   document.getElementById('kg-notes').value=k.notes||'';
+  // 가격 스냅샷 복원
+  const kp=k.priceDetail||{};
+  const kw=document.getElementById('kgw-weight');if(kw)kw.value=kp.weightKg??'';
+  const kt=document.getElementById('kgw-tier');if(kt)kt.value=kp.tierLabel||'';
+  const kpl=document.getElementById('kgw-plan');if(kpl)kpl.value=kp.plan||'1회';
+  const kf=document.getElementById('kgw-freq');if(kf)kf.value=kp.freqLabel||'';
+  document.querySelectorAll('.kgw-addon').forEach(c=>{c.checked=(kp.addonNames||[]).includes(c.value)});
+  window.__kgRefreshPrice?.();
   document.getElementById('kg-modal').style.display='flex';
 };
 window.deleteKgFull = (idx)=>{
@@ -166,6 +258,21 @@ window.saveKgFull = ()=>{
   const date=document.getElementById('kg-date').value;
   if(!name||!dogName||!date){ alert('고객명, 강아지명, 날짜 필수!'); return; }
   const list=getKg();
+  // 유치원 요금 스냅샷
+  let priceDetail=null;
+  const pb=getPricebook();
+  if(pb?.kg){
+    const r=window.__kgRefreshPrice?.()||calcKgPrice(pb,{plan:kgv('kgw-plan')});
+    priceDetail={
+      weightKg:kgv('kgw-weight')===''?null:Number(kgv('kgw-weight')),
+      tierLabel:kgv('kgw-tier')||null,
+      plan:kgv('kgw-plan'),
+      freqLabel:kgv('kgw-freq')||null,
+      addonNames:[...document.querySelectorAll('.kgw-addon:checked')].map(c=>c.value),
+      calcTotal:r.total,
+      manual:!!document.getElementById('kg-price')?.dataset.manual
+    };
+  }
   const data={
     name, dogName, date,
     checkIn:document.getElementById('kg-checkIn').value,
@@ -174,6 +281,7 @@ window.saveKgFull = ()=>{
     price:document.getElementById('kg-price').value,
     alarm:document.getElementById('kg-alarm').value.trim(),
     notes:document.getElementById('kg-notes').value.trim(),
+    priceDetail,
     status: document.getElementById('kg-checkOut').value? '하원':'등원',
     createdAt: editingKgIdx!==null? list[editingKgIdx].createdAt : new Date().toISOString(),
     updatedAt: new Date().toISOString()
@@ -192,10 +300,18 @@ document.addEventListener('change', (e)=>{
     if(sel){
       document.getElementById('kg-name').value=sel.name||'';
       document.getElementById('kg-dogName').value=sel.dogName||sel.dog_name||'';
+      const kw=document.getElementById('kgw-weight');
+      const cw=sel.weight||sel.weightKg||sel.dogWeight;
+      if(kw && cw && !kw.value) kw.value=cw;
+      window.__kgRefreshPrice?.();
     }
   }
-  if(e.target && e.target.id==='kg-pass'){
-    const map={ '일일권':30000, '월정기권':500000, '10회권':250000, '체험':0 };
-    document.getElementById('kg-price').value = map[e.target.value]?? 30000;
+  if(e.target && e.target.id==='kgw-plan'){
+    // 요금제 변경 시 이용권 라벨 동기화 + 가격 갱신
+    window.__kgRefreshPrice?.();
   }
+});
+// 수동 가격 입력 시 자동계산 덮어쓰기 표시
+document.addEventListener('input', (e)=>{
+  if(e.target && e.target.id==='kg-price'){const p=document.getElementById('kg-price');if(p)p.dataset.manual='1'}
 });

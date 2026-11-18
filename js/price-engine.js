@@ -68,6 +68,36 @@ export const PB_SEED = {
       { id:'ha6', name:'픽업/샌딩', price:5000 },
     ],
   },
+  // 유치원 요금제: 1회/반일/시간제(건별) + 월정액(주N회)
+  kg: {
+    tiers: [
+      { id:'k1', label:'소형', minKg:0,  maxKg:7  },
+      { id:'k2', label:'중형', minKg:7,  maxKg:15 },
+      { id:'k3', label:'대형', minKg:15, maxKg:null },
+    ],
+    // 단건 요금: 1회(종일) / 반일(5h)
+    oneTime: {
+      '1회':  {'소형':40000,'중형':40000,'대형':55000},
+      '반일': {'소형':25000,'중형':25000,'대형':35000},
+    },
+    // 시간제: 시간당 단가
+    hourly: {'소형':3500,'중형':4000,'대형':5000},
+    // 월정액: 주 N회 × 체급 (대형견 프리미엄 ~1.35배)
+    monthly: {
+      '주 1회':  {'소형':150000,'중형':155000,'대형':210000},
+      '주 2회':  {'소형':250000,'중형':260000,'대형':350000},
+      '주 3회':  {'소형':350000,'중형':360000,'대형':490000},
+      '주 4회':  {'소형':430000,'중형':445000,'대형':600000},
+      '매일':    {'소형':500000,'중형':520000,'대형':700000},
+    },
+    // 월정액 이용 출석은 무료 처리용 플랜
+    freePlanLabel: '월정액 이용',
+    addons: [
+      { id:'ka1', name:'목욕 서비스', price:25000 },
+      { id:'ka2', name:'간식 추가', price:3000 },
+      { id:'ka3', name:'미용 연계', price:0 },
+    ],
+  },
   updatedAt: null,
 };
 
@@ -169,4 +199,49 @@ export function calcHotelPrice(pb, opt){
   const addonSum=addonItems.reduce((s,x)=>s+x.price,0);
   const total=base-discount+surcharge+addonSum;
   return {tierLabel:tLabel,roomType,perNight,nights,base,discPct,discount,peak,peakPct,surcharge,addonItems,addonSum,total,manualBase:perNight==null};
+}
+
+// ---------- 유치원 요금 계산 ----------
+// plan: '1회' | '반일' | '시간제' | '월정액' | '월정액 이용'(무료) | '체험'(무료)
+export function kgTierForWeight(kg, w){
+  if(w===null||w===undefined||w==='') return null;
+  w=Number(w);
+  return (kg.tiers||[]).find(t=>w>=t.minKg && (t.maxKg==null || w<t.maxKg)) || null;
+}
+// 시간 계산 (HH:MM → 시간, 소수점)
+function hoursBetween(tIn,tOut){
+  if(!tIn||!tOut) return null;
+  const[a,b]=tIn.split(':'),[c,d]=tOut.split(':').map(Number);
+  const h1=+a+(+b||0)/60, h2=c+d/60;
+  const diff=h2-h1;
+  return diff>0?diff:null;
+}
+// opt: {weightKg, tierLabel, plan, freqLabel('주 2회' 등), checkIn, checkOut, addonNames[]}
+export function calcKgPrice(pb, opt){
+  const k=pb?.kg; if(!k) return {total:0};
+  const {weightKg,tierLabel,plan,freqLabel,checkIn,checkOut,addonNames=[]}=opt||{};
+  let tier=null;
+  if(weightKg!==null&&weightKg!==undefined&&weightKg!=='') tier=kgTierForWeight(k,weightKg);
+  if(!tier&&tierLabel) tier=(k.tiers||[]).find(t=>t.label===tierLabel)||null;
+  const tLabel=tier?.label||tierLabel||null;
+  let base=0, detail='';
+  if(plan==='1회'||plan==='반일'){
+    base=k.oneTime?.[plan]?.[tLabel]??0;
+    detail=`${plan} ${tLabel||''}`;
+  }else if(plan==='시간제'){
+    const h=hoursBetween(checkIn,checkOut);
+    const rate=k.hourly?.[tLabel]??0;
+    const billed=h==null?1:Math.ceil(h*2)/2; // 30분 단위 올림
+    base=Math.round(rate*billed);
+    detail=`시간제 ${tLabel||''} ${billed}시간`;
+  }else if(plan==='월정액'){
+    base=k.monthly?.[freqLabel]?.[tLabel]??0;
+    detail=`월정액 ${freqLabel||''} ${tLabel||''}`;
+  }else{
+    base=0; detail=plan||'';
+  }
+  const addonItems=(k.addons||[]).filter(a=>(addonNames||[]).includes(a.name)).map(a=>({name:a.name,price:a.price}));
+  const addonSum=addonItems.reduce((s,x)=>s+x.price,0);
+  const total=base+addonSum;
+  return {tierLabel:tLabel,plan,freqLabel,base,detail,addonItems,addonSum,total,manualBase:!base&&!!tLabel&&(plan==='1회'||plan==='반일'||plan==='시간제'||plan==='월정액')};
 }
